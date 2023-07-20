@@ -1,1 +1,1 @@
-Putting all useful competitive programming stuff/templates here
+Competitive Programming Solutions and Templates
