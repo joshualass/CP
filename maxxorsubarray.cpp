@@ -3,7 +3,10 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-//O(n log(depth)) sol'n
+/*
+finds maximum xor subarray of array in O(n log(depth)) time
+CF 1847D
+*/
 
 const int depth = 8;
 
