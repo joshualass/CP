@@ -1,7 +1,3 @@
-/*
-binary trie which stores bits
-useful for solving maximum xor problems
-*/
 const int depth = 64;
 
 struct TrieNode {
