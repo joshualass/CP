@@ -1,4 +1,4 @@
-const int depth = 64;
+const int depth = 31;
 
 struct TrieNode {
     int value;
