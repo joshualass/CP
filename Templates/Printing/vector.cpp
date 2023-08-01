@@ -1,5 +1,5 @@
 void printV(const vector<int> &x) {
-    cout << " --- vector --- \n";
+    cout << " --- vector --- ";
     for(int y : x) {
         cout << y << " ";
     }
