@@ -1,0 +1,16 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+
+
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    string n, m; cin >> n >> m;
+    
+
+    return 0;
+}
