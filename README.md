@@ -1,1 +1,1 @@
-Competitive Programming Solutions and Templates
+Competitive Programming Solutions/Practice and Templates
