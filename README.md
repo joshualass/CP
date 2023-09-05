@@ -1,3 +1,3 @@
 Competitive Programming Solutions/Practice and Templates
 
-Other work https://github.com/Andwerpz/ICPC-Practice
+Other practice https://github.com/Andwerpz/ICPC-Practice
