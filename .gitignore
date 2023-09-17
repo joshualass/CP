@@ -1,1 +1,3 @@
+#ignore builds
 *.exe
+*.class
