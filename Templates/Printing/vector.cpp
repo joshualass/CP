@@ -1,6 +1,6 @@
 void printV(const vector<int> &x) {
     cout << " --- vector --- ";
-    for(int y : x) {
+    for(auto &y : x) {
         cout << y << " ";
     }
     cout << "\n";
