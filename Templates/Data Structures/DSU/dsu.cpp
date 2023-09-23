@@ -1,4 +1,4 @@
-const int N = 200000;
+const int N = 2e5;
 int dsu[N];
 int depths[N];
 int sizes[N];
