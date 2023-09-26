@@ -1,4 +1,4 @@
-const int N = 1e5;
+const int N = 2e5;
 int n;
 int t[2 * N];
 
