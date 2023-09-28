@@ -3,7 +3,7 @@ typedef long double ld;
 using namespace std;
 
 ld dw, da;
-const ld pi = 3.14159265359;
+const ld pi = acos(-1);
 
 ld func(ld x) {
     // cout << "x: " << x << " first: " << (x / 2) * x * dw << " second: " << (x + (1 - x) / 2) * (1 - x) * da << "\n";

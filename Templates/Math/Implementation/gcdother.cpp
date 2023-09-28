@@ -1,6 +1,9 @@
 //was trying to solve https://www.codechef.com/problems/KSIZEGCD
 //but instead of a subarray of length i, it can be any i elements
-
+//does this by finding the divisors of all the n numbers in log n time
+//after finding these divisors, finds the highest divisor with at least frequency i
+//this solution is able to be modified so that it can solve the problem by keep tracking of the current divisors
+//solution would TLE using this approach :skull:
 #include <bits/stdc++.h>
 typedef long long ll;
 typedef long double ld;
