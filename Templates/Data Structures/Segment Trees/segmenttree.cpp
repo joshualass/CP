@@ -1,37 +1,20 @@
-const int N = 2e5;
-int n;
-int t[2 * N];
-
-void build() {
-    for (int i = n - 1; i > 0; --i) {
-        t[i] = t[i * 2] + t[i * 2 + 1];
+struct Tree {
+    typedef int T; //update the data type, currently int
+    static constexpr T base = 0;
+    T f(T a, T b) {
+        return a + b; //update this function for different types of queries, currently sum
     }
-}
-
-void modify(int p, int value) {
-    p += n;
-    t[p] = value;
-    while(p > 1) {
-        t[p / 2] = t[p] + t[p ^ 1];
-        p /= 2;
+    vector<T> s; int n;
+    Tree(int n = 0, T def = base) : s(n*2,def), n(n) {}
+    void update(int pos, T val) {
+        for(s[pos += n] = val; pos /= 2;) s[pos] = f(s[pos*2],s[pos*2+1]);
     }
-}
-
-int query(int l, int r) {
-    int ans = 0;
-    l += n;
-    r += n;
-    while(l < r) {
-        if (l % 2 == 1) {
-            ans += t[l];
-            l++;
+    T query(int l, int r) { //[l,r)
+        T ans = base;
+        for(l += n, r += n; l < r; l /= 2, r /= 2) {
+            if(l & 1) ans = f(ans, s[l++]);
+            if(r & 1) ans = f(s[--r],ans);
         }
-        if (r % 2 == 1) {
-            r--;
-            ans += t[r];
-        }
-        l /= 2;
-        r /= 2;
+        return ans;
     }
-    return ans;
-}
+};
