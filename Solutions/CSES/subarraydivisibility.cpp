@@ -4,22 +4,23 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 1e9 + 7;
 
-//idea is to preprocess all the sums and number of ways to make each sum with subarrays starting with 0
-//then reuse these values for 1 and so on ...
-//make sure to remove the sum including previous index and to adjust the target value so we are able to reuse the values
+//reuse idea and code from subarraysumsii.cpp
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     
-    ll n, x; cin >> n >> x;
+    ll n; cin >> n;
+    ll x = 0;
     unordered_map<ll,int> m;
     vector<ll> v(n);
     ll sum = 0;
     for(int i = 0; i < n; i++) {
         ll num; cin >> num;
+        if(num < 0) num = n - ((-num) % n);
+        num %= n;
         v[i] = num;
-        sum += num;
+        sum = (sum + num) % n;
         if(m.find(sum) != m.end()) {
             m[sum]++;
         } else {
@@ -33,9 +34,11 @@ int main() {
             // cout << "adding? " << i << " x: " << x << " val: " << m[x] << "\n";
             cnt += m[x];
         }
-        sum += v[i];
+        // sum += v[i];
+        sum = (sum % n + v[i]) % n;
         m[sum]--;
-        x += v[i];
+        // x += v[i];
+        x = (x % n + v[i]) % n;
     }
     cout << cnt << "\n";
     return 0;

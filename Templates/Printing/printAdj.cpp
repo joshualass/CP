@@ -1,10 +1,8 @@
-void printAdj(const vector<vector<int>> &adj) {
-    cout << "adj:\n";
-    for(int i = 0; i < adj.size(); i++) {
-        cout << "i: " << i << " -";
-        for(int x : adj[i]) {
-            cout << " " << x;
-        }
-        cout << "\n";
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<vector<T>> adj) {
+    for(auto &x : adj) {
+        for(auto &y : x) os << y << " ";
+        os << "\n";
     }
+    return os;
 }
