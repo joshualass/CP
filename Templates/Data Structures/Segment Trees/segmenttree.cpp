@@ -6,6 +6,9 @@ struct Tree {
     }
     vector<T> s; int n;
     Tree(int n = 0, T def = base) : s(n*2,def), n(n) {}
+    void build() {
+        for(int i = n - 1; i > 0; i--) s[i] = f(s[i*2],s[i*2+1]);
+    }
     void update(int pos, T val) {
         for(s[pos += n] = val; pos /= 2;) s[pos] = f(s[pos*2],s[pos*2+1]);
     }
