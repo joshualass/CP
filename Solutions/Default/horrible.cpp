@@ -1,4 +1,26 @@
-template <typename T> //I here you have the ID ten tee virus ...
+//https://www.spoj.com/problems/HORRIBLE/
+//tested andrew's lazy segment tree and going to optimize it a bit
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+const ll MOD = 1e9 + 7;
+
+#include <bits/stdc++.h>
+typedef long long ll;
+using namespace std;
+
+/*
+famous words from master Andwerp
+lets say that we have a range that is k values in length
+the range sum, however we defined sum, is initially equal to src
+fmodifyk just returns the new sum, after adding, however we defined add, val to all k elements in the range
+in the examples, return src + val is fine for querying the min or max because min and max don't care about how many elements are changed
+but querying the sum on the range does care.
+also, if we were to define sum as the xor sum, then fmodifyk would be return src ^ (val * (k % 2))
+*/
+
+template <typename T>
 struct SegtreeLazy {
     public:
         T n;
@@ -139,3 +161,63 @@ struct SegtreeLazy {
             return queryType(lans, rans);
         }
 };
+
+void solve() {
+    
+    // ll n = 100;
+
+    // -- ASSIGNMENT MODIFY, SUM QUERY --
+    // {
+    //     function<ll(ll, ll)> modifyElement = [](const ll src, const ll val) -> ll{return val;};
+    //     function<ll(ll, ll, ll)> modifyRange = [](const ll src, const ll val, const ll k) -> ll{return val * k;};
+    //     function<ll(ll, ll)> queryType = [](const ll a, const ll b) -> ll{return a + b;};
+    //     run_segt_tests(n, 0, 0, modifyElement, modifyRange, queryType);
+    // }
+
+    ll n, q; cin >> n >> q;
+
+
+
+        function<ll(ll, ll)> modifyElement = [](const ll src, const ll val) -> ll{return src + val;};
+        function<ll(ll, ll, ll)> modifyRange = [](const ll src, const ll val, const ll k) -> ll{return src + val;};
+        function<ll(ll, ll)> queryType = [](const ll a, const ll b) -> ll{return min(a, b);};
+        SegtreeLazy<ll> tree(n, 0, 0, modifyElement, modifyRange, queryType);
+
+
+    for(ll i = 0; i < q; i++) {
+        ll type; cin >> type;
+        if(type == 0) {
+            ll l, r, v; cin >> l >> r >> v;
+            tree.modify(l-1,r,v);
+        } else {
+            int l, r; cin >> l >> r;
+            cout << tree.query(l-1,r) << "\n";
+        }
+    }
+
+    // -- INCREMENT MODIFY, MINIMUM QUERY --
+    // {
+    //     function<ll(ll, ll)> modifyElement = [](const ll src, const ll val) -> ll{return src + val;};
+    //     function<ll(ll, ll, ll)> modifyRange = [](const ll src, const ll val, const ll k) -> ll{return src + val;};
+    //     function<ll(ll, ll)> queryType = [](const ll a, const ll b) -> ll{return min(a, b);};
+    //     run_segt_tests(n, 0, 1e9, modifyElement, modifyRange, queryType);
+    // }
+
+    // -- ASSIGNMENT MODIFY, MINIMUM QUERY --
+    // {
+    //     function<ll(ll, ll)> modifyElement = [](const ll src, const ll val) -> ll{return val;};
+    //     function<ll(ll, ll, ll)> modifyRange = [](const ll src, const ll val, const ll k) -> ll{return val;};
+    //     function<ll(ll, ll)> queryType = [](const ll a, const ll b) -> ll{return min(a, b);};
+    //     run_segt_tests(n, 0, 1e9, modifyElement, modifyRange, queryType);
+    // }
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    ll casi; cin >> casi;
+    while(casi-->0) solve();
+
+    return 0;
+}
