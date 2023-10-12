@@ -4,13 +4,20 @@ typedef long double ld;
 using namespace std;
 
 void solve() {
+    // int n, k; cin >> n >> k;
+    // unordered_set<int> s;
+    // for(int i = 0; i < n; i++) {
+    //     int num; cin >> num;
+    // s.insert(num);
+    // }
+    // cout << (s.find(k) == s.end() ? "NO" : "YES") << "\n";
     int n, k; cin >> n >> k;
-    unordered_set<int> s;
+    bool found = false;
     for(int i = 0; i < n; i++) {
         int num; cin >> num;
-    s.insert(num);
+        if(num == k) found = true;
     }
-    cout << (s.find(k) == s.end() ? "NO" : "YES") << "\n";
+    cout << (found ? "YES" : "NO") << "\n";
 }
 
 int main() {
