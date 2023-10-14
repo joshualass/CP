@@ -1,6 +1,6 @@
 //range minimum query. O(1) query, O(n) build/memory. fast.
 template<typename T>
-struct Rmq {
+struct RMQ  {
     vector<T> elements;
     int n;
     static const int block_size = 30; // block size. adjust accordingly
@@ -29,7 +29,7 @@ struct Rmq {
     }
 
     //constructor
-    Rmq(const vector<T>& input): elements(input), n(input.size()), mask(n), sparse_table(n) {
+    RMQ (const vector<T>& input): elements(input), n(input.size()), mask(n), sparse_table(n) {
         //construct masks for all elements
         int curr_mask = 0;
         for(int i = 0; i < n; i++) {
