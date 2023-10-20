@@ -5,6 +5,13 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 1e9 + 7;
 
+/*
+we can observe that a lot of the times that we increase a, Y will increase in size. (the remainder decreases with each increase in X)
+Y will decrease one time on the change from a to a + 1 when b / a != a / (a + 1)
+we can binary search these numbers to handle all cases.
+O( log n sqrt n)
+*/
+
 void solve() {
     ll a, b; cin >> a >> b;
     ll startA = a;
@@ -13,7 +20,7 @@ void solve() {
         return;
     }
     //b is strictly greater
-    ll best = (a - b % a) % a;
+    ll best = a - b % a;
     // cout << "a: " << a << "\n";
     while(a != b) {
         if(b / a != b / (a+1)) {
@@ -33,7 +40,7 @@ void solve() {
         }
         // a++;
         // cout << "a: " << a << "\n";
-        best = min(best, a - startA + (a - b % a) % a);
+        best = min(best, a - startA + a - b % a);
         // cout << "best: " << best << "\n";
     }
     cout << best << "\n";
