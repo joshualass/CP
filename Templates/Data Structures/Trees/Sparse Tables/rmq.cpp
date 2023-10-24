@@ -28,6 +28,8 @@ struct RMQ  {
         return r - dist_from_r;
     }
 
+    RMQ() {} //need this to satisfy master goon's requirements
+
     //constructor
     RMQ (const vector<T>& input): elements(input), n(input.size()), mask(n), sparse_table(n) {
         //construct masks for all elements
@@ -83,4 +85,40 @@ struct RMQ  {
         return elements[ans];
         // return ans;
     }
+
+    //alternative way to build if can't easily do with constructor or want to reuse
+    void build (const vector<T>& input) {
+        elements = input;
+        n = input.size();
+        mask.assign(n,0);
+        sparse_table.assign(n,0);
+        
+        //construct masks for all elements
+        int curr_mask = 0;
+        for(int i = 0; i < n; i++) {
+            //shift mask by 1, keeping only the 'b' least significant bits
+            curr_mask = (curr_mask<<1) & ((1<<block_size)-1);
+            //while the current value is smaller than the value least significant bit of curr_mask
+            //update that 0 into a 1. 
+            while(curr_mask > 0 && op(i, i - most_significant_bit_index(least_significant_bit(curr_mask))) == i) {
+                curr_mask ^= least_significant_bit(curr_mask);
+            }
+            //the least bit will always be minimum in that small bit
+            curr_mask |= 1;
+            mask[i] = curr_mask;
+        }
+        //construct sparse table for the n / b blocks
+        //lower level
+        for(int i = 0; i < n/block_size; i++) {
+            sparse_table[i] = small_query(block_size * i + block_size - 1);
+        }
+        //rest of the levels
+        for(int j = 1; (1<<j) <= n/block_size; j++) {
+            for(int i = 0; i + (1<<j) <= n / block_size; i++) {
+                sparse_table[n / block_size * j + i] = op(sparse_table[n / block_size * (j - 1) + i], sparse_table[n / block_size * (j - 1) + i + (1<<(j-1))]);
+            }
+        }
+
+    }
+
 };
