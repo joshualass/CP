@@ -142,6 +142,8 @@ struct LCA {
     vector<int> euler_ids;
     int n;
 
+    LCA() {} //default constructor
+
     //given vector where each node stores its parent
     LCA(const vector<int>& parents) {
         this->n = parents.size();
