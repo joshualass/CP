@@ -187,4 +187,3 @@ template <class F1, class F2> inline auto dist2(Point<F1>& lhs, Point<F2>& rhs) 
 template <class F1, class F2> inline auto bisector(Point<F1>& lhs, Point<F2>& rhs) {
     return lhs * norm(rhs) + rhs * norm(lhs);
 }
-
