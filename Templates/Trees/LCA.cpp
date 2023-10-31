@@ -1,10 +1,3 @@
-#include <bits/stdc++.h>
-typedef long long ll;
-typedef __int128_t lll;
-typedef long double ld;
-using namespace std;
-const ll MOD = 1e9 + 7;
-
 //range minimum query. O(1) query, O(n) build/memory. fast.
 template<typename T>
 struct RMQ  {
@@ -207,24 +200,3 @@ struct LCA {
     }
 
 };
-
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    
-    int n, q; cin >> n >> q;
-    vector<int> parents(n);
-    for(int i = 1; i < n; i++) {
-        cin >> parents[i];
-        parents[i]--;
-    }
-
-    LCA lca(parents);
-    for(int i = 0 ; i < q; i++) {
-        int a, b; cin >> a >> b;
-        cout << lca.find_lca(--a, --b) + 1 << '\n';
-    }
-
-    return 0;
-}

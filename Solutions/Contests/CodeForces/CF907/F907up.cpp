@@ -93,7 +93,6 @@ void solve() {
     vector<int> tour(0);
     eulerTour(0, -1, tour, adj);
 
-    vector<ll> subs(adj.size());
     map<ll,pair<ll,ll>> m;
     int curr = 0;
     for(int i = 0; i < tour.size(); i++) {
@@ -111,9 +110,20 @@ void solve() {
     for(int i = 0; i < q; i++) {
         if(queries[i][0] == 1) { //add element
             //subtract current parent sum
+            // subs[queries[i][1]] = tree.query(parents[queries[i][1]]);
+            // ll node = queries[i][1];
+            // ll idx = m[node].first;
 
-            //WE CANNOT SIMPLY UPDATE AT THE INDEX, WE NEED THE INDEX OF THE EULER TOUR BECUASE THEY ARE DIFFERENT
-            subs[m[queries[i][1]].first] = tree.query(m[parents[queries[i][1]]].first);
+            // tree.update(idx, idx + 1 , 0);
+
+            //reset all subtrees to 0
+
+            ll node = queries[i][1];
+            ll idx = m[node].first;
+
+            ll currval = tree.query(idx);
+
+            tree.update(m[node].first, m[node].second, -currval);
 
         } else {
             ll x = queries[i][2];
@@ -125,24 +135,11 @@ void solve() {
         }
     }
 
-    // cout << "subs\n";
-    // for(auto x : subs) cout << x << " ";
-    // cout << '\n';
-
     for(int i = 0; i < adj.size(); i++) {
-        // if(i != 0) {
-        //     cout << "i: " << i << "parents[i]: " << parents[i] << '\n';
-        //     subs[i] += subs[parents[i]];
-        // }
-        // subs[i] += subs[parents[i]];
-        // cout << "tree part: " << tree.query(i) << " subs part: " << subs[i] << '\n';
-        // cout << tree.query(i) - subs[i] << " ";
-
-        
-        //WE CANNOT SIMPLY UPDATE AT THE INDEX, WE NEED THE INDEX OF THE EULER TOUR BECUASE THEY ARE DIFFERENT
-        cout << tree.query(m[i].first) - subs[m[i].first] << " ";
+        cout << tree.query(m[i].first) << " ";
     }
     cout << '\n';
+
 }
 
 int main() {

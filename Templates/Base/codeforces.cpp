@@ -7,7 +7,7 @@ void solve() {
     
 }
 
-int main() {
+signed main() {
     ios_base::sync_with_stdio(false);cin.tie(NULL);
     int casi; cin >> casi;
     while(casi-->0) solve();
