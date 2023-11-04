@@ -1,6 +1,5 @@
 template<typename T>
 struct Tree {
-    //typedef int T; //update the data type, currently int. often update to ll. Other way to do if needed
     static constexpr T base = 0;
     T f(T a, T b) {
         return a + b; //update this function for different types of queries, currently sum
