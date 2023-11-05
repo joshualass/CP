@@ -1,28 +1,29 @@
-template <typename T> //I here you have the ID ten tee virus ...
+template <typename T>
 struct SegtreeLazy {
     public:
-        T n;
+        int n;
         T* t;    //stores product of range
         T* d;    //lazy tree
+        bool* upd;  //marks whether or not a lazy change is here
         T uneut, qneut;
 
         //single element modify
-        function<T(T, T)> modifyElement;
+        function<T(T, T)> fmodify;
 
         //k element modify
-        function<T(T, T, T)> modifyRange;
+        function<T(T, T, int)> fmodifyk;
 
         //product of two elements for query
-        function<T(T, T)> queryType;
+        function<T(T, T)> fcombine;
 
-        SegtreeLazy(int maxSize, T updateNeutral, T queryNeutral, function<T(T, T)> modifyElement, function<T(T, T, T)> modifyRange, function<T(T, T)> queryType) {
+        SegtreeLazy(int maxSize, T updateNeutral, T queryNeutral, function<T(T, T)> fmodify, function<T(T, T, int)> fmodifyk, function<T(T, T)> fcombine) {
             n = maxSize;
             uneut = updateNeutral;
             qneut = queryNeutral;
 
-            this -> modifyElement = modifyElement;
-            this -> modifyRange = modifyRange;
-            this -> queryType = queryType;
+            this -> fmodify = fmodify;
+            this -> fmodifyk = fmodifyk;
+            this -> fcombine = fcombine;
 
             //raise n to nearest pow 2
             int x = 1;
@@ -33,13 +34,15 @@ struct SegtreeLazy {
 
             t = new T[n * 2];
             d = new T[n * 2];
+            upd = new bool[n * 2];
 
             //make sure to initialize values
-            for(T i = 0; i < n * 2; i++){
+            for(int i = 0; i < n * 2; i++){
                 t[i] = uneut;
             }
-            for(T i = 0; i < n * 2; i++){
+            for(int i = 0; i < n * 2; i++){
                 d[i] = uneut;
+                upd[i] = false;
             }
         }
 
@@ -62,7 +65,7 @@ struct SegtreeLazy {
     private:
         //calculates value of node based off of children
         //k is the amount of values that this node represents. 
-        void combine(int ind, T k) {
+        void combine(int ind, int k) {
             if(ind >= n){
                 return;
             }
@@ -71,27 +74,29 @@ struct SegtreeLazy {
             //make sure children are correct value before calculating
             push(l, k / 2);
             push(r, k / 2);
-            t[ind] = queryType(t[l], t[r]);
+            t[ind] = fcombine(t[l], t[r]);
         }
 
         //registers a lazy change llo this node
         void apply(int ind, T val) {
-            d[ind] = modifyElement(d[ind], val);
+            upd[ind] = true;
+            d[ind] = fmodify(d[ind], val);
         }
 
         //applies lazy change to this node
         //k is the amount of values that this node represents. 
-        void push(int ind, T k) {
-            if(d[ind] == uneut) {
+        void push(int ind, int k) {
+            if(!upd[ind]) {
                 return;
             }
-            t[ind] = modifyRange(t[ind], d[ind], k);
+            t[ind] = fmodifyk(t[ind], d[ind], k);
             if(ind < n) {
                 int l = ind * 2;
                 int r = ind * 2 + 1;
                 apply(l, d[ind]);
                 apply(r, d[ind]);
             }
+            upd[ind] = false;
             d[ind] = uneut;
         }
 
@@ -99,7 +104,7 @@ struct SegtreeLazy {
             if(l == r){
                 return;
             }
-            if(d[ind] != uneut) {
+            if(upd[ind]) {
                 push(ind, tr - tl);
             }
             if(l == tl && r == tr) {
@@ -117,11 +122,11 @@ struct SegtreeLazy {
             combine(ind, tr - tl);
         }
 
-        T _query(int l, int r, int tl, int tr, T ind) {
+        T _query(int l, int r, int tl, int tr, int ind) {
             if(l == r){
                 return qneut;
             }  
-            if(d[ind] != uneut) {
+            if(upd[ind]) {
                 push(ind, tr - tl);
             }
             if(l == tl && r == tr){
@@ -136,6 +141,6 @@ struct SegtreeLazy {
             if(r > mid) {
                 rans = _query(max(l, mid), r, mid, tr, ind * 2 + 1);
             }
-            return queryType(lans, rans);
+            return fcombine(lans, rans);
         }
 };
