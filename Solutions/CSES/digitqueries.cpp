@@ -8,43 +8,28 @@ int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
-    
-    // int q; cin >> q;
-    // vector<lll> lengths(1,9);
-    // lll length = 2;
-    // lll val = 90;
-    // while(true) {
-    //     lengths.push_back(val*length);
-    //     length++;
-    //     if(val > LLONG_MAX) {
-    //         break;
-    //     }
-    //     val *= 10;
-        
-    // }
-    // while(q-->0) {
-    //     // ll num; cin >> num;
-    //     ll read; cin >> read;
-    //     lll num = read;
-    //     num--;
-    //     int idx = 0;
-    //     while(num - lengths[idx] > 0) {
-    //         num -= lengths[idx++];
-    //     }
- 
-    //     lll value = 1;
-    //     for(int i = 0; i < idx; i++) {
-    //         value *= 10;
-    //     }
-    //     value += num / (idx + 1);
-    //     int digit = idx - num % (idx + 1);
-    //     // cout << "num: " << num << " idx: " << idx << " value: " << value << " digit: " << digit << "\n";
-    //     while(digit-- > 0) {
-    //         value /= 10;
-    //     }
-    //     cout << ((ll) value % 10) << "\n";
-    // }
+    int q; cin >> q;
+
+    while(q-->0) {
+        ll read; cin >> read;
+        lll num = read;
+        num--;
+        lll length = 1;
+        lll cnt = 9;
+        while(num >= length * cnt) {
+            num -= length * cnt;
+            length++;
+            cnt *= 10;
+        }
+        lll add = num / length;
+        lll start = cnt / 9;
+        lll ansnum = start + add;
+        lll leftdigit = length - num % length;
+        for(int i = 1; i < leftdigit; i++) {
+            ansnum /= 10;
+        }
+        cout << (int) (ansnum % 10) << '\n';
+    }
  
     return 0;
 }
