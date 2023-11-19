@@ -3,6 +3,7 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+/*
 ll dinic(int source, int sink, int n, vector<vector<ll>> capacity, vector<vector<ll>> adj) {
     vector<vector<ll>> transpose(n);
     for(int i = 0; i < adj.size(); i++) {
@@ -103,5 +104,66 @@ int main() {
         capacity[a][b] += c;
     }
     cout << dinic(0,n-1,n,capacity,adj) << "\n";
+    return 0;
+}
+*/
+
+template<class T>
+T edmondsKarp(vector<unordered_map<int,T>>& graph, int source, int sink) {
+    assert(source != sink);
+    T flow = 0;
+    vector<int> par(graph.size());
+    vector<int> q = par;
+
+    for(;;) {
+        fill(par.begin(), par.end(), -1);
+        par[source] = 0;
+        int ptr = 1;
+        q[0] = source;
+
+        for(int i = 0; i < ptr; i++) {
+            int x = q[i];
+            for(auto e : graph[x]) {
+                if(par[e.first] == -1 && e.second > 0) {
+                    par[e.first] = x;
+                    q[ptr++] = e.first;
+                    if(e.first == sink) goto out;
+                }
+            }
+        }
+    return flow;
+out:
+    T inc = numeric_limits<T>::max();
+    for(int y = sink; y != source; y = par[y]) {
+        inc = min(inc, graph[par[y]][y]);
+    }
+
+    flow += inc;
+    for(int y = sink; y != source; y = par[y]) {
+        int p = par[y];
+        if((graph[p][y] -= inc) <= 0) {
+            graph[p].erase(y);
+        }
+        graph[y][p] += inc;
+        }
+    }
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n, m; cin >> n >> m;
+    vector<unordered_map<int,ll>> graph(n);
+
+    for(int i = 0; i < m; i++) {
+        int a, b, c; cin >> a >> b >> c;
+        a--;
+        b--;
+        graph[a][b] += c;
+    }
+
+    cout << edmondsKarp(graph,0,n-1) << '\n';
+
     return 0;
 }
