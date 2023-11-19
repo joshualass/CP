@@ -6,13 +6,13 @@ const ll MOD = 1e9 + 7;
 
 template<typename T>
 struct SegTreeMIQ { //SegTree Minimum Index query. Finds the minimum index that satisfies cond. 
-    static constexpr T base = 0; //change this when doing maximum vs minimum etc.
+    static constexpr T base = 420; //change this when doing maximum vs minimum etc.
     T comb(T a, T b) { //change this when doing maximum vs minimum etc.
-        return max(a,b); 
+        return min(a,b); 
     }
 
     bool cond(T a, T b) {
-        return a <= b; //change this when doing maximum vs minimum etc.
+        return a >= b; //change this when doing maximum vs minimum etc.
     }
     vector<T> v;
     int n = -1, size = -1;
@@ -35,6 +35,11 @@ struct SegTreeMIQ { //SegTree Minimum Index query. Finds the minimum index that 
 
     bool isLeaf(int idx) {
         return idx >= size;
+    }
+
+    T at(int idx) {
+        assert(idx >= 0 && idx < n);
+        return v[idx + size];
     }
 
     //find the lowest index and value that satisfy the condition in range [l,r)
@@ -85,8 +90,37 @@ struct SegTreeMIQ { //SegTree Minimum Index query. Finds the minimum index that 
     }
 };
 
+template <typename T, typename D>
+std::ostream& operator<<(std::ostream& os, const pair<T,D> &p) {
+    os << '(' << p.first << ", " << p.second << ") ";
+    return os;
+}
+
 void solve() {
-    
+    int n, m; cin >> n >> m;
+    string strn, strm; cin >> strn >> strm;
+    SegTreeMIQ<int> tree(n);
+
+    for(int i = 0; i < n; i++) {
+        tree.update(i, strn[i]);
+    }
+
+    bool poss = true;
+
+    for(int i = 0; i < m; i++) {
+        pair<int,int> p = tree.query(strm[i]);
+        // cout << "p : " << p << '\n';
+        if(p.second > strm[i]) {
+            poss = false; 
+            break;
+        } else if(p.second < strm[i]) {
+            i--;
+            tree.update(p.first, 420);
+        } else if(p.second == strm[i]) {
+            tree.update(p.first, 420);
+        }
+    }
+    cout << (poss ? "YES" : "NO") << '\n';
 }
 
 signed main() {

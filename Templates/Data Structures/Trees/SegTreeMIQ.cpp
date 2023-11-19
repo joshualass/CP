@@ -31,6 +31,11 @@ struct SegTreeMIQ { //SegTree Minimum Index query. Finds the minimum index that 
         return idx >= size;
     }
 
+    T at(int idx) {
+        assert(idx >= 0 && idx < n);
+        return v[idx + size];
+    }
+
     //find the lowest index and value that satisfy the condition in range [l,r)
     pair<int,T> query(T val, int lo, int hi) {
         if(lo >= hi) return {-1,base}; //starting pos is OOB
