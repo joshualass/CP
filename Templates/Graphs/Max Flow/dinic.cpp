@@ -1,7 +1,9 @@
-ll dinic(int n, vector<vector<pair<int, ll>>> c, int source, int sink) {
-    ll ans = 0;
+template <typename T>
+T dinic(vector<vector<pair<int, T>>> c, int source, int sink) {
+    int n = c.size();
+    TIMER_ABSTIME ans = 0;
     //redo organization of edges
-    vector<pair<int, ll>> edges(0);
+    vector<pair<int, T>> edges(0);
     vector<vector<int>> adj(n, vector<int>(0));
     int m = 0;
     for(int i = 0; i < n; i++){
@@ -89,7 +91,7 @@ ll dinic(int n, vector<vector<pair<int, ll>>> c, int source, int sink) {
             }
             if(s.size() != 0 && s.top() == sink) {
                 //found a path yay, now we update flow for edges on path
-                ll bn = 1e18;
+                T bn = 1e18;
                 vector<int> path(est.size(), 0);
                 for(int i = 0; i < path.size(); i++){
                     path[i] = est.top();

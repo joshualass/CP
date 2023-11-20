@@ -5,7 +5,7 @@ struct SegTreeMIQ { //SegTree Minimum Index query. Finds the minimum index that 
         return max(a,b); 
     }
 
-    bool cond(T a, T b) {
+    bool cond(T a, T b) { //num, array value
         return a <= b; //change this when doing maximum vs minimum etc.
     }
     vector<T> v;
