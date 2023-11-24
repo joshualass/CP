@@ -20,7 +20,7 @@ int classes[MAX_N][MAX_K];
 array<int,3> sorter[MAX_N]; //used for general sorting
 array<int,3> sorter_new[MAX_N]; //used for general sorting
 int suff[MAX_N];
-int lcp[MAX_N];
+vector<int> lcp;
 
 void radix_sort(int n) {
     {
@@ -58,9 +58,16 @@ void radix_sort(int n) {
 }
 
 void buildLCP() {
-    memset(lcp, -1, sizeof(lcp));
+    lcp.resize(str.size());
+    int k = 0;
     for(int i = 0; i < str.size() - 1; i++) {//do lcp of everyrthing except '31' substring
-        
+        int pi = classes[i][K-1];
+        int j = suff[pi - 1];
+        while(str[(i + k) % str.size()] == str[(j + k) % str.size()]) {
+            k++;
+        }
+        lcp[pi] = k;
+        k = max(k-1,0);
     }   
 }
 
@@ -154,16 +161,17 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     
-    int tc;
-    while(cin >> tc) {
-        vector<string> queries(tc);
-        cin.ignore();
-        for(auto &x: queries) getline(cin,x);
-        getline(cin,str);
-        build();
-        for(auto q : queries) cout << calcSubstrings(q) << '\n';
+    cin >> str;
+    build();
+    for(int i = 0; i < str.size(); i++) {
+        cout << suff[i] << " ";
     }
-    
+    cout << '\n';
+    for(int i = 1; i < str.size(); i++) {
+        // cout << "lcp for : " << str.substr(suff[i-1]) << " and " << str.substr(suff[i]) << " is : " << lcp[i] << '\n';
+        cout << lcp[i] << " ";
+    }
+    cout << '\n';
 
     return 0;
 }
