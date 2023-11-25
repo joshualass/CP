@@ -4,6 +4,12 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 1e9 + 7;
 
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto &x : v) os << x << " ";
+    return os;
+}
+
 //range minimum query. O(1) query, O(n) build/memory. fast.
 template<typename T>
 struct RMQ  {
@@ -198,37 +204,19 @@ struct SuffixArray {
 		return R.query(l,r-1);
 	}
 
-    //given a substring, returns the indexes of all the substrings within str. Complexity - O(log n * |p|)
-    vector<int> calcSubstrings(string sub) {
-        if(sub.compare(S.substr(sa[N-1], sub.size())) > 0) {
-            return {};
-        }
-
-        int lo = 0, hi = S.size();
-        while(lo != hi) {
-            int m = (hi + lo) / 2;
-            if(sub.compare(S.substr(sa[m],sub.size())) > 0) {
-                lo = m + 1;
-            } else {
-                hi = m;
+    int getIndex(int a, int b) {
+        int length = b - a + 1;
+        // cout << "A : " << a << " isa[A] : " << isa[a];
+        a = isa[a];
+        // cout << " start : " << a << '\n';
+        int next_inc = 1 << 20;
+        while(next_inc != 0) {
+            if(a - next_inc >= 0 && getLCP(sa[a - next_inc], sa[a]) >= length) {
+                a -= next_inc;
             }
+            next_inc >>= 1;
         }
-        int lb = lo;
-        lo = 0, hi = S.size();
-        while(lo != hi) {
-            int m = (hi + lo + 1) / 2;
-            if(sub.compare(S.substr(sa[m],sub.size())) < 0) {
-                hi = m - 1;
-            } else {
-                lo = m;
-            }
-        }
-        vector<int> ans;
-        for(int i = lb; i <= lo; i++) {
-            ans.push_back(sa[i]);
-        }
-        sort(ans.begin(),ans.end());
-        return ans;   
+        return a;
     }
     
 };
@@ -237,28 +225,52 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     
-    string str1, str2; cin >> str1 >> str2;
-    int sz = str1.size();
-    str1.push_back('#');
-    str1.append(str2);
+    string str; cin >> str;
 
-    SuffixArray SA(str1);
+    SuffixArray SA(str);
 
-    int ans_size = 0;
-    int ans_idx = -1;
-    for(int i = 0; i < str1.size(); i++) {
-        int lo = min(SA.sa[i], SA.sa[i+1]);
-        int hi = max(SA.sa[i], SA.sa[i+1]);
-        if(lo < sz && hi > sz) {
-            if(SA.lcp[i] > ans_size) {
-                ans_size = SA.lcp[i];
-                ans_idx = i;
-            }
-        }
+    int n; cin >> n;
+    vector<array<int,3>> v(n);
+    // for(int i = 0; i <= str.size(); i++) {
+    //     cout << str.substr(SA.sa[i]) << '\n';
+    // }
+    // cout << "sa : " << SA.sa << '\n';
+    // cout << "isa : " << SA.isa << '\n';
+    // cout << "lcp : " << SA.lcp << '\n';
+    for(int i = 0; i < n; i++) {
+        int a, b; cin >> a >> b;
+        a--; b--;
+        int idx = SA.getIndex(a,b);
+        v[i] = {a,b,idx};
+        // cout << "a : " << a << " b : " << b << " idx : " << idx << '\n';
     }
 
-    if(ans_size) {
-        cout << str1.substr(SA.sa[ans_idx], ans_size) << '\n';
+
+    sort(v.begin(), v.end(), [&](const array<int,3> &lhs, const array<int,3> &rhs) -> bool {
+        //substrings are equal, compare seconds
+        // if(SA.getLCP(lhs.first, rhs.first) >= (lhs.second - lhs.first + 1) && (lhs.second - lhs.first + 1) == (rhs.second - rhs.first + 1)) {
+        //     return lhs.second < rhs.second;
+        // }
+        // if(lhs.first == rhs.first) {
+        //     return lhs.second < rhs.second;
+        // } else {
+        //     return SA.isa[lhs.first] < SA.isa[rhs.first];
+        // }
+
+        if(lhs[2] == rhs[2]) {
+            if(lhs[1] - lhs[0] == rhs[1] - rhs[0]) {
+                return lhs[0] < rhs[0];
+            } else {
+                return lhs[1] - lhs[0] < rhs[1] - rhs[0];
+            }
+        } else {
+            return lhs[2] < rhs[2];
+        }
+
+    });
+
+    for(auto x : v) {
+        cout << x[0] + 1 << " " << x[1] + 1 << '\n';
     }
 
     return 0;

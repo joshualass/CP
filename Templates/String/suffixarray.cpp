@@ -191,38 +191,5 @@ struct SuffixArray {
 		int l = isa[a], r = isa[b]; if (l > r) swap(l,r);
 		return R.query(l,r-1);
 	}
-
-    //given a substring, returns the indexes of all the substrings within str. Complexity - O(log n * |p|)
-    vector<int> calcSubstrings(string sub) {
-        if(sub.compare(S.substr(sa[N-1], sub.size())) > 0) {
-            return {};
-        }
-
-        int lo = 0, hi = S.size();
-        while(lo != hi) {
-            int m = (hi + lo) / 2;
-            if(sub.compare(S.substr(sa[m],sub.size())) > 0) {
-                lo = m + 1;
-            } else {
-                hi = m;
-            }
-        }
-        int lb = lo;
-        lo = 0, hi = S.size();
-        while(lo != hi) {
-            int m = (hi + lo + 1) / 2;
-            if(sub.compare(S.substr(sa[m],sub.size())) < 0) {
-                hi = m - 1;
-            } else {
-                lo = m;
-            }
-        }
-        vector<int> ans;
-        for(int i = lb; i <= lo; i++) {
-            ans.push_back(sa[i]);
-        }
-        sort(ans.begin(),ans.end());
-        return ans;   
-    }
     
 };
