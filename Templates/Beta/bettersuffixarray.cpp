@@ -1,3 +1,15 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+const ll MOD = 1e9 + 7;
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto &x : v) os << x << " ";
+    return os;
+}
+
 //range minimum query. O(1) query, O(n) build/memory. fast.
 template<typename T>
 struct RMQ  {
@@ -224,5 +236,25 @@ struct SuffixArray {
         sort(ans.begin(),ans.end());
         return ans;   
     }
-    
+
 };
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    
+    string str; cin >> str;
+
+    SuffixArray suff(str);
+
+    // cout << "sa : " << suff.sa << '\n';
+    
+    int n; cin >> n;
+    while(n-->0) {
+        string sub; cin >> sub;
+        cout << suff.calcSubstrings(sub).size() << '\n';
+    }
+
+
+    return 0;
+}
