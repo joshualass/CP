@@ -2,12 +2,17 @@
 typedef long long ll;
 typedef long double ld;
 using namespace std;
+const ll MOD = 1e9 + 7;
 
-int main() {
+signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     
-    int n, w, h; cin >> n >> w >> h;
+    int n, m; cin >> n >> m;
+
+    vector<int> v(n + m);
+    for(auto &x : v) cin >> x;
+
     
 
     return 0;

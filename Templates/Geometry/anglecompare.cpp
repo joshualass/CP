@@ -6,7 +6,7 @@ struct AngleCompare {
 
     AngleCompare(const Point<F>& origin = Point<F>()): origin(origin), zero(origin == Point<F>()) { }
 
-    template class F1, class F2>
+    template <class F1, class F2>
     bool operator () (const Point<F1>& lhs, const Point<F2>& rhs) const {
         return zero ? ccw(lhs, rhs) < 0 : ccw(lhs, rhs, origin) < 0;
     }
@@ -15,7 +15,7 @@ struct AngleCompare {
 
 template <class Iterator, class F>
 void sortByAngle(Iterator first, Iterator last, const Point<F>& origin) {
-    first = partition(first, lass, [&origin](const decltype(*first)& point) {
+    first = partition(first, last, [&origin](const decltype(*first)& point) {
         return point == origin;
     });
 
