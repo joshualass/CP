@@ -3,3 +3,4 @@
 *.class
 tempCodeRunnerFile.cpp
 *.out
+.vscode/settings.json
