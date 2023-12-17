@@ -48,7 +48,7 @@ signed main() {
             case 'L' : 
                 //we try firing instead of going left
                 // cout << "i : " << i << " L1 : " << ((int)sets[3].size() + (sets[3].find(idx) == sets[3].end())) << '\n';
-                ans = max(ans, (int)sets[3].size() + (sets[3].find(idx) == sets[3].end()));
+                ans = max(ans, (int)sets[3].size() + (sets[3].find(idx) == sets[3].end() && targets.find(idx) != targets.end()));
                 //we try going right intead of going left
                 // cout << "i : " << i << " L2 : " << (int)sets[4].size() << '\n';
                 ans = max(ans, (int)sets[4].size());
@@ -57,7 +57,7 @@ signed main() {
             case 'R' :
                 //we try firing instead of going right
                 // cout << "i : " << i << " R1 : " << ((int)sets[1].size() + (sets[1].find(idx) == sets[1].end())) << '\n';
-                ans = max(ans, (int)sets[1].size() + (sets[1].find(idx) == sets[1].end()));
+                ans = max(ans, (int)sets[1].size() + (sets[1].find(idx) == sets[1].end() && targets.find(idx) != targets.end()));
                 //we try going left instead of going right
                 // cout << "i : " << i << " R2 : " << (int)sets[0].size() << '\n';
                 ans = max(ans, (int)sets[0].size());

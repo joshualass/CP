@@ -21,6 +21,7 @@ ll solve(vector<ll> v, ll k) {
             if((num & v[i]) == 0) {
                 ops += num - (v[i] & upd);
             }
+            if(ops > k) break;
         }
         // cout << "i : " << bit << " ops : " << ops << " num : " << num << " k : " << k << " v : " << v << '\n';
         if(ops <= k) {
