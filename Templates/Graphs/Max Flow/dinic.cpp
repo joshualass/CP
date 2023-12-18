@@ -1,7 +1,7 @@
 template <typename T>
 T dinic(vector<vector<pair<int, T>>> c, int source, int sink) {
     int n = c.size();
-    TIMER_ABSTIME ans = 0;
+    T ans = 0;
     //redo organization of edges
     vector<pair<int, T>> edges(0);
     vector<vector<int>> adj(n, vector<int>(0));
