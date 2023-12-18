@@ -12,7 +12,7 @@ int ys[MAXN];
 ll getops1(int n, ll length) {
     ll lo = 0, hi = 1e9;
 
-    while(lo != hi) {
+    while(hi - lo > 5) {
         ll m1 = lo + (hi - lo) / 3;
         ll m2 = lo + ((hi - lo) * 2 + 1) / 3;
         assert(m1 != m2); ///infinite loop?
@@ -34,28 +34,42 @@ ll getops1(int n, ll length) {
             }
         }
         if(m1ops < m2ops) {
-            hi = m1;
+            hi = m2;
         } else {
-            lo = m2;
+            lo = m1;
         }
     }
 
-    ll ops = 0;
-    for(int i = 0; i < n; i++) {
-        if(xs[i] < lo) {
-            ops += lo - xs[i];
+    ll ans = LLONG_MAX;
+    for(ll i = lo; i <= hi; i++) {
+        ll ops = 0;
+        for(int j = 0; j < n; j++) {
+            if(xs[j] < i) {
+                ops += i - xs[j];
+            }
+            if(xs[j] > i + length) {
+                ops += xs[j] - (i + length);
+            }
         }
-        if(xs[i] > lo + length) {
-            ops += xs[i] - (lo + length);
-        }
+        ans = min(ans, ops);
     }
-    return ops;
+    return ans;
+    // ll ops = 0;
+    // for(int i = 0; i < n; i++) {
+    //     if(xs[i] < lo) {
+    //         ops += lo - xs[i];
+    //     }
+    //     if(xs[i] > lo + length) {
+    //         ops += xs[i] - (lo + length);
+    //     }
+    // }
+    // return ops;
 }
 
 ll getops2(int n, ll length) {
     ll lo = 0, hi = 1e9;
 
-    while(lo != hi) {
+    while(hi - lo > 5) {
         ll m1 = lo + (hi - lo) / 3;
         ll m2 = lo + ((hi - lo) * 2 + 1) / 3;
         assert(m1 != m2); ///infinite loop?
@@ -77,22 +91,26 @@ ll getops2(int n, ll length) {
             }
         }
         if(m1ops < m2ops) {
-            hi = m1;
+            hi = m2;
         } else {
-            lo = m2;
+            lo = m1;
         }
     }
 
-    ll ops = 0;
-    for(int i = 0; i < n; i++) {
-        if(ys[i] < lo) {
-            ops += lo - ys[i];
+    ll ans = LLONG_MAX;
+    for(ll i = lo; i <= hi; i++) {
+        ll ops = 0;
+        for(int j = 0; j < n; j++) {
+            if(ys[j] < i) {
+                ops += i - ys[j];
+            }
+            if(ys[j] > i + length) {
+                ops += ys[j] - (i + length);
+            }
         }
-        if(ys[i] > lo + length) {
-            ops += ys[i] - (lo + length);
-        }
+        ans = min(ans, ops);
     }
-    return ops;
+    return ans;
 }
 
 signed main() {
@@ -116,7 +134,7 @@ signed main() {
         ll xops = getops1(n, length);
         ll yops = getops2(n, length);
 
-        cout << "m : " << m << " xops : " << xops << " yops : " << yops << '\n';
+        // cout << "m : " << m << " xops : " << xops << " yops : " << yops << '\n';
 
         if(xops + yops <= k) {
             bhi = m;
