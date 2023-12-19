@@ -40,14 +40,11 @@ int main() {
     for(int i = 0; i < n; i++) {
         if(indegrees[i] == 0) {
             q.push({i,0});
-            // groups[0][0].push_back({i,0});
         }
     }
 
     vector<int> top;
     vector<int> depths(n);
-    vector<int> order(n);
-    
     while(q.size()) {
         pair<int,int> p = q.front();
         int i = p.first;
@@ -85,33 +82,8 @@ int main() {
     }
     
     vector<bool> visited(n);
-    vector<int> children(n);
 
-    //wrong direction 
-    // for(int depth = 0; depth < n; depth++) {
-        
-    //     for(auto group : groups[depth]) {
-    //         vector<array<ll,4>> helpme;
-    //         for(auto node : group) {
-    //             for(auto edge : adj[node]) {
-    //                 // {label value, node, parent, depth}
-    //                 helpme.push_back({edge.second, edge.first, node, depth + 1});
-    //             }
-    //         }
-    //         sort(helpme.begin(), helpme.end()); //sort by label
-    //         int prev_label = -1;
-    //         for(auto arr : helpme) {
-    //             if(visited[arr[1]] || depths[arr[1]] != arr[3]) continue; //never optimal to revisit nor to visit with suboptimal depth
-    //             visited[arr[1]] = 1;
-    //             children[arr[2]] = arr[1];
-    //             if(arr[0] != prev_label) {
-    //                 groups[arr[3]].push_back({});
-    //                 prev_label = arr[0];
-    //             }
-    //             groups[arr[3]].back().push_back(arr[1]);
-    //         }
-    //     }
-    // }
+    //wrong direction
     
     vector<ll> ans(n);
     for(int depth = 0; depth < n; depth++) {
@@ -140,37 +112,8 @@ int main() {
             groups[arr[3]].back().push_back({arr[1], arr[4]});
         }
     }
-    
-    // cout << "top : " << top << '\n';
-    // cout << "depths : " << depths << '\n';
-    // cout << "children : " << children << '\n';
-    // cout << "ans : " << ans << '\n';
-
-    //try greedy
-    // for(int i = 0; i < n; i++) {
-    //     sort(trans[i].begin(), trans[i].end(), [](const pair<int,ll> &lhs, const pair<int,ll> &rhs) {
-    //         return lhs.second < rhs.second;
-    //     });
-    // }
-    // for(int i = n - 1; i >= 0; i--) {
-    //     int idx = top[i];
-    //     array<ll,3> curr = dp[idx];
-    //     for(auto road : trans[idx]) {
-    //         int next_idx = road.first;
-    //         ll upd_length = curr[0] + 1;
-    //         ll upd_label = road.second;
-    //         ll upd_score = curr[2] + road.second;
-    //         if(upd_length > dp[next_idx][0] || upd_length == dp[next_idx][0] && upd_label < dp[next_idx][1]) {
-    //             dp[next_idx] = {upd_length, upd_label, upd_score};
-    //         }
-
-    //     }
-
-    // }
-
 
     for(int i = 0; i < n; i++) {
-        // cout << dp[i][0] << " " << dp[i][2] << '\n';
         cout << dp[i][0] << " " << ans[i] << '\n';
     }
 
