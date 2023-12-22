@@ -3,15 +3,6 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const vector<vector<T>> adj) {
-    for(auto &x : adj) {
-        for(auto &y : x) os << y << " ";
-        os << "\n";
-    }
-    return os;
-}
-
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
