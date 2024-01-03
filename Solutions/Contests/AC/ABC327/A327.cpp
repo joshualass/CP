@@ -11,9 +11,9 @@ signed main() {
     int n; cin >> n;
     string str; cin >> str;
     if(str.find("ab") != string::npos || str.find("ba") != string::npos) {
-        cout << "yes\n";
+        cout << "Yes\n";
     } else {
-        cout << "no\n";
+        cout << "No\n";
     }
 
     return 0;
