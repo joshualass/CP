@@ -1,8 +1,10 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
 ll mod = 1e9 + 7;
 vector<ll> fac;
 map<pair<ll, ll>, ll> nckdp;
-
-const int MAXN = 1e6;
 
 ll add(ll a, ll b) {
     ll ret = a + b;
@@ -49,7 +51,7 @@ ll gcd(ll a, ll b){
 }
 
 void fac_init() {
-    fac = vector<ll>(MAXN + 1, 1);
+    fac = vector<ll>(1e6 + 1, 1);
     for(int i = 2; i < fac.size(); i++){
         fac[i] = mul(fac[i - 1], i);
     }
@@ -124,4 +126,69 @@ ll chinese_remainder_theorem(vector<ll>& modulo, vector<ll>& remainder) {
         solution = (solution + a_i * M_i % M * N_i) % M;
     }
     return solution;
+}
+
+// const ll MOD = 1e9 + 7;
+
+// const int N = 1e6;
+// ll factorials[N+1];
+
+// //finds all factorials 0-N iteratively
+// void factorial(int n = N) {
+//     factorials[0] = 1;
+//     for(int i = 1; i <= n; i++) {
+//         factorials[i] = factorials[i-1] * i % MOD;
+//     }
+// }
+
+// //TODO replace with template that supports all modular operations
+// ll binexp(ll base, ll power) {
+//     ll ans = 1;
+//     while(power != 0) {
+//         if(power & 1) {
+//             ans = ans*base%MOD;
+//         }
+//         base = base*base%MOD;
+//         power >>= 1;
+//     }
+//     return ans;
+// }
+
+// //returns a / b using modular inverse. this implementation uses fermat's little theorem
+// ll modDivide(ll a, ll b) {
+//     return binexp(b,MOD-2) * a % MOD;
+// }
+
+// ll choose(ll n, ll k) {
+//     if(k > n) return 0;
+//     return modDivide(factorials[n],factorials[n-k] * factorials[k] % MOD);
+// }
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    
+    fac_init();
+    // factorial();
+
+    string str; cin >> str;
+    vector<int> v(26);
+    for(int i = 0; i < 26; i++) {
+        v[i] = count(str.begin(), str.end(), 'a' + i);
+    }
+
+    ll size = 0;
+    ll ans = 1;
+    for(int i = 0; i < 26; i++) {
+        ll val = v[i];
+        size += val;
+        // cout << "size : " << size << " val : " << val << '\n';
+        // cout << "nck : " << size << ", " << val << " is : " << nck(size, val) << '\n';
+        ans *= nck(size, val);
+        ans %= mod;
+        // ans *= choose(size, val);
+        // ans %= MOD;
+    }
+    cout << ans << '\n';
+    return 0;
 }

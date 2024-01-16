@@ -1,8 +1,12 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
 ll mod = 1e9 + 7;
 vector<ll> fac;
 map<pair<ll, ll>, ll> nckdp;
 
-const int MAXN = 1e6;
+const int MAXN = 2e6;
 
 ll add(ll a, ll b) {
     ll ret = a + b;
@@ -124,4 +128,14 @@ ll chinese_remainder_theorem(vector<ll>& modulo, vector<ll>& remainder) {
         solution = (solution + a_i * M_i % M * N_i) % M;
     }
     return solution;
+}
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    fac_init();
+    ll n, m; cin >> n >> m;
+    cout << nck(n + m - 1, n - 1) << '\n';
+
+    return 0;
 }
