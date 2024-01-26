@@ -5,12 +5,12 @@ using namespace std;
 const ll MOD = 1e9 + 7;
 
 /*
-suppose current num is greater than stack top
-we just push to stack normally, probably should take max
-current num is equal, just take max
-current nums is less, pop while less than
-then take max
-all cases, always taking max
+usaco guide problem using stacks
+while the stack top is greater than current num, we pop the top of the stack and use the index to insert in as the index of the value we popped
+then we push our index if greater than stack (always push unless element of equal value exists)
+then we take max area from stack top
+
+after done iterating, take maxes, yea
 */
 
 signed main() {
