@@ -14,7 +14,7 @@ struct SegTreeMIQ { //SegTree Minimum Index query. Finds the minimum index that 
     SegTreeMIQ(int n = 0, T def = base) {
         this->n = n; //max number of elements
         this->size = 1 << (31 - __countl_zero(n) - (int)(__builtin_popcount(n) == 1)); //size of vector
-        v.assign(size * 2, base);
+        v.assign(size * 2, def);
     }
 
     void update(int pos, T val) { //update 0 indexed, assignment
