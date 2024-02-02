@@ -1,14 +1,19 @@
 from sys import stdin
 words = []
 for line in stdin:
-    words.append(line.strip().split(" "))
+    words.extend(line.strip().split(" "))
 
-myset = {}
+myset = set()
 
+# print("length of words: ",len(words))
+# print("words:",words)
 for i in range(len(words)):
     for j in range(len(words)):
         if i != j:
             myset.add(words[i] + words[j])
 
-for word in myset:
+mylist = list(myset)
+mylist.sort()
+
+for word in mylist:
     print(word)
