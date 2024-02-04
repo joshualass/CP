@@ -1,9 +1,3 @@
-#include <bits/stdc++.h>
-typedef long long ll;
-typedef long double ld;
-using namespace std;
-const ll MOD = 1e9 + 7;
-
 template<typename T>
 struct Lazy {
     static constexpr T ln = 0, qn = 0; //stores the starting values at all nodes, 
@@ -12,6 +6,7 @@ struct Lazy {
     vector<bool> upd; //stores at each node, whether there is a lazy update to push
     int n, size;
 
+    //if OJ is not up to date, remove all occurrences of ln
     Lazy(int n = 0, T def = ln) {
         this->n = n;
         this->size = 1;
@@ -84,33 +79,3 @@ struct Lazy {
         }
     }
 };
-
-signed main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-
-    // freopen("ruqin.txt","r",stdin);
-    // freopen(".out","w",stdout);
-    
-    int n, q; cin >> n >> q;
-    Lazy<ll> lazy(n);
-    for(int i = 0; i < n; i++) {
-        int num; cin >> num;
-        lazy.update(i,i+1,num);
-    }   
-    for(int i = 0; i < q; i++) {
-        int type; cin >> type;
-        if(type == 1) {
-            int a, b, u; cin >> a >> b >> u;
-            lazy.update(a-1,b,u);
-        }
-        if(type == 2) {
-            int k; cin >> k;
-            cout << lazy.query(k - 1, k) << '\n';
-        }
-    }
-
-    // cout << "OK!\n";
-
-    return 0;
-}
