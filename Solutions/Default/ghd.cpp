@@ -7,7 +7,6 @@ int main() {
     cin.tie(NULL);
 
     srand(chrono::steady_clock::now().time_since_epoch().count());
-    
 
     return 0;
 }

@@ -2,15 +2,16 @@
 typedef long long ll;
 typedef long double ld;
 using namespace std;
+const ll MOD = 1e9 + 7;
 
-struct stringHash {
+struct stringhash {
     const ll M1 = 998244353, B1 = 9973;
     const ll M2 = 1e9 + 9, B2 = 9931;
     vector<ll> h1, h2;
     vector<ll> p1, p2;
     int n;
 
-    stringHash(string s) {
+    stringhash(string s) {
         this->n = s.size();
         p1.push_back(1);
         for(int i = 0 ; i < n; i++) {
@@ -40,39 +41,33 @@ struct stringHash {
 
 };
 
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const vector<T> v) {
-    for(auto &x : v) os << x << " ";
-    return os;
-}
-
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     
-    string n, h; cin >> n >> h;
-    stringHash sh(h);
-    
-    set<pair<ll,ll>> found_h1;
-    vector<int> v(26);
-    for(int i = 0; i < n.size(); i++) {
-        v[n[i] - 'a']++;
-    }
-    // cout << "v : " << v << '\n';
-    vector<int> curr(26);
-    for(int i = 0; i < h.size(); i++) {
-        curr[h[i] - 'a']++;
-        if(i - (int) n.size() >= 0) {
-            curr[h[i - (int) n.size()] - 'a']--;
-        }
-        // cout << "i : " << i << " curr : " << curr << "\n";
-        if(v == curr) {
-            // cout << "inserting : 
-            // cout << "inserting i : " << i << '\n';
-            // cout << "l : " << i + 1 - n.size() << " r : " << i + 1 << '\n';
-            found_h1.insert(sh.get_hash(i + 1 - (int) n.size(),i + 1));
+    string s; cin >> s;
+    stringhash sh(s);
+    int n = s.size();
+    vector<bool> poss(n + 1);
+    for(int length = n; length >= 1; length--) {
+        if(length * 2 <= n) {
+            if(poss[length * 2]) {
+                if(sh.get_hash(0,length) == sh.get_hash(length, length * 2)) {
+                    poss[length] = 1;
+                }
+            }
+        } else {
+            if(sh.get_hash(0,n - length) == sh.get_hash(length, n)) {
+                poss[length] = 1;
+            }
         }
     }
-    cout << found_h1.size() << '\n';
+
+    for(int i = 0; i <= n; i++) {
+        if(poss[i]) {
+            cout << i << ' ';
+        }
+    }
+
     return 0;
 }
