@@ -5,7 +5,6 @@ struct Lazy {
     vector<T> v;      //stores values at each index we are querying for
     vector<D> lazy;   //base, count of how many polynomials start at one at the beginning of this node
     int n, size;
-
     //if OJ is not up to date, remove all occurrences of ln
     Lazy(int n = 0, T def = qn) {
         this->n = n;
@@ -39,8 +38,8 @@ struct Lazy {
         _update(1,0,size,l,r, val);
     }
     void _update(int node, int currl, int currr, int &targetl, int &targetr, D val) {
-        push_lazy(node, currr - currl);
         if (currl >= targetr || currr <= targetl) return;
+        push_lazy(node, currr - currl);
         if(currl >= targetl && currr <= targetr) { //complete overlap
             lazy_comb(node, val); //we apply the lazy change to this node, then update this node.
         } else { //partial overlap, should never be a leaf, otherwise it'd fall under previous categories 
@@ -56,7 +55,7 @@ struct Lazy {
         return _query(1,0,size,l,r);
     }
     T _query(int node, int currl, int currr, int &targetl, int &targetr) { //[l,r)
-        if(currr <= targetl || currl >= targetr)return qn; 
+        if(currr <= targetl || currl >= targetr) return qn; 
         push_lazy(node, currr-currl); //make pushes necessary before getting value, we always check for 2 cases
         if(currl >= targetl && currr <= targetr) { //complete overlap
             return v[node];
