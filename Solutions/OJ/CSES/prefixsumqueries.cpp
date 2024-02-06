@@ -1,10 +1,16 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+const ll MOD = 1e9 + 7;
+
 template<typename T>
 struct Tree {
-    static constexpr T base = 0;
+    static constexpr T base = {0,0};
     vector<T> v;
     int n, size;
     T comb(T a, T b) { //change this when doing maximum vs minimum etc.
-        return a + b;
+        return {a.first + b.first, max(a.second, a.first + b.second)};
     }
     // optional MIQ stuff
     bool cond(T a, T b) {
@@ -22,11 +28,11 @@ struct Tree {
         v[curr] = val;
         while(curr != 1) {
             if(curr & 1) { //non
-                v[curr / 2] = comb(v[curr ^ 1], v[curr]);
+                v[curr >> 1] = comb(v[curr ^ 1], v[curr]);
             } else {
-                v[curr / 2] = comb(v[curr], v[curr ^ 1]);
+                v[curr >> 1] = comb(v[curr], v[curr ^ 1]);
             }
-            curr /= 2;
+            curr >>= 1;
         }
     }
     bool isLeaf(int idx) {
@@ -65,3 +71,26 @@ struct Tree {
         }
     }
 };
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    
+    int n, q; cin >> n >> q;
+    Tree<pair<ll,ll>> tree(n);
+    for(int i = 0; i < n; i++) {
+        int num; cin >> num;
+        tree.update(i,{num,max(0,num)});
+    }
+    for(int i = 0; i < q; i++) {
+        int type, a, b; cin >> type >> a >> b;
+        if(type == 1) {
+            tree.update(a-1, {b,max(0,b)});
+        }
+        if(type == 2) {
+            cout << tree.query(a-1,b).second << '\n';
+        }
+    }
+
+    return 0;
+}

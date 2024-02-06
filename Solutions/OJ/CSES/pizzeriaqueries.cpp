@@ -1,10 +1,30 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+const ll MOD = 1e9 + 7;
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    // for(auto &x : v) os << x << " ";
+    // return os;
+    for(int i = 1; v.size() >= 1 << i; i++) {
+        for(int j = 1 << (i - 1); 1 << i > j; j++) {
+            // os << "i : " << i << " j : " << j << ' ';
+            os << v[j] << ' ';
+        }
+        os << '\n';
+    }
+    return os;
+}
+
 template<typename T>
 struct Tree {
-    static constexpr T base = 0;
-    vector<T> v;
+    static constexpr T base = INT_MAX;
+    vector<T> v; //store distance from node 0
     int n, size;
     T comb(T a, T b) { //change this when doing maximum vs minimum etc.
-        return a + b;
+        return min(a,b); 
     }
     // optional MIQ stuff
     bool cond(T a, T b) {
@@ -19,12 +39,12 @@ struct Tree {
     void update(int pos, T val) { //update 0 indexed, assignment
         assert(pos < n && pos >= 0);
         int curr = pos + size;
-        v[curr] = val;
+        v[curr] = val + pos;
         while(curr != 1) {
             if(curr & 1) { //non
-                v[curr / 2] = comb(v[curr ^ 1], v[curr]);
+                v[curr/2] = comb(v[curr ^ 1], v[curr]);
             } else {
-                v[curr / 2] = comb(v[curr], v[curr ^ 1]);
+                v[curr/2] = comb(v[curr], v[curr ^ 1]);
             }
             curr /= 2;
         }
@@ -65,3 +85,36 @@ struct Tree {
         }
     }
 };
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    
+    int n, q; cin >> n >> q;
+    Tree<int> pre(n);
+    Tree<int> suff(n);
+    for(int i = 0; i < n; i++) {
+        int num; cin >> num;
+        pre.update(i,num);
+        suff.update(n-i-1,num);
+    }
+    // cout << "pre\n" << pre.v;
+    // cout << "suff\n" << suff.v;
+    for(int i = 0; i < q; i++) {
+        int type; cin >> type;
+        if(type == 1) {
+            int k, x; cin >> k >> x;
+            k--;
+            pre.update(k,x);
+            suff.update(n-k-1,x);
+        }
+        if(type == 2) {
+            int k; cin >> k;
+            k--;
+            // cout << "k : " << k << " a : " << pre.query(k,n) << " b : " << -k << " c : " << suff.query(n-k-1,n) << " d : " << -(n - k - 1) << '\n';
+            cout << min(pre.query(k,n) - k, suff.query(n-k-1,n) - (n - k - 1)) << '\n';
+        }
+    }
+
+    return 0;
+}

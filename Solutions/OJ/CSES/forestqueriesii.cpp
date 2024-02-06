@@ -1,3 +1,9 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+const ll MOD = 1e9 + 7;
+
 template<typename T>
 struct Tree {
     static constexpr T base = 0;
@@ -65,3 +71,48 @@ struct Tree {
         }
     }
 };
+
+Tree<int> v[1000];
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    
+    int n, q; cin >> n >> q;
+    // vector<Tree<int>> v(n,Tree<int>(n));
+    for(int i = 0; i < n; i++) {
+        v[i].n = n;
+        v[i].size = 2048;
+        v[i].v.assign(2048 * 2, v[i].base);
+        for(int j = 0; j < n; j++) {
+            char c; cin >> c;
+            if(c == '*') {
+                v[i].update(j,1);
+            }
+        }
+    }
+    for(int i = 0; i < q; i++) {
+        int type; cin >> type;
+        if(type == 1) {
+            int x, y; cin >> x >> y;
+            x--; y--;
+            v[x].update(y,v[x].at(y) ^ 1);
+        }
+        if(type == 2) {
+            int x1, y1, x2, y2; cin >> x1 >> y1 >> x2 >> y2;
+            x1--;
+            y1--;
+            // x2--;
+            // y2--;
+            int sum = 0;
+            for(int row = x1; row < x2; row++) {
+                sum += v[row].query(y1,y2);
+            }
+            cout << sum << '\n';
+        }
+    }
+
+    // cout << "OK!\n";
+
+    return 0;
+}
