@@ -31,12 +31,15 @@ struct stringhash {
         }
     }
 
-    pair<ll,ll> get_hash(int l, int r) { //[l,r) because that's the cool, Andwerp way
-        assert(l >= 0 && r <= n);
-        return {
-            (h1[r] - h1[l] * p1[r-l] % M1 + M1) % M1,
-            (h2[r] - h2[l] * p2[r-l] % M2 + M2) % M2        
-        };
+    ll get_hash(int l, int r) { //[l,r) because that's the cool, Andwerp way
+        // assert(l >= 0 && r <= n);
+        // return {
+        //     (h1[r] - h1[l] * p1[r-l] % M1 + M1) % M1,
+        //     (h2[r] - h2[l] * p2[r-l] % M2 + M2) % M2        
+        // };
+        ll num1 = (h1[r] - h1[l] * p1[r-l] % M1 + M1) % M1;
+        ll num2 = (h2[r] - h2[l] * p2[r-l] % M2 + M2) % M2;
+        return num1 + num2 * M1;
     }
 
 };

@@ -4,6 +4,14 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 1e9 + 7;
 
+//implement with stack :)
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto &x : v) os << x << " ";
+    return os;
+}
+
 //range minimum query. O(1) query, O(n) build/memory. fast.
 template<typename T>
 struct RMQ  {
@@ -207,13 +215,40 @@ ll tri(ll num) {
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-    
+    // freopen("in.in","r",stdin);
+    // freopen(".out","w",stdout);
     string str; cin >> str;
+    ll n = str.size();
 
     SuffixArray SA(str);
     vector<int> v = SA.lcp;
-
-    
-
+    for(int &x : v) x++;
+    ll ans = 0;
+    stack<pair<ll,pair<ll,ll>>> s; //value, {index, diff}
+    for(ll i = 0; i < n; i++) {
+        ll push_idx = i;
+        while(s.size() && s.top().first > v[i]) {
+            pair<ll,pair<ll,ll>> p = s.top();
+            s.pop();
+            push_idx = min(push_idx,p.second.first);
+            // cout << "i : " << i << " mult : " << p.second.second << " by " << i - p.second.first << '\n';
+            ans += p.second.second * tri(i - p.second.first);
+        }
+        if(s.size() && s.top().first == v[i]) {
+            pair<ll,pair<ll,ll>> p = s.top();
+            s.pop();
+            push_idx = min(push_idx, p.second.first);
+        }
+        ll prev_val = s.size() ? s.top().first : 0;
+        s.push({v[i], {push_idx, v[i] - prev_val}});
+        // cout << "i : " << i << " push : " << v[i] << " " << push_idx << " " << v[i] - prev_val << '\n';
+    }
+    while(s.size()) {
+        pair<ll,pair<ll,ll>> p = s.top();
+        s.pop();
+        // cout << " mult : " << p.second.second << " by " << n - p.second.first << '\n';
+        ans += tri(n - p.second.first) * p.second.second;
+    }
+    cout << ans << '\n';
     return 0;
 }
