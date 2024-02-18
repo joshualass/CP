@@ -1,6 +1,48 @@
-5
-1 1 1 1 1 1
-1 2 1 2 1 2
-1 1 1 2 1 3
-1 1 1 2 1 4
-2 2 2 3 2 4
+Basestation-Placement(x,n,k):
+
+base_station_locations = [] #list of positions of base stations
+lo_idx = 1 #stores index of westmost house that doesn't have a base station
+
+while lo_idx != n + 1:
+    #place a base station as west to it as possible while still being on the road
+    base_station_locations.append(min(x[n],x[lo_idx] + k))
+    while lo_idx != n + 1 and base_station_locations[len(base_station_locations)] + k >= x[lo_idx]:
+        lo_idx += 1
+
+return base_station_locations
+
+create dp[x][y][z] 3d array with all values set to 0
+for(int i = 0; i < n; i++) {
+    iterate over all triples j,k,l such that j <= x, k <= y, l <= z, and also in order of increasing sum of j + k + l
+        make the three transitions from these states --- sell the current house box x, y, or z
+        dp[j-1][k][l] = max(dp[j-1][k][l], dp[j][k][l] + A[i]);
+        dp[j][k-1][l] = max(dp[j][k-1][l], dp[j][k][l] + B[i]);
+        dp[j][k][l-1] = max(dp[j][k][l-1], dp[j][k][l] + C[i]);
+
+}
+
+return max of all values in dp
+
+recursion approach for luci goosey
+create dp[n][x][y][z] yikes bad memory :(
+create visited[n][x][y][z]
+create parents[n][x][y][z] //1 - parent is from x cookie,2  - parent is from y cookie,3 - parent is from z cookie
+
+call recur(n, 0, 0, 0) //we are working backwards now --- start from final house and 0 of each cookie
+
+recur(int house, int i, int j, int k) {
+    visited[house][x][y][z] = 1;
+    if(i != x) { //not out of bounds
+        if(!visited[house-1][i+1][j][k]) { //not visited
+            recur(house-1,i+1,j,k);
+        }
+        try_val = dp[house-1][i+1][j][k] + A[house - 1]
+        if(try_val > dp[house][i][j][k]) {
+            dp[house][i][j][k] = try_val
+            parents[house][i][j][k] = 1
+        }
+    }
+
+    repeat this process 2 more times using j,y variables and k,z variables
+
+}
