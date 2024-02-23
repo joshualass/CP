@@ -1,3 +1,71 @@
+K-Pints(A,B,C,a,b,c,k):
+
+#create visited array with all nodes set to unvisited
+visited = [0 ... A][0 ... B][0 ... C]
+
+q = queue()
+q.push([a,b,c])
+
+while(!q.isEmpty()):
+    val = q.pop()
+    curr_a = val[0]
+    curr_b = val[1]
+    curr_c = val[2]
+
+    if visited[curr_a][curr_b][curr_c] == 1:
+        continue
+
+    visited[curr_a][curr_b][curr_c] = 1
+
+    if curr_a == k or curr_b == k or curr_c == k:
+        return yes
+
+    #simulate the pours
+    pourAB = min(curr_a,B-curr_b)
+    q.push([
+        curr_a - pourAB,
+        curr_b + pourAB,
+        curr_c
+    ])
+
+    pourAC = min(curr_a,C-curr_c)
+    q.push([
+        curr_a - pourAC,
+        curr_b,
+        curr_c + pourAC
+    ])
+
+    pourBA = min(curr_b,A-curr_a)
+        q.push([
+        curr_a + pourBA,
+        curr_b - pourBA,
+        curr_c
+    ])
+
+    pourBC = min(curr_b,C-curr_c)
+    q.push([
+        curr_a,
+        curr_b - pourBC,
+        curr_c + pourBC
+    ])
+
+    pourCA = min(curr_c,A-curr_a)
+    q.push([
+        curr_a + pourCA,
+        curr_b,
+        curr_c - pourCA
+    ])
+
+    pourCB = min(curr_c,B-curr_b)
+    q.push([
+        curr_a,
+        curr_b + pourCB,
+        curr_c - pourCB
+    ])
+
+return no
+
+
 Basestation-Placement(x,n,k):
 
 base_station_locations = [] #list of positions of base stations
