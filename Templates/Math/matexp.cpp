@@ -11,7 +11,7 @@ vector<vector<ll>> matmult(vector<vector<ll>> &a, vector<vector<ll>> &b) {
     }
     return res;
 }
-
+//use notation of [from][to]
 vector<vector<ll>> matexp(vector<vector<ll>> mat, ll pow) {
     int n = mat.size();
     vector<vector<ll>> result(n,vector<ll>(n));
@@ -20,7 +20,7 @@ vector<vector<ll>> matexp(vector<vector<ll>> mat, ll pow) {
     }
     while(pow) {
         if(pow & 1) {
-            result = matmult(mat,result);
+            result = matmult(result,mat);
         }
         mat = matmult(mat,mat);
         pow >>= 1;

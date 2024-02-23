@@ -19,31 +19,31 @@ std::ostream& operator<<(std::ostream& os, const vector<vector<T>> adj) {
 vector<vector<ll>> matmult(vector<vector<ll>> &a, vector<vector<ll>> &b) {
     int n = a.size();
     vector<vector<ll>> res(n,vector<ll>(n));
+    // cout << "a : \n" << a;
+    // cout << "b : \n" << b;
     for(int i = 0; i < n; i++) {
         for(int j = 0; j < n; j++) {
             for(int z = 0; z < n; z++) {
                 res[i][j] += a[i][z] * b[z][j];
-                res[i][j] %= MOD;
+                res[i][j] &= 4294967295;
             }
         }
     }
+    // cout << "res ? \n" << res;
     return res;
 }
 
 vector<vector<ll>> matexp(vector<vector<ll>> mat, ll pow) {
     int n = mat.size();
     vector<vector<ll>> result(n,vector<ll>(n));
-    for(int i = 0; i < n; i++) {
-        result[i][i] = 1;
-    }
-    // result[0][0] = 1;
-    // result[64][64] = 1;
+    result[0][0] = 1; //starting out, there is only 1 way to start and end at 
+
     while(pow) {
         if(pow & 1) {
-            result = matmult(mat,result);
+            result = matmult(result,mat);
         }
         mat = matmult(mat,mat);
-        cout << "updmat?\n" << mat;
+        // cout << "updmat?\n" << mat;
         pow >>= 1;
     }
     return result;
@@ -62,24 +62,30 @@ signed main() {
         for(int j = 0; j < 8; j++) {
             for(int k = 0; k < 8; k++) {
                 int ax = i + dx[k];
-                int ay = j + dx[k];
+                int ay = j + dy[k];
                 if(ax >= 0 && ax < 8 && ay >= 0 && ay < 8) {
                     mat[i * 8 + j][ax * 8 + ay] = 1;
                 }
             }
         }
     }
-    // for(int i = 0; i < 65; i++) {
-        // mat[64][i] = 1;
-    // }
-    mat[64][0] = 1;
-    mat[64][64] = 1;
+    for(int i = 0; i < 65; i++) {
+        mat[i][64] = 1;
+    }
 
     vector<vector<ll>> res = matexp(mat,k);
 
-    cout << "mat\n" << mat;
-    cout << "res\n" << res;
-    
+    // cout << "mat\n" << mat;
+    // cout << "res\n" << res;
+
+    ll ans = 0;
+    for(int i = 0; i < 65; i++) {
+        for(int j = 0; j < 65; j++) {
+            ans += res[i][j];
+            ans &= 4294967295;
+        }
+    }
+    cout << ans << '\n';
     // cout << reduce(res[64].begin(), res[64].end()) << '\n';
 
     return 0;
