@@ -6,10 +6,6 @@ struct Tree {
     T comb(T a, T b) { //change this when doing maximum vs minimum etc.
         return a + b;
     }
-    // optional MIQ stuff
-    bool cond(T a, T b) {
-        return a <= b;
-    }
     Tree(int n = 0, T def = base) {
         this->n = n; //max number of elements
         size = 1;
@@ -47,6 +43,10 @@ struct Tree {
             _query(idx * 2, currl, mid, targetl, targetr),
             _query(idx * 2 + 1, mid, currr, targetl, targetr)
         );
+    }
+    // optional MIQ stuff
+    bool cond(T a, T b) {
+        return a <= b;
     }
     //find the lowest index and value that satisfy the condition in range [l,r)
     pair<int,T> queryMIQ(T val, int lo, int hi) { //{index, value}

@@ -1,9 +1,3 @@
-#include <bits/stdc++.h>
-typedef long long ll;
-typedef long double ld;
-using namespace std;
-const ll MOD = 1e9 + 7;
-
 template<typename T>
 struct Tree {
     static constexpr T base = 0;
@@ -24,7 +18,11 @@ struct Tree {
         int curr = pos + size;
         v[curr].push_back({op,val});
         while(curr != 1) {
-            v[curr / 2].push_back({op, comb(v[curr].back().second, v[curr ^ 1].back().second)});
+            if(curr & 1) {
+                v[curr / 2].push_back({op, comb(v[curr ^ 1].back().second, v[curr].back().second)});
+            } else {
+                v[curr / 2].push_back({op, comb(v[curr].back().second, v[curr ^ 1].back().second)});
+            }
             curr /= 2;
         }
         op++;
@@ -61,45 +59,3 @@ struct Tree {
         );
     }
 };
-
-signed main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    
-    int n; cin >> n;
-    vector<pair<int,int>> v(n);
-    for(int i = 0; i < n; i++) {
-        cin >> v[i].first;
-        v[i].second = i;
-    }
-    sort(v.begin(), v.end());
-
-    Tree<ll> tree(n);
-
-    for(int i = 0; i < n; i++) {
-        tree.update(v[i].second, v[i].first);
-    }
-
-    ll ans = 0;
-    int q; cin >> q;
-    for(int i = 0; i < q; i++) {
-        ll l, r, x; cin >> l >> r >> x;
-        l ^= ans;
-        r ^= ans; 
-        x ^= ans;
-
-        int lo = -1, hi = n - 1;
-        while(lo != hi) {
-            int m = (lo + hi + 1) / 2;
-            if(v[m].first <= x) {
-                lo = m;
-            } else {
-                hi = m - 1;
-            }
-        }
-        ans = tree.query(l-1,r,lo);
-        cout << ans << '\n';
-    }
-
-    return 0;
-}
