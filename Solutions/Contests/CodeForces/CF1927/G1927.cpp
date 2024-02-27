@@ -4,6 +4,7 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 998244353;
 
+//ff paint charges too difficult
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const vector<T> v) {
     for(auto &x : v) os << x << " ";
