@@ -39,7 +39,7 @@ void solve() {
         }
     }
 
-    // cout << "dp\n" << dp;
+    cout << "dp\n" << dp;
 
     // cout << dp[0][0] << '\n';
     int ans = dp[0][0];

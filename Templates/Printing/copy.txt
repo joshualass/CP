@@ -1,3 +1,34 @@
-1
-6
-2 12 7 16 11 12
+Babyface-Heels(n, adj):
+
+visited_times = bfs(adj)
+types = [1 ... n]
+for i = 1 to n:
+    if visited_times[i] % 2 == 0:
+        types[i] = "Babyface"
+    else:
+        types[i] = "Heel"
+
+for i = 1 to n:
+    for edge in adj[i]:
+        if types[i] == types[edge]:
+            return not possible
+
+return types
+
+CountPaths(adj,a,b):
+
+topological_ordering = topological_sort(adj);
+
+trans = [1 ... n]
+for i = 1 to n:
+    for edge in adj[i]:
+        trans[edge].append(i)
+
+dp = [1 ... n]
+dp[a] = 1
+
+for i in topological_ordering:
+    for edge in trans[i]:
+        dp[i] += dp[edge]
+
+return dp[b]
