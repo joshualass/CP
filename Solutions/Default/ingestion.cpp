@@ -21,7 +21,7 @@ int main() {
         // cout << mults[i] << '\n';
     }
     int dp[SIZE][SIZE] = {};
-
+    
     for (int c = 0; c < n; c++) {
         int cals; cin >> cals;
         for (int r = 0; r < SIZE - 1; r++) {
