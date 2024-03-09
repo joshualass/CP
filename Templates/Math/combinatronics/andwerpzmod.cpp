@@ -2,6 +2,8 @@ ll mod = 1e9 + 7;
 vector<ll> fac;
 map<pair<ll, ll>, ll> nckdp;
 
+const int MAXN = 1e6;
+
 ll add(ll a, ll b) {
     ll ret = a + b;
     while(ret >= mod) {
@@ -30,19 +32,9 @@ ll power(ll a, ll b) {
             ans = mul(ans, p);
         }
         p = mul(p, p);
-        b <<= 1;
+        b /= 2;
     }
     return ans;
-
-    // if(b == 0){
-    //     return 1;
-    // }
-    // ll ans = power(a, b / 2);
-    // ans = mul(ans, ans);
-    // if(b % 2 == 1) {
-    //     ans = mul(ans, a);
-    // }
-    // return ans;
 }
 
 ll divide(ll a, ll b){
@@ -57,7 +49,7 @@ ll gcd(ll a, ll b){
 }
 
 void fac_init() {
-    fac = vector<ll>(1e6, 1);
+    fac = vector<ll>(MAXN + 1, 1);
     for(int i = 2; i < fac.size(); i++){
         fac[i] = mul(fac[i - 1], i);
     }

@@ -1,4 +1,4 @@
-ll binexp(ll base, ll power, ll MOD = 1e9 + 7) {
+ll binexp(ll base, ll power) {
     ll ans = 1;
     while(power != 0) {
         if(power & 1) {
