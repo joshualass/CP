@@ -1,99 +1,15 @@
-ShortestPaths_Count(adj, s, t):
-
-visited_times = bfs(adj)
-upd_adj = [1 ... n]
-for i = 1 to n:
-    for edge in adj[i]:
-        if visited_times[i] + 1 == visited_times[edge]:
-            upd_adj[i].append(edge)
-
-return CountPaths(adj,s,t)
-
-#CountPaths for reference
-CountPaths(adj,a,b):
-
-topological_ordering = topological_sort(adj);
-
-transpose = [1 ... n]
-for i = 1 to n:
-    for edge in adj[i]:
-        transpose[edge].append(i)
-
-dp = [1 ... n]
-dp[a] = 1
-
-for i in topological_ordering:
-    for edge in transpose[i]:
-        dp[i] += dp[edge]
-
-return dp[b]
-
-types = [1 ... n]
-for i = 1 to n:
-    if visited_times[i] % 2 == 0:
-        types[i] = "Babyface"
-    else:
-        types[i] = "Heel"
-
-for i = 1 to n:
-    for edge in adj[i]:
-        if types[i] == types[edge]:
-            return not possible
-
-return types
-
-Arbitrage(n, R): 
-
-rates = [1 ... n, 0]
-rates[1] = 1
-
-#Bellman-Ford algorithm with multiplication modification
-for i = 1 to n - 1:
-    for j = 1 to n:
-        if rates[i] * R[i][j] > rates[j]:
-            rates[j] = rates[i] * R[i][j]
-
-for j = 1 to n:
-    if rates[i] * R[i][j] > rates[j]:
-        return sequence does exist
-
-return sequence doesn't exist
-
-Arbitrage(n, R): 
-
-rates = [1 ... n, 0]
-rates[1] = 1
-parents = [1 ... n, -1]
-
-#Bellman-Ford algorithm with multiplication modification
-for i = 1 to n - 1:
-    for j = 1 to n:
-        if rates[i] * R[i][j] > rates[j]:
-            rates[j] = rates[i] * R[i][j]
-            #store parents if relax
-            parents[j] = i
-
-start_node = -1
-
-for j = 1 to n:
-    if rates[i] * R[i][j] > rates[j]:
-        starting_node = i
-        break
-
-if start_node == -1:
-    return sequence doesn't exist
-else:
-    #backtrack until cycle is found
-    visited = [1 ... n, 0]
-    sequence = []
-    while visited[start_node] == 0:
-        sequence.append(start_node)
-        visited[start_node] = 1
-        start_node = parents[start_node]
-    #there might be extra nodes toward the 
-    #beginning of our sequence that are not in the cycle
-    while sequence[0] != start_node:
-        sequence.pop_front()
-
-    return sequence
-    
+1
+12 5
+1 6
+1 11
+2 392130334
+1 4
+2 744811750
+1 10
+1 5
+2 209373780
+2 178928984
+1 3
+2 658326464
+2 1000000000
+914576963034536490 640707385283752918 636773368365261971 584126563607944922 1000000000000000000

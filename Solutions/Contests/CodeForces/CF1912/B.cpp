@@ -4,6 +4,8 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 998244353;
 
+//solved on jlass acc
+
 const int N = 1e6;
 ll factorials[N+1];
 
