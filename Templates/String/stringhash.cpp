@@ -1,6 +1,6 @@
+const ll M1 = 998244353, B1 = 9973;
+const ll M2 = 1e9 + 9, B2 = 9931;
 struct stringhash {
-    const ll M1 = 998244353, B1 = 9973;
-    const ll M2 = 1e9 + 9, B2 = 9931;
     vector<ll> h1, h2;
     vector<ll> p1, p2;
     int n;

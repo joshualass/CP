@@ -26,6 +26,16 @@ void solve() {
             rl[i] += a[i+1] - a[i];
         }
     }
+    int m; cin >> m;
+    for(int i = 0; i < m; i++) {
+        int x, y; cin >> x >> y;
+        x--; y--;
+        if(x < y) {
+            cout << lr[y]  - lr[x] << '\n';
+        } else {
+            cout << rl[y] - rl[x] << '\n';
+        }
+    }
 }
 
 signed main() {
