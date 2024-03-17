@@ -2,12 +2,15 @@
 typedef long long ll;
 typedef long double ld;
 using namespace std;
-ll MOD;
+const ll MOD = 998244353;
 
 void solve() {
-    ll n, k; cin >> n >> k >> MOD;
-
-    
+    int n, k; cin >> n >> k;
+    if(k >= n - 1) {
+        cout << "1\n";
+    } else {
+        cout << n << '\n';
+    }
 }
 
 signed main() {
