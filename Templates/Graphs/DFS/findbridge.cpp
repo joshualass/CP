@@ -1,33 +1,40 @@
-int n; // number of nodes
-vector<vector<int>> adj; // adjacency list of graph
+void dfsb(int i, int p, vector<vector<int>> &adj, vector<int> &low, vector<int> &d, int &time) {
+    d[i] = time++;
+    low[i] = d[i];
 
-vector<bool> visited;
-vector<int> tin, low;
-int timer;
-
-void dfs(int v, int p = -1) {
-    visited[v] = true;
-    tin[v] = low[v] = timer++;
-    for (int to : adj[v]) {
-        if (to == p) continue;
-        if (visited[to]) {
-            low[v] = min(low[v], tin[to]);
-        } else {
-            dfs(to, v);
-            low[v] = min(low[v], low[to]);
-            if (low[to] > tin[v])
-                IS_BRIDGE(v, to);
+    for(int x : adj[i]) {
+        if(x != p) {
+            if(d[x] == -1) {
+                dfsb(x,i,adj,low,d,time);
+            }
+            // if()
+            low[i] = min(low[i], low[x]);
         }
     }
+
 }
 
-void find_bridges() {
-    timer = 0;
-    visited.assign(n, false);
-    tin.assign(n, -1);
-    low.assign(n, -1);
-    for (int i = 0; i < n; ++i) {
-        if (!visited[i])
-            dfs(i);
+vector<vector<int>> find_bridges(vector<vector<int>> &adj) {
+    int n = adj.size();
+    vector<int> low(n,-1);
+    vector<int> d(n,-1);
+    int time = 0;
+
+    for(int i = 0; i < n; i++) {
+        if(d[i] == -1) {
+            dfsb(i,-1,adj,low,d,time);
+        }
     }
+
+    vector<vector<int>> res(n);
+    for(int i = 0; i < adj.size(); i++) {
+        for(int x : adj[i]) {
+            if(low[x] > d[i]) {
+                res[x].push_back(i);
+                res[i].push_back(x);
+            }
+        }
+    }
+
+    return res;
 }

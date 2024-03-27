@@ -2,37 +2,57 @@
 typedef long long ll;
 using namespace std;
 
-vector<vector<int>> adj;
-vector<set<int>> bridges;
-vector<bool> visited;
-vector<int> low;
-vector<int> order;
-int counter = 0;
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
 
-void DFS(int n, int p) {
-    visited[n] = true;
-    low[n] = counter;
-    order[n] = counter++;
-    for(int x : adj[n]) {
-        if(x == p) {
-            continue;
+void dfsb(int i, int p, vector<vector<int>> &adj, vector<int> &low, vector<int> &d, int &time) {
+    d[i] = time++;
+    low[i] = d[i];
+
+    for(int x : adj[i]) {
+        if(x != p) {
+            if(d[x] == -1) {
+                dfsb(x,i,adj,low,d,time);
+            }
+            // if()
+            low[i] = min(low[i], low[x]);
         }
-        if(visited[x]) {
-            low[n] = min(low[n],low[x]);
-        } else {
-            DFS(x,n);
-            low[n] = min(low[n],low[x]);
-            if(low[x] > order[n]) {
-                // cout << "bridge: " << x << " " << n << "\n";
-                bridges[x].insert(n);
-                bridges[n].insert(x);
+    }
+
+}
+
+vector<set<int>> find_bridges(vector<vector<int>> &adj) {
+    int n = adj.size();
+    vector<int> low(n,-1);
+    vector<int> d(n,-1);
+    int time = 0;
+
+    for(int i = 0; i < n; i++) {
+        if(d[i] == -1) {
+            dfsb(i,-1,adj,low,d,time);
+        }
+    }
+
+    // cout << "d : " << d << '\n' << "low : " << low << '\n';
+
+    vector<set<int>> res(n);
+    for(int i = 0; i < adj.size(); i++) {
+        for(int x : adj[i]) {
+            if(low[x] > d[i]) {
+                res[x].insert(i);
+                res[i].insert(x);
             }
         }
     }
+
+    return res;
 }
 
 int nodes = 0;
-void DFS2(int n) {
+void DFS2(int n, vector<bool> &visited, vector<set<int>> &bridges, vector<vector<int>> &adj) {
     if(visited[n]) {
         return;
     }
@@ -41,7 +61,7 @@ void DFS2(int n) {
     for(int x : adj[n]) {
         if(bridges[n].find(x) == bridges[n].end()) {
             // cout << "not found: " << n << " " << x << "\n";
-            DFS2(x);
+            DFS2(x,visited,bridges,adj);
         }
     }
 }
@@ -52,23 +72,16 @@ int main() {
 
     int N, M;
     cin >> N >> M;
-    adj.resize(N);
-    bridges.resize(N);
-    visited.resize(N);
-    low.resize(N);
-    order.resize(N);
+    vector<vector<int>> adj(N);
     for(int i = 0; i < M; i++) {
         int a, b; cin >> a >> b;
         adj[a].push_back(b);
         adj[b].push_back(a);
     }
-    for(int i =0; i < N; i++) {
-        if(!visited[i]) {
-            DFS(i,-1);
-        }
-    }
-    visited.assign(N,false);
-    DFS2(0);
+    vector<set<int>> bridges = find_bridges(adj);
+
+    vector<bool> vis(N);
+    DFS2(0,vis,bridges,adj);
     cout << nodes;
 
     return 0;
