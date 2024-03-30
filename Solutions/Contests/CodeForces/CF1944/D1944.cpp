@@ -18,7 +18,7 @@ need to optimize transitions to get to run in n^3.
 
 void solve() {
     ll n, k; cin >> n >> k >> MOD;
-
+    
     
 }
 
