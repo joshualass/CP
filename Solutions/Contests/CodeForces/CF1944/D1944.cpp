@@ -6,20 +6,51 @@ ll MOD;
 
 /*
 dp[i][j][k]
-i - array from 0 to i
-j - value of element at position i
-k - minimum value needed 
-store - number of ways to make this
+i - at current index i in the array
+j - value at index i - 2
+k - value at index i - 1
 
-need to optimize transitions to get to run in n^3. 
+n^3 states --> need constant transitions
+
+
 
 */
 
 
 void solve() {
     ll n, k; cin >> n >> k >> MOD;
+    vector<vector<vector<ll>>> dp(n, vector<vector<ll>>(k + 1, vector<ll>(k + 1)));
+    for(ll i = 0; i <= k; i++) {
+        dp[0][0][i] = 1;
+    }
 
-    
+    for(ll i = 1; i < n; i++) {
+        for(ll j = 0; j <= k; j++) {
+            for(ll l = 0; l <= k; l++) {
+                dp[i][l][max(0LL, l - j)] += dp[i-1][j][l];
+                dp[i][l][max(0LL, l - j)] %= MOD;
+            }
+        }
+        for(ll j = 0; j <= k; j++) {
+            for(ll l = 0; l <= k; l++) {
+                if(l != 0) {
+                    dp[i][j][l] += dp[i][j][l-1];
+                    if(dp[i][j][l] >= MOD) {
+                        dp[i][j][l] %= MOD;
+                    }
+                }
+            }
+        }        
+    }
+    ll res = 0;
+    for(ll i = 0; i <= k; i++) {
+        for(int j = 0; j <= k; j++) {
+            if(j <= i) {
+                res += dp[n-1][i][j];
+            }
+        }
+    }
+    cout << res % MOD << '\n';
 }
 
 signed main() {
