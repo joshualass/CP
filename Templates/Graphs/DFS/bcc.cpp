@@ -1,9 +1,4 @@
-#include <bits/stdc++.h>
-typedef long long ll;
-typedef long double ld;
-using namespace std;
-const ll MOD = 1e9 + 7;
-
+//modified kosaraju's algorithm - given an undirected graph, find the biconnected components
 void dfs(int i, int par, vector<vector<int>> &adj, stack<int> &s, vector<int> &times, int &time, vector<vector<int>> &sccs,vector<int> &low, vector<bool> &vis) {
     times[i] = time;    
     low[i] = time++;
@@ -50,32 +45,4 @@ vector<vector<int>> tarjans(vector<vector<int>> adj) {
         }
     }
     return sccs;
-}
-
-signed main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    
-    int n, m; cin >> n >> m;
-    vector<vector<int>> adj(n);
-    map<pair<int,int>, int> cnts;
-    for(int i = 0; i < m; i++) {
-        int a, b; cin >> a >> b;
-        if(a == b) continue;
-        adj[a].push_back(b);
-        adj[b].push_back(a);
-        cnts[{a,b}]++;
-        cnts[{b,a}]++;
-    }
-
-    vector<vector<int>> sccs = tarjans(adj);
-    cout << sccs.size() << '\n';
-    for(auto x : sccs) {
-        cout << x.size() << " ";
-        for(int i = 0; i < x.size(); i++) {
-            cout << x[i] << " \n"[i == x.size() - 1];
-        }
-    }
-
-    return 0;
 }

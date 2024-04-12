@@ -1,3 +1,169 @@
-1
-4 2
-1 4 3 6
+
+def tarjan(graph, visited, curr_node,  order, d, low, cycle_stack, max_size, sccs):
+    visited[curr_node] = 1
+    cycle_stack.append(curr_node)
+    d[curr_node] = order[0]
+    low[curr_node] = order[0]
+    order[0] = order[0] + 1
+    for child_node in graph[curr_node]:
+        if visited[child_node] == 0:
+            tarjan(graph, visited, child_node, order, d, low, cycle_stack, max_size, sccs)
+            low[curr_node] = min(low[curr_node], low[child_node])
+        elif visited[child_node] == 1:
+            low[curr_node] = min(low[curr_node], d[child_node])
+    visited[curr_node] = 2
+    if low[curr_node] == d[curr_node]:
+        curr_size = 0
+        curr_scc = []
+        while True:
+            just_popped = cycle_stack.pop()
+            curr_scc.append(just_popped)
+            curr_size += 1
+            if just_popped == curr_node:
+                break
+        sccs.append(curr_scc)
+        max_size[0] = max(curr_size, max_size[0])
+
+num_characters = int(input())
+# characters = []
+speak = {}
+understand = {}
+for i in range(num_characters):
+    inputData = input().split()
+    char = inputData[0]
+    speakLang = inputData[1]
+    speak[i] = inputData[1]
+    understoodLanguages = inputData[1:]
+    for val in understoodLanguages:
+        if val in understand:
+            understand[val].add(i)
+        else:
+            understand[val] = set()
+            understand[val].add(i)
+
+
+graph = [[] for x in range(num_characters)]
+for i in range(num_characters):
+    spoken_language = speak[i]
+    for j in understand[spoken_language]:
+        if j != i:
+            graph[i].append(j)
+# d = [0] * num_characters
+# low = [0] * num_characters
+# visited = [0] * num_characters
+d = []
+low = []
+visited = []
+for _ in range(num_characters):
+    d.append(0)
+    low.append(0)
+    visited.append(0)
+
+sccs = []
+order = [0]
+max_size = [1]
+cycle_stack = []
+for i in range(num_characters):
+    if visited[i] == 0:
+        tarjan(graph, visited, i, order, d, low, cycle_stack, max_size, sccs)
+
+largest = 1
+for scc in sccs:
+    if len(scc) > largest:
+        largest = len(scc)
+
+x = num_characters - largest
+print(x)
+
+
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <unordered_map>
+#include <set>
+
+using namespace std;
+
+void tarjan(vector<vector<int>>& graph, vector<int>& visited, int curr_node, int& order, vector<int>& d, vector<int>& low, stack<int>& cycle_stack, int& max_size, vector<vector<int>>& sccs) {
+    visited[curr_node] = 1;
+    cycle_stack.push(curr_node);
+    d[curr_node] = order;
+    low[curr_node] = order;
+    order++;
+    for (int child_node : graph[curr_node]) {
+        if (visited[child_node] == 0) {
+            tarjan(graph, visited, child_node, order, d, low, cycle_stack, max_size, sccs);
+            low[curr_node] = min(low[curr_node], low[child_node]);
+        } else if (visited[child_node] == 1) {
+            low[curr_node] = min(low[curr_node], d[child_node]);
+        }
+    }
+    visited[curr_node] = 2;
+    if (low[curr_node] == d[curr_node]) {
+        int curr_size = 0;
+        vector<int> curr_scc;
+        while (true) {
+            int just_popped = cycle_stack.top();
+            cycle_stack.pop();
+            curr_scc.push_back(just_popped);
+            curr_size++;
+            if (just_popped == curr_node) {
+                break;
+            }
+        }
+        sccs.push_back(curr_scc);
+        max_size = max(curr_size, max_size);
+    }
+}
+
+int main() {
+    int num_characters;
+    cin >> num_characters;
+
+    unordered_map<int, string> speak;
+    unordered_map<string, set<int>> understand;
+
+    for (int i = 0; i < num_characters; i++) {
+        string char_name;
+        string spoken_lang;
+        cin >> char_name >> spoken_lang;
+        speak[i] = spoken_lang;
+        understand[spoken_lang].insert(i);
+    }
+
+    vector<vector<int>> graph(num_characters);
+    for (int i = 0; i < num_characters; i++) {
+        string spoken_language = speak[i];
+        for (int j : understand[spoken_language]) {
+            if (j != i) {
+                graph[i].push_back(j);
+            }
+        }
+    }
+
+    vector<int> d(num_characters, 0);
+    vector<int> low(num_characters, 0);
+    vector<int> visited(num_characters, 0);
+
+    vector<vector<int>> sccs;
+    int order = 0;
+    int max_size = 1;
+    stack<int> cycle_stack;
+
+    for (int i = 0; i < num_characters; i++) {
+        if (visited[i] == 0) {
+            tarjan(graph, visited, i, order, d, low, cycle_stack, max_size, sccs);
+        }
+    }
+
+    int largest = 1;
+    for (const auto& scc : sccs) {
+        largest = max(largest, (int)scc.size());
+    }
+
+    int x = num_characters - largest;
+    cout << x << endl;
+
+    return 0;
+}
+

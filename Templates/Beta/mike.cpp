@@ -1,25 +1,21 @@
 #include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
 using namespace std;
+const ll MOD = 1e9 + 7;
 
-int main() {
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
     
-    vector<int> digs(2025);
-    for(int i = 0; i < digs.size(); i++) {
-        int t = i;
-        int s = 0;
-        while(t) {
-            s += t % 10;
-            t /= 10;
+    string s; cin >> s;
+    string res = "";
+    res.push_back(s[0]);
+    for(int i = 1; i < s.size(); i++) {
+        if(s[i] != res.back()) {
+            res.push_back(s[i]);
         }
-        digs[i] = s;
-    }
-    
-    for(int i = 0; i < digs.size(); i++) {
-        int s = i + digs[i] + digs[digs[i]] + digs[digs[digs[i]]] + digs[digs[digs[digs[i]]]] + digs[digs[digs[digs[digs[i]]]]];
-        if(s == 2024) {
-            cout << "s : " << s << '\n';
-        }
-    }
-
+    }   
+    cout << res << '\n';
     return 0;
 }
