@@ -1,4 +1,10 @@
-void dfs(int i, vector<vector<int>> &adj, stack<int> &s, vector<int> &times, int &time, vector<vector<int>> &sccs,vector<int> &low, vector<bool> &vis) {
+const int MAXN = 2e5;
+
+int low[MAXN];
+int times[MAXN];
+bool vis[MAXN];
+
+void dfs(int i, vector<vector<int>> &adj, stack<int> &s, int &time, vector<vector<int>> &sccs) {
     times[i] = time;    
     low[i] = time++;
     s.push(i);
@@ -6,7 +12,7 @@ void dfs(int i, vector<vector<int>> &adj, stack<int> &s, vector<int> &times, int
 
     for(int x : adj[i]) {
         if(times[x] == -1) {
-            dfs(x,adj,s,times,time,sccs,low,vis);
+            dfs(x,adj,s,time,sccs);
             low[i] = min(low[i], low[x]);
         } else if(vis[x]) {
             low[i] = min(low[i], times[x]);
@@ -29,14 +35,14 @@ void dfs(int i, vector<vector<int>> &adj, stack<int> &s, vector<int> &times, int
 vector<vector<int>> tarjans(vector<vector<int>> adj) {
     int n = adj.size();
     stack<int> s;
-    vector<int> times(n,-1);
-    vector<int> low(n);
     vector<vector<int>> sccs;
-    vector<bool> vis(n);
+    fill(times, times + n, -1);
+    fill(low, low + n, 0);
+    fill(vis, vis + n, 0);
     int time = 0;
     for(int i = 0; i < n; i++) {
         if(times[i] == -1) {
-            dfs(i,adj,s,times,time,sccs,low,vis);
+            dfs(i,adj,s,time,sccs);
         }
     }
     return sccs;
