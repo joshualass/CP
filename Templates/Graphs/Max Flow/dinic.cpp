@@ -1,116 +1,81 @@
-template <typename T>
-T dinic(vector<vector<pair<int, T>>> c, int source, int sink) {
-    int n = c.size();
-    T ans = 0;
-    //redo organization of edges
-    vector<pair<int, T>> edges(0);
-    vector<vector<int>> adj(n, vector<int>(0));
-    int m = 0;
-    for(int i = 0; i < n; i++){
-        for(int j = 0; j < c[i].size(); j++){
-            int u = i;
-            int v = c[i][j].first;
-            ll cap = c[i][j].second;
-            adj[u].push_back(m);
-            adj[v].push_back(m + 1);
-            edges.push_back({v, cap});
-            edges.push_back({u, 0});
-            m += 2;
-        }
+struct FlowEdge {
+    int v, u;
+    long long cap, flow = 0;
+    FlowEdge(int v, int u, long long cap) : v(v), u(u), cap(cap) {}
+};
+ 
+struct Dinic {
+    const long long flow_inf = 1e18;
+    vector<FlowEdge> edges;
+    vector<vector<int>> adj;
+    int n, m = 0;
+    int s, t;
+    vector<int> level, ptr;
+    queue<int> q;
+ 
+    Dinic(int n, int s, int t) : n(n), s(s), t(t) {
+        adj.resize(n);
+        level.resize(n);
+        ptr.resize(n);
     }
-    while(true) {
-        //create level graph
-        vector<int> level(n, -1);
-        queue<int> q;
-        vector<bool> v(n, false);
-        v[source] = true;
-        q.push(source);
-        level[source] = 0;
-        while(q.size() != 0){
-            int cur = q.front();
+ 
+    void add_edge(int v, int u, long long cap) {
+        edges.emplace_back(v, u, cap);
+        edges.emplace_back(u, v, 0);
+        adj[v].push_back(m);
+        adj[u].push_back(m + 1);
+        m += 2;
+    }
+ 
+    bool bfs() {
+        while (!q.empty()) {
+            int v = q.front();
             q.pop();
-            for(int i = 0; i < adj[cur].size(); i++) {
-                int nEdge = adj[cur][i];
-                int next = edges[nEdge].first;
-                if(v[next]) {
+            for (int id : adj[v]) {
+                if (edges[id].cap - edges[id].flow < 1)
                     continue;
-                }
-                if(edges[nEdge].second == 0){
-                    //no flow
+                if (level[edges[id].u] != -1)
                     continue;
-                }
-                v[next] = true;
-                q.push(next);
-                level[next] = level[cur] + 1;
+                level[edges[id].u] = level[v] + 1;
+                q.push(edges[id].u);
             }
         }
-        if(!v[sink]){
-            //we're done here
-            break;
-        }
-        while(true) {
-            //do dfs until there is no path from source to sink along level graph
-            stack<int> s;
-            s.push(source);
-            stack<int> est;
-            stack<int> ist;
-            ist.push(0);
-            while(s.size() != 0){
-                int cur = s.top();
-                if(cur == sink) {   
-                    //we've found path from source to sink
-                    break;
-                }
-                bool foundNext = false;
-                for(int i = ist.top(); i < adj[cur].size(); i++){
-                    int nEdge = adj[cur][i];
-                    int next = edges[nEdge].first;
-                    if(level[next] <= level[cur]){
-                        continue;
-                    }
-                    if(edges[nEdge].second == 0){
-                        continue;
-                    }
-                    s.push(next);
-                    est.push(nEdge);
-                    ist.pop();
-                    ist.push(i + 1);
-                    ist.push(0);
-                    foundNext = true;
-                    break;
-                }
-                if(!foundNext) {
-                    s.pop();
-                    ist.pop();
-                    if(est.size() != 0){
-                        est.pop();
-                    }
-                    //mark this node as a dead end
-                    level[cur] = -1;
-                }
-            }
-            if(s.size() != 0 && s.top() == sink) {
-                //found a path yay, now we update flow for edges on path
-                T bn = 1e18;
-                vector<int> path(est.size(), 0);
-                for(int i = 0; i < path.size(); i++){
-                    path[i] = est.top();
-                    est.pop();
-                    bn = min(bn, edges[path[i]].second);
-                }
-                for(int i = 0; i < path.size(); i++){
-                    //forward edge
-                    edges[path[i]].second -= bn;
-                    //backwards edge
-                    edges[path[i] ^ 1].second += bn;
-                }
-                ans += bn;
-            }
-            else {
-                //the maximum flow for this level configuration has been reached. 
-                break;
-            }
-        }
+        return level[t] != -1;
     }
-    return ans;
-}
+ 
+    long long dfs(int v, long long pushed) {
+        if (pushed == 0)
+            return 0;
+        if (v == t)
+            return pushed;
+        for (int& cid = ptr[v]; cid < (int)adj[v].size(); cid++) {
+            int id = adj[v][cid];
+            int u = edges[id].u;
+            if (level[v] + 1 != level[u] || edges[id].cap - edges[id].flow < 1)
+                continue;
+            long long tr = dfs(u, min(pushed, edges[id].cap - edges[id].flow));
+            if (tr == 0)
+                continue;
+            edges[id].flow += tr;
+            edges[id ^ 1].flow -= tr;
+            return tr;
+        }
+        return 0;
+    }
+ 
+    long long flow() {
+        long long f = 0;
+        while (true) {
+            fill(level.begin(), level.end(), -1);
+            level[s] = 0;
+            q.push(s);
+            if (!bfs())
+                break;
+            fill(ptr.begin(), ptr.end(), 0);
+            while (long long pushed = dfs(s, flow_inf)) {
+                f += pushed;
+            }
+        }
+        return f;
+    }
+};
