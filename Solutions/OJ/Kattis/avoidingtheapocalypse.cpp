@@ -133,11 +133,12 @@ struct Dinic {
 void solve() {
     int n, i, g, s, m; cin >> n >> i >> g >> s >> m;
     i--;
-    int source = i;
+    int source = n * (s + 2);
     int sink = n * (s + 1);
 
     // vector<unordered_map<int,int>> adj(n * (s + 1) + 1);
-    Dinic d(n * (s + 1) + 1,source,sink);
+    Dinic d(n * (s + 2) + 1,source,sink);
+    d.add_edge(source, i, g);
 
     for(int j = 0; j < n; j++) {
         for(int t = 0; t < s; t++) {
@@ -163,7 +164,7 @@ void solve() {
         }
     }
     // cout << min(g, edmondsKarp(adj,source,sink)) << '\n';
-    cout << min(g, d.flow()) << '\n';
+    cout << d.flow() << '\n';
 }
 
 signed main() {

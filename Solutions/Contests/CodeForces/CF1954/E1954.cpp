@@ -8,7 +8,8 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     
-    
+    int n; cin >> n;
+    vector<ll> prefs(n+1);
 
     return 0;
 }
