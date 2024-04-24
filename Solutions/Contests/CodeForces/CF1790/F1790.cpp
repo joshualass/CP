@@ -4,49 +4,39 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 998244353;
 
+void color(int i, int p, vector<vector<int>> &adj,vector<int> &dist, int d, int &ans) {
+    if(d >= ans || dist[i] <= d) return;
+    ans = min(ans, d + dist[i]);
+    dist[i] = d;
+    for(int c : adj[i]) {
+        if(d + 1 >= ans) break;
+        if(c != p) {
+            color(c,i,adj,dist,d+1,ans);
+        }
+    }
+}
+
 void solve() {
 
-    
+    int n, c0; cin >> n >> c0;
+    vector<int> order(n-1);
+    for(int &x : order) cin >> x;
+    vector<vector<int>> adj(n+1);
+    for(int i = 0; i < n - 1; i++) {
+        int a, b; cin >> a >> b;
+        adj[a].push_back(b);
+        adj[b].push_back(a);
+    }
 
-    // int n; cin >> n;
-    // vector<bool> colored(n);
-    // int c0; cin >> c0;
-    // colored[c0-1] = 1;
-    // vector<int> order(n-1);
-    // for(int &x : order) cin >> x;
-    // vector<vector<int>> adj(n);
-    // for(int i = 0; i < n - 1; i++) {
-    //     int a, b; cin >> a >> b;
-    //     a--; b--;
-    //     adj[a].push_back(b);
-    //     adj[b].push_back(a);
-    // }
-    // int lo = INT_MAX;
-    // vector<int> visited(n,-1);
-    // for(int i = 0; i < n - 1; i++) {
-    //     queue<array<int,3>> q;
-    //     q.push({order[i]-1,-1,0});
-    //     while(q.size()) {
-    //         array<int,3> arr = q.front();
-    //         q.pop();
-    //         if(visited[arr[0]] == i) continue;
-    //         if(colored[arr[0]]) {
-    //             lo = arr[2];
-    //             break;
-    //         }
-    //         visited[arr[0]] = i;
-    //         if(rand() % 10 == 0) {
-    //             random_shuffle(adj[arr[0]].begin(), adj[arr[0]].end());
-    //         }
-    //         for(int u : adj[arr[0]]) {
-    //             if(arr[2] + 1 < lo && u != arr[1]) {
-    //                 q.push({u,arr[0],arr[2]+1});
-    //             }
-    //         }
-    //     }
-    //     colored[order[i]-1] = 1;
-    //     cout << lo << " \n"[i == n - 2];
-    // }
+    vector<int> dist(n+1,1e9);
+
+    int ans = INT_MAX;
+    color(c0,-1,adj,dist,0,ans);
+    for(int i = 0; i < n - 1; i++) {
+        color(order[i],-1,adj,dist,0,ans);
+        cout << ans << " \n"[i == n - 2];
+    }
+
 }
 
 signed main() {
