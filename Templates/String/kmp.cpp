@@ -1,16 +1,3 @@
-#include <bits/stdc++.h>
-typedef long long ll;
-typedef long double ld;
-using namespace std;
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const vector<T> v) {
-    for(auto x : v) os << x << " ";
-    return os;
-}
-
-//could solve this with string hashing, but try KMP
-
 vector<int> kmp(string s) {
     int n = s.size();
     vector<int> b(n+1,-1);
@@ -42,17 +29,4 @@ vector<int> find_matches(string &n, string &m, vector<int> &a) {
         }
     }
     return matches;
-}
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-
-    string n, m; cin >> n >> m;
-    
-    vector<int> a = kmp(m);
-    vector<int> matches = find_matches(n,m,a);
-    // cout << "matches : " << matches << '\n';
-    cout << matches.size() << '\n';
-    return 0;
 }

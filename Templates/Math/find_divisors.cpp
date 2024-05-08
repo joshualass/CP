@@ -1,4 +1,8 @@
-//need to build sieve, typically with N
+/*
+*************************************
+need to build sieve --> sieve() 
+*************************************
+*/
 const int N = 1e6 + 1;
 
 int prime_factor[N]; //stores a prime factor of the number. If it is prime, stores itself.
