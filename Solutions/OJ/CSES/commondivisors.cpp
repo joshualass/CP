@@ -30,10 +30,6 @@ void find_divs(int i, int p, vector<pair<int,int>> &v) {
         facts[p]++;
         return;
     }
-    // for(int i = 0; i < v[i].second + 1; i++) {
-    //     find_divs(i + 1, p, v);
-    //     p *= v[i].first;
-    // }
     for(int j = 0; j < v[i].second + 1; j++) {
         find_divs(i + 1, p, v);
         p *= v[i].first;

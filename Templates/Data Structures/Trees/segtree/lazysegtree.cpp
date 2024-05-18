@@ -1,9 +1,9 @@
 template<typename T, typename D>
 struct Lazy {
-    static constexpr T qn = 0; //stores the starting values at all nodes, 
-    static constexpr D ln = 0;
+    static constexpr T qn = 0; // query neutral, when we query, doing the operation with this value won't change our query
+    static constexpr D ln = 0; //lazy neutral, applying this value to its node will not change its value
     vector<T> v;      //stores values at each index we are querying for
-    vector<D> lazy;   //base, count of how many polynomials start at one at the beginning of this node
+    vector<D> lazy;   //stores lazy update values
     int n, size;
     //if OJ is not up to date, remove all occurrences of ln
     Lazy(int n = 0, T def = qn) {
@@ -34,7 +34,7 @@ struct Lazy {
         }
         lazy[node] = ln;
     }
-    void update(int l, int r, D val) {
+    void update(int l, int r, D val) { //[l,r)
         _update(1,0,size,l,r, val);
     }
     void _update(int node, int currl, int currr, int &targetl, int &targetr, D val) {
@@ -51,7 +51,7 @@ struct Lazy {
             v[node] = query_comb(v[node * 2], v[node * 2 + 1]);
         }
     }
-    T query(int l, int r) {
+    T query(int l, int r) { // [l,r)
         return _query(1,0,size,l,r);
     }
     T _query(int node, int currl, int currr, int &targetl, int &targetr) { //[l,r)

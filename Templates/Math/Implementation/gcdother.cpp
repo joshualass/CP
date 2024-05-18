@@ -30,11 +30,7 @@ void sieve (int n) {
 
 void find_divs(map<int,int>::iterator i, int p, map<int,int> &cnts, unordered_map<int,int> &facts) {
     if(i == cnts.end()) {
-        if(facts.find(p) == facts.end()) {
-            facts[p] = 1;
-        } else {
-            facts[p]++;
-        }
+        facts[p]++;
         return;
     }
     
@@ -43,7 +39,6 @@ void find_divs(map<int,int>::iterator i, int p, map<int,int> &cnts, unordered_ma
         --i;
         p *= (*i).first;
     }
-    
 }
 
 void solve() { 

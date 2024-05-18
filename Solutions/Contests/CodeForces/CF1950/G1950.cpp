@@ -21,8 +21,32 @@ void solve() {
         a.push_back({gids[g], wids[w]});
     }
 
-    vector<vector<bool>> dp(1 << n, vector<bool>(n)); //bitmask, start
+    vector<vector<bool>> dp(1 << n, vector<bool>(n)); //bitmask, last song in playlist
 
+    for(int i = 0; i < n; i++) {
+        dp[1 << i][i] = 1;
+    }
+    int res = 0;
+    for(int bm = 0; bm < 1 << n; bm++) {
+        for(int b = 0; b < n; b++) {
+            if(bm & (1 << b)) {
+                int f = bm ^ (1 << b);
+                for(int i = 0; i < n; i++) {
+                    bool c = a[b].first == a[i].first || a[b].second == a[i].second;
+                    if(dp[f][i] && c) {
+                        dp[bm][b] = 1;
+                    }
+                }
+            }
+            if(dp[bm][b]) {
+                res = max(res, __builtin_popcount(bm));
+            }
+        }
+    }
+
+    
+
+    cout << n - res << '\n';
     
 }
 

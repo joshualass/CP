@@ -63,5 +63,20 @@ struct Tree {
         } else {
             return {-1,base};
         }
+        
+        // if(currr <= lo || currl >= hi) {
+        //     return {-1,base};
+        // }
+        // if(cond(val, v[idx])) {
+        //     if(isLeaf(idx)) return {idx - size, v[idx]};
+        //     int mid = (currl + currr) / 2;
+        //     pair<int,T> p = _queryMIQ(idx * 2, currl, mid, lo, hi, val);
+        //     if(p.first != -1) {
+        //         return p;
+        //     }
+        //     return _queryMIQ(idx * 2 + 1, mid, currr, lo, hi, val);
+        // } else {
+        //     return {-1,base};
+        // }
     }
 };
