@@ -3,5 +3,10 @@ F1948
 artwork
 E1956
 
+rating
+2200
+https://codeforces.com/contest/1615/problem/D
+
+
 hard
 F1777
