@@ -22,32 +22,37 @@ void sieve (int n = N) {
 	}
 }
 
-void find_divs(map<int,int>::iterator it, int p, map<int,int> &facts, set<int> &nums) {
-    if(it == facts.end()) {
-        if(p != 1) {
-            nums.insert(p);
-        }
+void find_divs(int idx, int p, vector<pair<int,int>> &facts, vector<int> &nums) {
+    if(idx == facts.size()) {
+        nums.push_back(p);
         return;
     }
-    for(int j = 0; j < (*it).second + 1; j++) {
-        find_divs(++it, p, facts, nums);
-        --it;
-        p *= (*it).first;
+    for(int j = 0; j < facts[idx].second + 1; j++) {
+        find_divs(idx + 1, p, facts, nums);
+        p *= facts[idx].first;
     }
 }
 
-void find_divisors(int num, set<int> &nums) {
-    map<int,int> factors;
+//O(sqrt(n)), approx. cuberoot(n) factors. 
+void find_divisors(int num, vector<int> &nums) {
+    // map<int,int> factors;
+    vector<pair<int,int>> factors;
     // cout << "num: " << num << " ";
     for(ll i = 0; i < prime.size() && prime[i] * prime[i] <= num; i++) {
+        bool first = 1;
         while(num % prime[i] == 0) {
-            factors[prime[i]]++;
+            if(first) {
+                factors.push_back({prime[i],1});
+                first = 0;
+            } else {
+                factors.back().second++;
+            }
             num /= prime[i];
         }
     }
     if(num != 1) {
-        factors[num]++;
+        factors.push_back({num,1});
     }
     // cout << factors << "\n";
-    find_divs(factors.begin(), 1, factors, nums);
+    find_divs(0, 1, factors, nums);
 }

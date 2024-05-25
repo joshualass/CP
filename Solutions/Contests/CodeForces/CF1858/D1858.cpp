@@ -13,11 +13,11 @@ std::ostream& operator<<(std::ostream& os, const vector<vector<T>> adj) {
     return os;
 }
 
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const vector<T> v) {
-    for(auto x : v) os << x << " ";
-    return os;
-}
+// template<typename T>
+// std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+//     for(auto x : v) os << x << " ";
+//     return os;
+// }
 
 vector<int> s1(int n, int k, string s) {
 
@@ -33,6 +33,9 @@ vector<int> s1(int n, int k, string s) {
                 cnt -= s[lo] == '1';
             }
             dp0[hi][i] = hi - lo;
+            if(hi != 0) {
+                dp0[hi][i] = max(dp0[hi][i], dp0[hi-1][i]);
+            }
         }
     }
 
@@ -50,6 +53,9 @@ vector<int> s1(int n, int k, string s) {
                 cnt -= s[hi] == '0';
             }
             dp1[lo][i] = hi - lo;
+            if(lo != n - 1) {
+                dp1[lo][i] = max(dp1[lo][i],dp1[lo+1][i]);
+            }
         }
     }
 
