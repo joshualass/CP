@@ -1,5 +1,23 @@
-const ll M1 = 998244353, B1 = 9973;
-const ll M2 = 1e9 + 9, B2 = 9931;
+
+bool isprime(ll num) {
+    if(num <= 1) return 0;
+    if(num == 2 || num == 3) return 1;
+    if(num % 2 == 0 || num % 3 == 0) return 0;
+    for(int i = 5; i <= sqrt(num); i++) {
+        if(num % i == 0 || num % (i + 2) == 0) return 0;
+    }
+    return 1;
+}
+
+ll gen_prime(ll l, ll r) { //generates a prime number [l,r]
+    while(1) {
+        ll num = (rng() % (r - l + 1)) + l;
+        if(isprime(num)) return num;
+    }
+}
+
+mt19937 rng;
+ll M1, M2, B1, B2;
 struct stringhash {
     vector<ll> h1, h2;
     vector<ll> p1, p2;
@@ -32,3 +50,9 @@ struct stringhash {
     }
 
 };
+
+    rng = mt19937(chrono::steady_clock::now().time_since_epoch().count());
+    M1 = gen_prime(900000000,1000000000);
+    B1 = gen_prime(9000,10000);
+    M2 = gen_prime(900000000,1000000000);
+    B2 = gen_prime(9000,10000);
