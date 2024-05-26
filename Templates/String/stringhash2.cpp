@@ -1,3 +1,4 @@
+mt19937 rng;
 
 bool isprime(ll num) {
     if(num <= 1) return 0;
@@ -16,7 +17,6 @@ ll gen_prime(ll l, ll r) { //generates a prime number [l,r]
     }
 }
 
-mt19937 rng;
 ll M1, M2, B1, B2;
 struct stringhash {
     vector<ll> h1, h2;
