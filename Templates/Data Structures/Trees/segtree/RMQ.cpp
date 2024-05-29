@@ -34,7 +34,10 @@ struct RMQ  {
         int ans = op(small_query(l + block_size - 1), small_query(r)); 
         int x = l / block_size + 1;
         int y = r / block_size - 1;
-        if(x <= y) ans = op(ans, op(sparse_table[n / block_size * most_significant_bit_index(y - x + 1) + x], sparse_table[n / block_size * most_significant_bit_index(y - x + 1) + y - (1 << most_significant_bit_index(y - x + 1)) + 1]));
+        if(x <= y) {
+            int j = most_significant_bit_index(y - x + 1);
+            ans = op(ans, op(sparse_table[n / block_size * j + x], sparse_table[n / block_size * j + y - (1 << j) + 1]));
+        }
         return elements[ans]; //return the value
         // return ans;        //return the index with value
     }

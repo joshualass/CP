@@ -13,9 +13,7 @@ struct Lazy {
         v.assign(size * 2, def);
         lazy.assign(size * 2, ln);
     }
-    bool isLeaf(int node) {
-        return node >= size;
-    }
+    bool isLeaf(int node) {return node >= size;}
     T query_comb(T val1, T val2) {//update this depending on query type
         return val1 + val2;
     }
