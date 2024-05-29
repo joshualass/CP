@@ -219,6 +219,7 @@ struct HLD {
     vector<int> subtree_sizes;
     Lazy<T> lazy;
     RMQ<int> rmq;
+    vector<T> plazy;
     HLD() {} //default constructor
     HLD(const vector<vector<int>> &input_adj, vector<D> &w, bool nodemode) {
         build(input_adj,w,nodemode);
@@ -249,6 +250,7 @@ struct HLD {
     void build_heavy(vector<D> &w) {
         heavyheads.push_back(0);
         heavy_dfs(0,-1,w);
+
     }
     void assign_ids() {
         queue<pair<int,int>> q; //curr, parent
@@ -290,6 +292,7 @@ struct HLD {
             }
         }
         if(lidx != -1) heavy_dfs(lidx,i,w);
+        
         for(int c : adj[i]) {
             if(c != p && c != lidx) {
                 heavyheads.push_back(c);
