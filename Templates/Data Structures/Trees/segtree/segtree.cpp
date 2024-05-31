@@ -17,7 +17,7 @@ struct Tree {
         int curr = pos + size;
         v[curr] = val;
         while(curr != 1) {
-            if(curr & 1) { //non
+            if(curr & 1) { //handles non-communative operations
                 v[curr / 2] = comb(v[curr ^ 1], v[curr]);
             } else {
                 v[curr / 2] = comb(v[curr], v[curr ^ 1]);

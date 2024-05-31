@@ -1,19 +1,3 @@
-#pragma GCC optimize("Ofast,fast-math,unroll-loops,no-stack-protector") 
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,avx,mmx,avx2,fma,tune=native") 
-
-
-#include <bits/stdc++.h>
-typedef long long ll;
-typedef long double ld;
-using namespace std;
-const ll MOD = 1e9 + 7;
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const vector<T> v) {
-    for(auto x : v) os << x << " ";
-    return os;
-}
-
 //range minimum query. O(1) query, O(n) build/memory. fast.
 template<typename T>
 struct RMQ  {
@@ -206,7 +190,7 @@ struct Lazy {
     }
 };
 
-template <typename T>
+template <typename T, typename D>
 struct HLD {
     int n;
     int id = 0;
@@ -219,18 +203,17 @@ struct HLD {
     vector<int> euler_ids;
     vector<int> lazyidxs; //for node i, which lazy segtree it is in
     vector<int> heavypathidxs; //for node i, which heavy path it is in
-    vector<int> heavyheads; //the node which is the head for heavy path at index i
-    vector<int> heavytails; //the node which is the tail for heavy path at index i
+    vector<int> heavyheads; //the head for each 
     vector<int> subtree_sizes;
     Lazy<T> lazy;
     RMQ<int> rmq;
-    vector<T> plazy; //precompute some of the heavy paths such that the query is logn
+    vector<T> plazy;
     HLD() {} //default constructor
-    HLD(const vector<vector<int>> &input_adj, vector<T> &w, bool nodemode) {
+    HLD(const vector<vector<int>> &input_adj, vector<D> &w, bool nodemode) {
         build(input_adj,w,nodemode);
     }
     //build data structure
-    void build(const vector<vector<int>> &adj, vector<T> &w, bool nodemode) {
+    void build(const vector<vector<int>> &adj, vector<D> &w, bool nodemode) {
         //resize everything
         this->n = adj.size();
         this->nodemode = nodemode;
@@ -252,13 +235,10 @@ struct HLD {
         euler_tour(0,-1);
         rmq.build(euler);
     }
-    void build_heavy(vector<T> &w) {
+    void build_heavy(vector<D> &w) {
         heavyheads.push_back(0);
         heavy_dfs(0,-1,w);
-        plazy.assign(heavyheads.size(), 0);
-        for(int i = 0; i < heavyheads.size(); i++) {
-            plazy[i] = lazy.query(lazyidxs[heavyheads[i]], lazyidxs[heavytails[i]] + 1);
-        }
+
     }
     void assign_ids() {
         queue<pair<int,int>> q; //curr, parent
@@ -286,7 +266,7 @@ struct HLD {
         subtree_sizes[i] = size;
         return size;
     }
-    void heavy_dfs(int i, int p, vector<T> &w) {
+    void heavy_dfs(int i, int p, vector<D> &w) {
         lazyidxs[i] = id;
         lazy.update(id,id+1,w[i]);
         id++;
@@ -299,11 +279,7 @@ struct HLD {
                 }
             }
         }
-        if(lidx != -1) {
-            heavy_dfs(lidx,i,w);
-        } else {
-            heavytails.push_back(i);
-        }
+        if(lidx != -1) heavy_dfs(lidx,i,w);
         
         for(int c : adj[i]) {
             if(c != p && c != lidx) {
@@ -318,32 +294,24 @@ struct HLD {
         return nodes[rmq.query(min(euler_ids[l],euler_ids[r]), max(euler_ids[l],euler_ids[r]))];
     }
 
-    void update(int a, int b, T val) {
+    void update(int a, int b, D val) {
         int lcaidx = find_lca(a,b);
         _update(a,lcaidx,val);
         _update(b,lcaidx,val);
         if(nodemode) update(lcaidx,val);
     }
 
-    void update(int a, T val) {
+    void update(int a, D val) {
         lazy.update(lazyidxs[a],lazyidxs[a]+1,val);
-        updateplazy(a);
     }
 
-    void updateplazy(int a) {
-        plazy[heavypathidxs[a]] = lazy.query(lazyidxs[heavyheads[heavypathidxs[a]]], lazyidxs[heavytails[heavypathidxs[a]]] + 1);
-    }
-
-    void _update(int a, int end, T val) {
+    void _update(int a, int end, D val) {
         while(heavypathidxs[a] != heavypathidxs[end]) { //while a is not in the same path as end
             lazy.update(lazyidxs[heavyheads[heavypathidxs[a]]], lazyidxs[a] + 1, val);
-            updateplazy(a);
             a = parents[heavyheads[heavypathidxs[a]]];
         }
         lazy.update(lazyidxs[end] + 1, lazyidxs[a] + 1, val);
-        updateplazy(end);
     }
-
 
     T query(int a, int b) {
         int lcaidx = find_lca(a,b);
@@ -363,13 +331,7 @@ struct HLD {
         T res = lazy.qn;
         // cout << "res1 : " << res << '\n';
         while(heavypathidxs[a] != heavypathidxs[end]) {
-            if(a == heavytails[heavypathidxs[a]]) {
-                res = lazy.query_comb(res, plazy[heavypathidxs[a]]);
-                assert(plazy[heavypathidxs[a]] == lazy.query(lazyidxs[heavyheads[heavypathidxs[a]]], lazyidxs[a] + 1));
-            } else {
-                res = lazy.query_comb(res, lazy.query(lazyidxs[heavyheads[heavypathidxs[a]]], lazyidxs[a] + 1));
-            }
-            // res = lazy.query_comb(res, lazy.query(lazyidxs[heavyheads[heavypathidxs[a]]], lazyidxs[a] + 1));
+            res = lazy.query_comb(res, lazy.query(lazyidxs[heavyheads[heavypathidxs[a]]], lazyidxs[a] + 1));
             a = parents[heavyheads[heavypathidxs[a]]];
         }
         // cout << "res2 : " << res << '\n';
@@ -379,50 +341,14 @@ struct HLD {
     }
 
     void debugprint() {
-        cout << "parents : " << parents << endl;
-        cout << "ids : " << ids << endl;
-        cout << "nodes : " << nodes << endl;
-        cout << "euler_ids : " << euler_ids << endl;
-        cout << "euler : " << euler << endl;
-        cout << "lazyidxs : " << lazyidxs << endl;
-        cout << "heavypathidxs : " << heavypathidxs << endl;
-        cout << "subtree sizes : " << subtree_sizes << endl;
-        cout << "heavyheads : " << heavyheads << endl;
-        cout << "plazy : " << plazy << endl;
-        cout << "heavytails : " << heavytails << endl;
+        cout << "parents : " << parents << '\n';
+        cout << "ids : " << ids << '\n';
+        cout << "nodes : " << nodes << '\n';
+        cout << "euler_ids : " << euler_ids << '\n';
+        cout << "euler : " << euler << '\n';
+        cout << "lazyidxs : " << lazyidxs << '\n';
+        cout << "heavypathidxs : " << heavypathidxs << '\n';
+        cout << "subtree sizes : " << subtree_sizes << '\n';
+        cout << "heavyheads : " << heavyheads << '\n';
     }
 };
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    
-    int n, q; cin >> n >> q;
-    vector<int> a(n);
-    for(int &x : a) cin >> x;
-    vector<vector<int>> adj(n);
-    for(int i = 1; i < n; i++) {
-        int a, b; cin >> a >> b;
-        a--; b--;
-        adj[a].push_back(b);
-        adj[b].push_back(a);
-    }
-
-    HLD<int> hld(adj,a,1);
-    // hld.debugprint();
-
-    for(int i = 0; i < q; i++) {
-        int type; cin >> type;
-        if(type == 1) {
-            int s, x; cin >> s >> x;
-            s--;
-            hld.update(s,x);
-        } else {
-            int a, b; cin >> a >> b;
-            a--; b--;
-            cout << hld.query(a,b) << '\n';
-        }
-    }
-    // cout << "ENDED" << endl;
-    return 0;
-}
