@@ -6,33 +6,25 @@ const ll MOD = 998244353;
 
 void solve() {
     int n; cin >> n;
-    vector<int> a(30);
-    bool carry = 0;
-    for(int i = 0; i < 30; i++) {
-        if((n >> i) & 1) {
-            if(carry == 0) {
-                a[i] = -1;
-                carry = 1;
-            }
-        } else {
-            if(carry) {
-                a[i] = 1;
-                carry = 0;
+    vector<int> res(31);
+    for(int bit = 0; bit < 30; bit++) {
+        if((n >> bit) & 1) {
+            if(res[bit] == 1) { //1 at this position and one here
+                res[bit] = 0;
+                res[bit+1] = 1;
+            } else {
+                if(bit != 0 && res[bit-1] == 1) {
+                    res[bit-1] = -1;
+                    res[bit+1] = 1;
+                } else {
+                    res[bit] = 1;
+                }
             }
         }
     }
-
-    for(int i = 0; i < 29; i++) {
-        if(a[i] == -1 && a[i+1] == 1) {
-            a[i] = 1;
-            a[i+1] = 0;
-        }
-    }
-
-    cout << a.size() << '\n';
-
-    for(int i = 0; i < a.size(); i++) {
-        cout << a[i] << " \n"[i == a.size() - 1];
+    cout << 31 << '\n';
+    for(int i = 0; i < 31; i++) {
+        cout << res[i] << " \n"[i == 30];
     }
 }
 

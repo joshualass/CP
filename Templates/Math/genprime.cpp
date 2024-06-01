@@ -1,3 +1,5 @@
+mt19937 rng;
+
 bool isprime(ll num) {
     if(num <= 1) return 0;
     if(num == 2 || num == 3) return 1;
@@ -14,3 +16,5 @@ ll gen_prime(ll l, ll r) { //generates a prime number [l,r]
         if(isprime(num)) return num;
     }
 }
+
+rng = mt19937(chrono::steady_clock::now().time_since_epoch().count());
