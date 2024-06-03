@@ -51,8 +51,10 @@ struct stringhash {
 
 };
 
+void buildsh() {
     rng = mt19937(chrono::steady_clock::now().time_since_epoch().count());
     M1 = gen_prime(900000000,1000000000);
     B1 = gen_prime(9000,10000);
     M2 = gen_prime(900000000,1000000000);
     B2 = gen_prime(9000,10000);
+}
