@@ -8,7 +8,11 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     
-    
+    while(1) {
+        int x, y; cin >> x >> y;
+        cout << (x ^ y) << '\n';
+        if(x == -1) break;
+    }
 
     return 0;
 }
