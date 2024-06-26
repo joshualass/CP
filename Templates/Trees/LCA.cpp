@@ -44,14 +44,10 @@ struct RMQ  {
 };
 
 //reqs: edges is a valid tree rooted at 0. No cycles.
-// template<typename T>
 struct LCA {
     RMQ<int> rmq;
     vector<vector<int>> adj;
-    vector<int> ids; //stores id of node at i
-    vector<int> nodes; //stores node of id at i
-    vector<int> euler;
-    vector<int> euler_ids;
+    vector<int> ids, nodes, euler, euler_ids, depths;
     int n;
     LCA() {} //default constructor
     //given vector where each node stores its parent
@@ -76,10 +72,11 @@ struct LCA {
         nodes.assign(n,-1);
         ids.assign(n,-1);
         assign_ids();
-        euler_tour(0,-1);
+        depths.assign(n,-1);
+        euler_tour(0,-1,0);
         rmq.build(euler);
     }
-    void assign_ids() {
+    void assign_ids() { // ids assigned in a BFS manner
         queue<pair<int,int>> q; //curr, parent
         int id = 0;
         q.push({0,-1});
@@ -91,18 +88,23 @@ struct LCA {
             for(auto x : adj[p.first]) if(x != p.second) q.push({x,p.first});  
         }
     }   
-    void euler_tour(int i, int p) {
+    void euler_tour(int i, int p, int d) { 
         euler_ids[i] = euler.size();
         euler.push_back(ids[i]);
+        depths[i] = d;
         for(auto x : adj[i]) {
             if(x != p) {
-                euler_tour(x,i);
+                euler_tour(x,i,d+1);
                 euler.push_back(ids[i]);
             }
         }
     }
     //finds lca of node l and r [l,r]
-    int find_lca(int l, int r) { //reverse order
+    int lca(int l, int r) { //reverse order
         return nodes[rmq.query(min(euler_ids[l],euler_ids[r]), max(euler_ids[l],euler_ids[r]))];
+    }
+    int distance(int l, int r) {
+        int a = lca(l,r);
+        return depths[l] + depths[r] - depths[a] * 2;
     }
 };
