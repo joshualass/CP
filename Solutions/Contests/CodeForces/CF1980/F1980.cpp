@@ -41,10 +41,6 @@ void solve() {
         }
     }
 
-    // cout << "s : " << s << '\n';
-    // cout << "used : " << used << '\n';
-
-
     cout << res << '\n';
     vector<ll> ans(k,0);
 
