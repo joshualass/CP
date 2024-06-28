@@ -14,17 +14,92 @@ To handle double counting, we can create a range doublecount prefix sum or simil
 Overall, bad idea to analyze adding and removing components. 
 */
 
-void solve() {
-    
-}
+int dx[4]{1, -1, 0, 0}, dy[4]{0, 0, 1, -1}; //UP, DOWN, RIGHT, LEFT
 
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+ 
+void solve() {
+    int n, m; cin >> n >> m;
+    vector<string> mat(n);
+    for(auto &x : mat) cin >> x;
+    
+    vector<vector<bool>> vis(n,vector<bool>(m));
+    vector<int> r(n+3);
+    vector<int> c(m+3);
+    vector<int> er(n,m);
+    vector<int> ec(m,n);
+    vector<vector<int>> p(n+3,vector<int>(m+3));
+    
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
+            if(mat[i][j] == '#' && vis[i][j] == 0) {
+                queue<pair<int,int>> q;
+                q.push({i,j});
+                int sz = 0;
+                int minr = i, maxr = i, minc = j, maxc = j;
+                while(q.size()) {
+                    pair<int,int> p = q.front();
+                    q.pop();
+                    if(p.first < 0 || p.first >= n || p.second < 0 || p.second >= m || mat[p.first][p.second] != '#' || vis[p.first][p.second]) continue;
+                    vis[p.first][p.second] = 1;
+                    sz++;
+                    er[p.first]--;
+                    ec[p.second]--;
+                    minr = min(minr,p.first);
+                    maxr = max(maxr,p.first);
+                    minc = min(minc,p.second);
+                    maxc = max(maxc,p.second);
+                    for(int k = 0; k < 4; k++) {
+                        q.push({p.first+dx[k],p.second+dy[k]});
+                    }
+                }
+                r[max(0,minr-1)] += sz;
+                r[maxr+2] -= sz;
+                c[max(0,minc-1)] += sz;
+                c[maxc+2] -= sz;
+
+                p[max(0,minr-1)][max(0,minc-1)] += sz;
+                p[maxr+2][max(0,minc-1)] -= sz;
+                p[max(0,minr-1)][maxc+2] -= sz;
+                p[maxr+2][maxc+2] += sz;
+
+            }
+        }
+    }
+
+    // cout << "r : " << r << "\n";
+    // cout << "c : " << c << '\n';
+    // cout << "er : " << er << '\n';
+    // cout << "ec : " << ec << '\n';
+    // cout << "p O_o : " << p << '\n' ;
+
+    int res = 0;
+    int curc = 0;
+    for(int col = 0; col < m; col++) {
+        curc += c[col];
+        int curr = 0;
+        for(int row = 0; row < n; row++) {
+            r[row] -= p[row][col];
+            curr += r[row];
+            res = max(res, curc + curr + er[row] + ec[col] - (mat[row][col] == '.'));
+            // cout << "row : " << row << " col : " << col << " curr : " << curr << " curc : " << curc << " er : " << er[row] << " ec : " << ec[col] << " - " << (mat[row][col] == '.') << " total : " << curc + curr + er[row] + ec[col] - (mat[row][col] == '.') << '\n';
+        }
+    }
+    cout << res << '\n';
+
+}
+ 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-
+ 
     int casi; cin >> casi;
     while(casi-->0) solve();
-
+ 
     return 0;
 }
 
