@@ -5,20 +5,38 @@ using namespace std;
 const ll MOD = 998244353;
 
 ll get_bonus(ll s, ll k, ll cycles) {
-    
+    s += 20 * cycles;
+    k -= cycles * 4;
+    return s * k;
 }
 
 ll solve1(ll s, ll k) {
-    if(k < 0) return 0;
-    if(s % 10 == 2 || s % 10 == 4 || s % 10 == 6 || s % 10 == 8) {
-
+    if((s & 1) || s % 10 == 0) return s * k;
+    ll cycles = k / 4;
+    ll l = 0, r = cycles;
+    while(r - l > 10) {
+        ll m1 = l + (r - l) / 3;
+        ll m2 = l + (r - l) * 2 / 3;
+        ll v1 = get_bonus(s,k,m1);
+        ll v2 = get_bonus(s,k,m2);
+        if(v1 > v2) {
+            r = m2;
+        } else {
+            l = m1;
+        }
     }
+    ll res = 0;
+    for(int i = l; i <= r; i++) {
+        res = max(res,get_bonus(s,k,i));
+    }
+    return res;
 }
 
 void solve() {  
     ll s, k; cin >> s >> k;
-    ll res = 0;
-    for(int i = 0; i < 6; i++) {
+    ll res = s * k;
+    for(int i = 0; i < 6 && k > 0; i++) {
+        // cout << "s : " << s << " k : " << k << " s1 : " << solve1(s,k) << '\n';
         res = max(res, solve1(s,k));
         s += s % 10;
         k--;
