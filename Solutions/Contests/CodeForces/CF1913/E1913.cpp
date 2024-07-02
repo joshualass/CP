@@ -181,62 +181,80 @@ private:
     }
 };
 
-int solve(vector<int> a, vector<int> b) {
-    int sum1 = reduce(a.begin(), a.end());
-    int sum2 = reduce(b.begin(), b.end());
-
-    if(sum1 != sum2) return -1;
-
-    int n = a.size();
-    int m = b.size();
-
-    // vector<vector<pair<int,int>>> adj(n * m + n + m + 2);
-    MinCostFlow mf(n * m + n + m + 2);
-    int source = n * m + n + m;
-    int sink = n * m + n + m + 1;
-
-    for(int i = 0; i < n; i++) {
-        // adj[source].push_back({n * m + i, a[i]});
-        mf.addEdge()
-    }
-
-    for(int i = 0; i < m; i++) {
-        adj[n * m + n + i].push_back({sink,b[i]});
-    }
-
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < m; j++) {
-            adj[n * m + i].push_back({i * m + j, 1});
-        }
-    }
-
-    for(int i = 0; i < m; i++) {
-        for(int j = 0; j < n; j++) {
-            // adj[n * m + n + i].push_back({i + j * m, 1});
-            adj[i + j * m].push_back({n * m + n + i, 1});
-        }
-    }
-
-    pair<int,int> ans = 
-
-}
-
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     
+    // int n, m; cin >> n >> m;
+    // MinCostFlow mcmf(n * m * 3 + n + m + 2);
+    // int s = n * m * 3 + n + m;
+    // int t = n * m * 3 + n + m + 1;
+
+    // for(int i = 0; i < n; i++) {
+    //     for(int j = 0; j < m; j++) {
+    //         int id = (i * m + j) * 3;
+    //         mcmf.addEdge(s,id,1,0);
+    //         int a; cin >> a;
+    //         mcmf.addEdge(id,id+1,1,a);
+    //         mcmf.addEdge(id,id+2,1,a ^ 1);
+    //     }
+    // }
+
+    // for(int i = 0; i < n; i++) {
+    //     int a; cin >> a;
+    //     a = m - a;
+    //     mcmf.addEdge(n*m*3+i,t,a,0);
+    //     for(int j = 0; j < m; j++) {
+    //         int id = (i * m + j) * 3;
+    //         mcmf.addEdge(id+1,n*m*3+i,1,0);
+    //     }
+    // }
+
+    // for(int j = 0; j < m; j++) {
+    //     int a; cin >> a;
+    //     mcmf.addEdge(n*m*3+n+j,t,a,0);
+    //     for(int i = 0; i < n; i++) {
+    //         int id = (i * m + j) * 3;
+    //         mcmf.addEdge(id+2,n*m*3+n+j,1,0);
+    //     }
+    // }
+
+    // pair<int,int> res = mcmf.minCostMaxFlow(s,t);
+
+    // if(res.first == n * m) {
+    //     cout << res.second << '\n';
+    // } else {
+    //     cout << "-1\n";
+    // }
+
     int n, m; cin >> n >> m;
-    vector mat(n, vector<int>(m));
+    MinCostFlow mcmf(n + m + 2);
+    int s = n + m, t = n + m + 1;
+    vector<int> a(n), b(m);
+    int sum = 0;
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
+            int x; cin >> x;
+            sum += x;
+            mcmf.addEdge(i, j + n, 1, x ^ 1);
+        }
+    }
 
-    for(auto &x : mat) for(auto &y : x) cin >> y;
+    for(int i = 0; i < n; i++) {
+        cin >> a[i];
+        mcmf.addEdge(s, i, a[i], 0);
+    }
+    for(int i = 0; i < m; i++) {
+        cin >> b[i];
+        mcmf.addEdge(i + n, t, b[i], 0);
+    }
 
-    vector<int> a(n);
-    vector<int> b(m);
-
-    for(auto &x : a) cin >> x;
-    for(auto &y : b) cin >> y;
-
-    cout << solve(a,b) << '\n';
+    pair<int,int> res = mcmf.minCostMaxFlow(s,t);
+    if(res.first != reduce(a.begin(), a.end()) || res.first != reduce(b.begin(), b.end())) {
+        cout << "-1\n";
+    } else {
+        cout << sum - res.first + res.second * 2 << '\n';
+    }
 
     return 0;
 }
