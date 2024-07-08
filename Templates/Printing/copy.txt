@@ -1,6 +1,3 @@
-lll nearroot(lll n) {
-    ll a = sqrt(n);
-    while(a * a > n) a--;
-    while((a + 1) * (a + 1) <= n) a++;
-    return a;
-}
+1
+5 10
+1 2 3 4 5
