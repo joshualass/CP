@@ -3,84 +3,50 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-// void solve() { //did not read the non-overlapping part :)
-//     int n; cin >> n;
-//     vector<int> v(n);
-//     for(auto &x: v) cin >> x;
-//     vector<bool> poss(8193,false);
-//     poss[0] = true;
-//     for(int i = 1; i <= n; i++) {
-//         unordered_set<int> s;
-//         for(int j = 0; j < n; j++) {
-//             if(v[j] == i) {
-//                 s.clear();
-//             } else if(v[j] < i && s.find(v[j]) == s.end()) {
-//                 s.insert(v[j]);
-//             }
-//             if(s.size() == i) {
-//                 poss[i] = true;
-//             }
-//         }
+//next number we are able to make, at which index
+void addQueue(int poss, int idx, vector<queue<array<int,2>>> &d, int n, vector<bool> &vis) {
+    if(vis[poss]) return;
+    vis[poss] = 1;
+    for(int i = 0; i + poss <= n; i++) { //i is what other number we can make
+        int dest = i ^ poss;
+        d[i].push({dest, idx}); //if we are able to make needed with MEX, then we can make 
+    }
+}
 
-//     }
-//     int most = 0;
-//     for(int i = 0; i < poss.size(); i++) {
-//         for(int j = 0; j < poss.size(); j++) {
-//             if(poss[i] && poss[j]) {
-//                 poss[i^j] = true;
-//                 most = max(most,i^j);
-//             }
-//         }
-//     }
-//     cout << most << "\n";
-// }
+bool mexvis[5001];
 
-// void solve() {
-//     int n; cin >> n;
-//     vector<int> v(n);
-//     for(auto &x: v) cin >> x;
-//     vector<vector<bool>> reachable(n,vector<bool>(5001));
-//     for(int i = 0; i < n; i++) {
-//         vector<bool> found(5001);
-//         int mex = 0;
-//         if(i != 0) {
-//             reachable[i] = reachable[i-1];
-//             // for(int j = 0; j <= 5000; j++) {
-//             //     reachable[i][j] = reachable[i-1][j] | reachable[i][j];
-//             // }
-//         }
-//         for(int j = i; j >= 0; j--) {
-//             found[v[j]] = true;
-//             while(mex <= 5000 && found[mex]) {
-//                 mex++;
-//             }
-//             if(j != 0 && !reachable[j][mex]) {
-//                 for(int k = 0; k <= 5000; k++) {
-//                     if(reachable[j-1][k]) {
-//                         reachable[i][k ^ mex] = true;
-//                     }
-//                 }
-//             }
-//             reachable[i][mex] = true;
-//         }
-//     }
-//     // for(int i = 0; i < 5; i++) {
-//     //     for(int j = 0; j < 5; j++) {
-//     //         cout << reachable[i][j] << " ";
-//     //     }
-//     //     cout << "\n";
-//     // }
-//     for(int i = 5000; i >= 0; i--) {
-//         if(reachable[n-1][i]) {
-//             cout << i << "\n";
-//             return;
-//         }
-//     }
-//     cout << "ending?";
-// }
-
+//highest MEX is n. Each number in array is not able to contribute > 1. 
 void solve() {
     
+    int n; cin >> n;
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
+    vector<bool> vis(n + 1);
+    vector<queue<array<int,2>>> d(n + 1);
+
+    addQueue(0,-1,d,n,vis);
+    
+    for(int i = 0; i < n; i++) {
+        memset(mexvis,0,sizeof(mexvis));
+        int currmex = 0;
+        for(int j = i; j >= 0; j--) {
+            mexvis[a[j]] = 1;
+            while(mexvis[currmex]) currmex++;
+            while(d[currmex].size() && d[currmex].front()[1] < j) {
+                array<int,2> a = d[currmex].front();
+                d[currmex].pop();
+                addQueue(a[0], i, d, n, vis);
+            }
+        }
+    }
+
+    for(int i = n; i >= 0; i--) {
+        if(vis[i]) {
+            cout << i << '\n';
+            return;
+        }
+    }
+
 }
 
 int main() {
