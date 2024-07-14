@@ -5,39 +5,30 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 998244353;
 
-//oops q logn logn logn bad :( need -> q logn logn
-//solution, we can do some precomputing to make queries faster
-//good idea to analyze big O sooner vs later :)
-
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
-using namespace __gnu_pbds;
-struct chash {
-    static uint64_t splitmix64(uint64_t x) {
-        // http://xorshift.di.unimi.it/splitmix64.c
-        x += 0x9e3779b97f4a7c15;
-        x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
-        x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
-        return x ^ (x >> 31);
-    }
-    size_t operator()(uint64_t x) const {
-        static const uint64_t FIXED_RANDOM = chrono::steady_clock::now().time_since_epoch().count();
-        return splitmix64(x + FIXED_RANDOM);
-    }
-};
-template<typename T> using pb_set = gp_hash_table<T, null_type, chash>;  // unordered_set but faster
-template<typename T, typename U> using pb_map = gp_hash_table<T, U, chash>; // unordered_map but faster
-
 const int MAXN = 200000;
 
 int lifts[MAXN][18];
 int liftsor[MAXN][18];
 int depths[MAXN];
 int a[MAXN];
+int bits[MAXN][31];
 
 void dfs(int i, int p, int d, vector<vector<int>> &adj) {
     lifts[i][0] = p;
     liftsor[i][0] = a[i];
+    
+    for(int j = 0; j < 31; j++) {
+        if((a[i] >> j) & 1) {
+            bits[i][j] = i;
+        } else {
+            if(p != -1) {
+                bits[i][j] = bits[p][j];
+            } else {
+                bits[i][j] = p;
+            }
+        }
+    }
+    
     if(p != -1) {
         liftsor[i][0] |= a[p];
     }
@@ -117,38 +108,10 @@ int getpathor(int x, int y, int lca, int d) {
                 y = lifts[y][i];
             }
         }
+
     }
 
     return res;
-}
-
-int getpathorfaster(int x, int y, int lca, int d) {
-
-    if(d == 0) return 0;
-
-    int res = a[x];
-    d--;
-
-    int dist = depths[y] - depths[lca];
-
-    int up = dist - d;
-    for(int i = 17; i >= 0; i--) {
-        if(up >= (1 << i)) {
-            up -= 1 << i;
-            y = lifts[y][i];
-        }
-    }
-
-    for(int i = 17; i >= 0; i--) {
-        if(d >= (1 << i)) {
-            d -= 1 << i;
-            res |= liftsor[y][i];
-            y = lifts[y][i];
-        }
-    }
-
-    return res;
-
 }
 
 void solve() {
@@ -189,37 +152,29 @@ void solve() {
     for(int i = 0; i < q; i++) {
         int x, y; cin >> x >> y;
         x--; y--;
-        if(depths[x] < depths[y]) swap(x,y);
         int lca = findlca(x,y);
         int totald = depths[x] + depths[y] - depths[lca] * 2 + 1;
-        int to_lca = getpathor(x,lca,lca,depths[x] - depths[lca] + 1);
         // cout << "i : " << i << " x : " << x << " y : " << y << " lca : " << lca << " td : " << totald << '\n';
+        
         int res = 0;
-        pb_map<int,int> NEEDMORESPEED;
-        for(int pc = 1; pc < 30; pc++) {
-            int l = 1, r = totald;
-            while(l != r) {
-                int m = (l + r) / 2;
-                if(NEEDMORESPEED.find(m) == NEEDMORESPEED.end()) {
-                    if(m >= depths[x] - depths[lca] + 1) {
-                        NEEDMORESPEED[m] = __builtin_popcount(to_lca | getpathorfaster(lca,y,lca,m-(depths[x]-depths[lca])));
-                    } else {
-                        NEEDMORESPEED[m] = __builtin_popcount(getpathor(x,y,lca,m));
-                    }
-                }
-                
-                if( NEEDMORESPEED[m] >= pc) {
-                    r = m;
-                } else {
-                    l = m + 1;
-                }
+        for(int bit = 0; bit < 31; bit++) {
+            if(bits[x][bit] != -1 && depths[bits[x][bit]] >= depths[lca]) {
+                int up = depths[x] - depths[bits[x][bit]] + 1;
+                // cout << "up x y! : " << up << '\n';
+                res = max(res, __builtin_popcount(getpathor(x,y,lca,up)) + __builtin_popcount(getpathor(y,x,lca,totald - up + 1)));
             }
-            // cout << "i : " << i << " x : " << x << " y : " << y << " lca : " << lca << " l : " << l << '\n';
-            // cout << "pc : " << pc << " l : " << l << '\n';
-            // cout << "lhs : " << __builtin_popcount(getpathor(x,y,lca,l)) << '\n';
-            // cout << "rhs : " << __builtin_popcount(getpathor(y,x,lca,totald - l + 1)) << '\n';
-            res = max(res, __builtin_popcount(getpathor(x,y,lca,l)) + __builtin_popcount(getpathor(y,x,lca,totald - l + 1)));
         }
+        
+        swap(x,y);
+        
+        for(int bit = 0; bit < 31; bit++) {
+            if(bits[x][bit] != -1 && depths[bits[x][bit]] >= depths[lca]) {
+                int up = depths[x] - depths[bits[x][bit]] + 1;
+                // cout << "up y x! : " << up << '\n';
+                res = max(res, __builtin_popcount(getpathor(x,y,lca,up)) + __builtin_popcount(getpathor(y,x,lca,totald - up + 1)));
+            }
+        }
+
         cout << res << " \n"[i == q - 1];
     }
 
