@@ -3,22 +3,22 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-
-//returns depth, node
-pair<int,int> dfs(int n, int p, int d, vector<vector<int>> &adj) {
-    pair<int,int> m = {d, n};
-    for(int i : adj[n]) {
-        if(i != p) {
-            m = max(m, dfs(i, n, d + 1, adj));
+// {distance, a}
+array<int,2> dfs(int i, int p, int d, vector<vector<int>> &adj) {
+    array<int,2> res = {d, i};
+    for(int c : adj[i]) {
+        if(c != p) {
+            res = max(res, dfs(c,i,d+1,adj));
         }
     }
-    return m;
+    return res;
 }
 
-template <typename T, typename D>
-std::ostream& operator<<(std::ostream& os, const pair<T,D> &p) {
-    os << p.first << " " << p.second << " ";
-    return os;
+//{a, b, diameter}
+array<int,3> find_diamter(vector<vector<int>> &adj) {
+    array<int,2> a = dfs(0,-1,0,adj);
+    array<int,2> b = dfs(a[1],-1,0,adj);
+    return {a[1], b[1], b[0]};
 }
 
 int main() {
@@ -34,10 +34,10 @@ int main() {
         adj[a].push_back(b);
         adj[b].push_back(a);
     }
-    pair<int,int> start = dfs(0,-1,0,adj);
-    // cout << dfs(0,-1,0,adj) << "\n";
     
-    cout << dfs(start.second, -1, 0, adj).first << "\n";
+    array<int,3> diameter = find_diamter(adj);
+
+    cout << diameter[2] << '\n';
 
     return 0;
 }

@@ -5,13 +5,6 @@ using namespace std;
 const ll MOD = 1e9 + 7;
 const int MAXN = 2e5;
 int subtree_sizes[MAXN];
-vector<int> centroids;
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const vector<T> v) {
-    for(auto x : v) os << x << " ";
-    return os;
-}
  
 void calc_subtree_size(int i, int p, vector<vector<int>> &adj) {
     int sz = 1;
@@ -24,18 +17,17 @@ void calc_subtree_size(int i, int p, vector<vector<int>> &adj) {
     subtree_sizes[i] = sz;
 }
  
-void find_centroids(int i, int p, vector<vector<int>> &adj, int n) {
+vector<int> find_centroids(int i, int p, vector<vector<int>> &adj, int n) {
     for(int c : adj[i]) {
         if(c != p) {
             if(subtree_sizes[c] > n / 2) {
                 return find_centroids(c,i,adj,n);
             } else if(n % 2 == 0 && subtree_sizes[c] == n / 2) {
-                centroids =  {i,c};
-                return;
+                return {i,c};
             }
         }
     }
-    centroids.push_back(i);
+    return {i};
 }
 
 void dfs(int i, int p, vector<vector<int>> &adj, vector<int> &tree, int avoid) {
@@ -65,7 +57,7 @@ signed main() {
  
     calc_subtree_size(0,-1,adj);
 
-    find_centroids(0,-1,adj,n);
+    vector<int> centroids = find_centroids(0,-1,adj,n);
 
     // cout << "make here" << endl;
 

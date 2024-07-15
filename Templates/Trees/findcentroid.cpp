@@ -1,46 +1,26 @@
-void calc_subtree_size(int i, int p, int edge_idx, vector<vector<int>> &adj, vector<vector<int>> &subsizes) {
-    int size = 1;
-    for(int j = 0; j < adj[i].size(); j++) {
-        if(adj[i][j] != p) {
-            if(subsizes[i][j] == -1) {
-                // calc_subtree_size(adj[i][j].first, i, j, adj);
-                calc_subtree_size(adj[i][j], i, j, adj, subsizes);
-            }
-            size += subsizes[i][j];
+const int MAXN = 2e5;
+int subtree_sizes[MAXN];
+ 
+void calc_subtree_size(int i, int p, vector<vector<int>> &adj) {
+    int sz = 1;
+    for(int c : adj[i]) {
+        if(c != p) {
+            calc_subtree_size(c,i,adj);
+            sz += subtree_sizes[c];
         }
     }
-    // adj[p][edge_idx].second = size;
-    subsizes[p][edge_idx] = size;
+    subtree_sizes[i] = sz;
 }
-
-//pass in adj. list, returns centroids :P
-vector<int> find_centroids(vector<vector<int>> &adj) {
-    int n = adj.size();
-    vector<vector<int>> subsizes(n);
-    //build subsizes
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < adj[i].size(); j++) {
-            subsizes[i].push_back(-1);
-        }
-    }
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < subsizes[i].size(); j++) {
-            if(subsizes[i][j] == -1) {
-                calc_subtree_size(adj[i][j], i, j, adj, subsizes);
+ 
+vector<int> find_centroids(int i, int p, vector<vector<int>> &adj, int n) {
+    for(int c : adj[i]) {
+        if(c != p) {
+            if(subtree_sizes[c] > n / 2) {
+                return find_centroids(c,i,adj,n);
+            } else if(n % 2 == 0 && subtree_sizes[c] == n / 2) {
+                return {i,c};
             }
         }
     }
-    vector<int> ans;
-    for(int i = 0; i < n; i++) {
-        bool ok = 1;
-        for(int j = 0; j < subsizes[i].size(); j++) {
-            if(subsizes[i][j] > n / 2) {
-                ok = 0;
-            }
-        }
-        if(ok) {
-            ans.push_back(i);
-        }
-    }
-    return ans;
+    return {i};
 }
