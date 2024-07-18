@@ -4,8 +4,7 @@ struct RMQ  {
     vector<T> elements;
     int n;
     static const int block_size = 30; // block size. adjust accordingly
-    vector<int> mask;
-    vector<int> sparse_table;
+    vector<int> mask, sparse_table;
     int op(int x, int y) { //update this method to determine what value we are trying to find. Currently set to minimum (return index of minimum element)
         return elements[x] < elements[y] ? x : y;
     }
@@ -32,8 +31,7 @@ struct RMQ  {
     T query(int l, int r) {//query(l,r) returns the element from the minimum of v[l..r]
         if(r - l + 1 <= block_size) return elements[small_query(r, r - l + 1)];
         int ans = op(small_query(l + block_size - 1), small_query(r)); 
-        int x = l / block_size + 1;
-        int y = r / block_size - 1;
+        int x = l / block_size + 1, y = r / block_size - 1;
         if(x <= y) {
             int j = most_significant_bit_index(y - x + 1);
             ans = op(ans, op(sparse_table[n / block_size * j + x], sparse_table[n / block_size * j + y - (1 << j) + 1]));

@@ -2,6 +2,80 @@
 typedef long long ll;
 typedef long double ld;
 using namespace std;
+const ll MOD = 1e9 + 7;
+
+const int N = 2e6;
+int dsu[N];
+int sizes[N];
+
+int find(int x) {
+    if(dsu[x] == x) {
+        return x;
+    }
+    dsu[x] = find(dsu[x]);
+    return dsu[x];
+}
+
+void merge(int x, int y) {
+    x = find(x);
+    y = find(y);
+    if(x == y) {
+        return;
+    }
+    if(sizes[x] == sizes[y]) {
+        dsu[y] = x;
+        sizes[x] += sizes[y];
+    } else {
+        dsu[y] = x;
+        sizes[x] += sizes[y];
+    }
+}
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    
+    int n, q; cin >> n >> q;
+
+    for(int i = 0; i < N; i++) {
+        dsu[i] = i;
+        sizes[i] = 1;
+    }
+
+    for(int i = 1; i < n; i++) {
+        merge(9 * n, 9 * n + i);
+    }
+
+    int currscore = 10 * (n - 1);
+
+    for(int i = 0; i < n - 1; i++) {
+        int a, b, c; cin >> a >> b >> c;
+        a--; b--; c--;
+        for(int level = 9; level >= c; level--) {
+            if(find(level * n + a) != find(level * n + b)) currscore--;
+            merge(level * n + a, level * n + b);
+        }
+    }   
+
+    for(int i = 0; i < q; i++) {
+        int u, v, w; cin >> u >> v >> w;
+        u--; v--; w--;
+        for(int level = 9; level >= w; level--) {
+            if(find(level * n + u) != find(level * n + v)) currscore--;
+            merge(level * n + u, level * n + v);
+        }
+        cout << currscore << '\n';
+    }
+
+    return 0;
+}
+
+/*
+
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
 const ll MOD = 998244353;
 
 const int MAXN = 200000;
@@ -94,3 +168,5 @@ signed main() {
 
 //     return 0;
 // }
+
+*/
