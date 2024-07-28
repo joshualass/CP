@@ -8,24 +8,40 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     
-    int n, m; cin >> n >> m;
-    vector<vector<pair<int,int>>> in_activity(m);
-    vector<vector<int>> people(n);
-
-    for(int i = 0; i < n; i++) {
-        int k; cin >> k;
-        people[i].resize(k);
-        for(int &x : people[i]) {
-            cin >> x;
-            x--;
-            in_activity[x].push_back({k,i});
-        }
-    }
-
     
 
     return 0;
 }
+
+//failing BPE
+// #include <bits/stdc++.h>
+// typedef long long ll;
+// typedef long double ld;
+// using namespace std;
+// const ll MOD = 1e9 + 7;
+
+// signed main() {
+//     ios_base::sync_with_stdio(false);
+//     cin.tie(NULL);
+    
+//     int n, m; cin >> n >> m;
+//     vector<vector<pair<int,int>>> in_activity(m);
+//     vector<vector<int>> people(n);
+
+//     for(int i = 0; i < n; i++) {
+//         int k; cin >> k;
+//         people[i].resize(k);
+//         for(int &x : people[i]) {
+//             cin >> x;
+//             x--;
+//             in_activity[x].push_back({k,i});
+//         }
+//     }
+
+    
+
+//     return 0;
+// }
 
 // #include <bits/stdc++.h>
 // typedef long long ll;
