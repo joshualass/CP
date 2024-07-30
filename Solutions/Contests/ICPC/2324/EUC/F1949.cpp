@@ -8,12 +8,17 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     
-    
+    int n, m; cin >> n >> m;
+
+    vector<vector<int>> subsets;
+    vector<int> activitys(m,-1);
+
+
 
     return 0;
 }
 
-//failing BPE
+//failing BPE :(
 // #include <bits/stdc++.h>
 // typedef long long ll;
 // typedef long double ld;
