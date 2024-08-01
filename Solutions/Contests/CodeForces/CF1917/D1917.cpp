@@ -4,6 +4,12 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 998244353;
 
+/*
+We see that permutation of length k, there are some internal inversions that we must calculate. Other than that, the order of q does not affect inversions between other blocks of length k.
+To calculate inversions from blocks of length k on each other. We have to count the number of values in the permutation earlier as well as how many powers of 2 they differ by. Each value
+is uniquely determined so we can look see how many powers of 2 it takes for an element to overpower another element and then calculate the inversions by looking at differences in powers of 2. 
+*/
+
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const vector<T> v) {
     for(auto x : v) os << x << " ";

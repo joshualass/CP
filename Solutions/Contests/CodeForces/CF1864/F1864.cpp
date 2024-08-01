@@ -4,6 +4,14 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 1e9 + 7;
 
+/*
+To solve this problem, it is nice to look at the number of elements in each query, as well as how many operations can be saved by zeroing more than element in an operation. 
+We see that 2 elements of the same a[i] value can be done in the same operation as long as an element less than a[i] does not appear in the interval between the elements. 
+We can also see that once we don't include the largest element that is less than a[i] in the interval, the operation can then be saved. We can compute ahead of time all the saves, as 
+well as when all operations will be saved. We then iterate over the queries in order of increasing lowerbound. 
+
+*/
+
 template<typename T>
 struct Tree {
     static constexpr T base = 0;

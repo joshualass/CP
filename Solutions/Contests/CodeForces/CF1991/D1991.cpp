@@ -4,6 +4,11 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 998244353;
 
+/*
+If 2 were not a prime number, then we can alternately label all nodes 1's and 2's because 2 numbers of same parity xored will have an even output and 2 is the only prime number. 
+However, 2 is prime and so for large n, we see that 2 numbers % 4 xored together will have a number divisible by 4 as output, so we just label nodes 1, 2, 3, 4 ...
+*/
+
 void solve() {
     int n; cin >> n;
     if(n < 6) {

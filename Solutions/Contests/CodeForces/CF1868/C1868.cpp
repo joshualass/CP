@@ -5,6 +5,12 @@ using namespace std;
 const ll MOD = 998244353;
 const ll maxsize = 60;
 
+/*
+First, observe that we can calculate each of the paths independently. For a given n, we find the number of paths of each length which is bounded by O(log(n)) because of the depth of a binary tree.
+We can calculate the number of lengths for all the paths by looking at each node as well as its subtree size. There are logn unique subtree sizes. We calculate the number of paths by seeing how many
+nodes in the left and right subtree have depth i. Once the lengths are calculated, we can compute how many times for each of the lengths, each of the maxes from 1 to m will occur in O(m) time. 
+*/
+
 //basic programming exercise made difficult. 
 
 ll leftcnts[maxsize + 1];

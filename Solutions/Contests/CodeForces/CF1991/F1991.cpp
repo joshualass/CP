@@ -4,6 +4,14 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 1e9 + 7;
 
+/*
+How large of a set of lengths exists such that they do not form a non-degenerate triangle? Just look at the fibonacci sequence. 
+Using this, we can see that if the set is larger than or equal to 48, it will always be possible. 
+Otherwise, we observe that 2 sides of each of the triangles should be adjacent to each other. Using this, we can iterate over all pairs of adjacent lengths in sorted order
+and seeing if it is possible to find 2 third side lengths that do not intersect with the other side lengths. This takes length ^ 2 per query.
+This can be done linear time by observing that the third length of the triangle should also be near the first 2 sides. 
+*/
+
 vector<int> forpainorforglory(47);
 
 signed main() {
