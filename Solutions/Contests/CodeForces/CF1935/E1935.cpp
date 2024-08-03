@@ -4,6 +4,15 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 998244353;
 
+/*
+This problems uses some techniques that are pretty common for greedy techniques using bitwise operations.
+First observe that starting from the most significant bit, every bit that is same in l and r is going to be present no matter which value is used.
+After the bits differ which must happen when for a certain bit i, there is a 0 for l and a 1 for r, We now have a greedy option enabled now. 
+This greedy option is that we can either choose to have a 1 set for the i'th bit or have the i'th bit set to 0 and all the bits following i set to 1. 
+We can use this greedy option now for every set bit following i in r. 
+By looking at forced bits and greedy option bits, we can pretty easily see a greedy solution after taking prefix sums of each of these bits to see how many of each option we have. 
+*/
+
 void solve() {
     
     int n; cin >> n;

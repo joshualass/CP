@@ -2,6 +2,13 @@ const int N = 2e5;
 int dsu[N];
 int sizes[N];
 
+void dsubuild(int n) {
+    for(int i = 0; i < n; i++) {
+        dsu[i] = i;
+        sizes[i] = 1;
+    }
+}
+
 int find(int x) {
     if(dsu[x] == x) {
         return x;
