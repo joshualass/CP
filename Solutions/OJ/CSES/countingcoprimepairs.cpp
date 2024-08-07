@@ -3,30 +3,44 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 const ll MOD = 1e9 + 7;
+const int MAXN = 1e6 + 1;
+ll cnts[MAXN];
+ll a[MAXN];
 
-//the primary issue is that we want to avoid double counting some of the prime numbers. i.e. if we have 6 6, we may think that there are 2 coprime pairs because they share coprime factors
-//Solution: Use Euler's totient function
+/*
+Interesting solution, but I don't know where this falls under as math goes.
+To me, I tried to use the principles of inclusion/exclusion. Because at heart, if we look at all items that divide to different 
 
-const int MAXN = 1e6;
-int phi[MAXN + 1];
+
+*/
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
+
+    fill(begin(cnts), end(cnts), 1LL);
+    fill(begin(a),end(a),0LL);
     
-    for(int i = 0; i <= MAXN; i++) {
-        phi[i] = i;
+    ll n; cin >> n;
+
+    for(int i = 0; i < n; i++) {
+        int num; cin >> num;
+        a[num]++;
     }
 
-    for(int i = 1; i <= MAXN; i++) {
-        for(int j = 2; i * j <= MAXN; j++) {
-            phi[i * j] -= phi[i];
+    ll res = 0;
+
+    for(int i = 2; i < MAXN; i++) {
+        ll cnt = cnts[i];
+        ll sum = 0;
+        for(int j = 1; j * i < MAXN; j++) {
+            sum += a[i * j];
+            cnts[i * j] -= cnt;
         }
+        res += cnt * sum * (sum - 1) / 2;
     }
 
-    for(int i = 0; i < 50; i++) {
-        cout << "i : " << i << " phi[i] : " << phi[i] << '\n';
-    }
+    cout << n * (n - 1) / 2 - res << '\n';
 
     return 0;
 }
