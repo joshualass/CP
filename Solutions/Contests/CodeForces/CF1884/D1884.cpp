@@ -6,30 +6,35 @@ const ll MOD = 998244353;
 
 //harmonic series is logn ...
 
-const int N = 1e6 + 1;
 void solve() {
     
     int n; cin >> n;
-    vector<int> a(n + 1);
     vector<bool> in(n + 1);
-    ll res = 1LL * n * (n - 1) / 2;
+    vector<int> cnts(n + 1,1);
+    vector<int> a(n+1);
     for(int i = 0; i < n; i++) {
         int num; cin >> num;
-        a[num]++;
         in[num] = 1;
+        a[num]++;
     }
+
+    ll res = 0;
     for(int i = 1; i <= n; i++) {
         if(in[i]) {
-            ll cnt = 0;
+            int cnt = cnts[i];
+            int sum = 0;
             for(int j = 1; j * i <= n; j++) {
-                cnt += a[i * j];
-                in[i * j] = 0;
+                cnts[i * j] -= cnt;
+                sum += a[i * j];
+                in[i * j] = 1;
             }
-            cout << "i : " << i << " cnt : " << cnt << '\n';
-            res -= cnt * (cnt - 1) / 2;
+            // cout << "i : " << i << " cnt : " << cnt << " sum : " << sum << " add to res : " << 1LL * cnt * sum * (sum - 1) / 2 << '\n';
+            res += 1LL * cnt * sum * (sum - 1) / 2;
         }
     }
-    cout << res << '\n';
+
+    cout << 1LL * n * (n - 1) / 2 - res << '\n';
+
 }
 
 signed main() {

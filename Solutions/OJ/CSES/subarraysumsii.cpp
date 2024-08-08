@@ -13,7 +13,7 @@ int main() {
     cin.tie(NULL);
     
     ll n, x; cin >> n >> x;
-    unordered_map<ll,int> m;
+    map<ll,int> m;
     vector<ll> v(n);
     ll sum = 0;
     for(int i = 0; i < n; i++) {
