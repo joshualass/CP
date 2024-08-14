@@ -4,6 +4,13 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 998244353;
 
+/*
+not too tricky to solve imo
+see that at some point Elsie needs to beat Bessie, and this happens at an island
+We can efficiently see how many islands Elsie can beat Bessie for each island.
+We precompute the min time for Elsie to reach each island assuming Bessie starts at a later island.
+*/
+
 void solve() {
     int n, m; cin >> n >> m;
     vector<vector<int>> adj(n);

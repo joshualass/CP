@@ -1,0 +1,99 @@
+
+
+
+a - W
+ab - L
+abc - W
+aba - W
+abab - W
+abac - W
+abca - L
+ababa - L
+ababc - L
+abaca - W
+abacb - W
+abcab - W
+abcac - W
+
+
+ab
+ac
+aba
+aca
+abca
+abcb
+acba
+acbc
+ababa
+ababc
+abaca
+abacb
+abcab
+abcac
+abcbc
+acaba
+acabc
+acaca
+acacb
+acbab
+acbac
+acbcb
+ababab
+ababcb
+abacab
+abacac
+abacbc
+abcbab
+abcbac
+abcbca
+acabab
+acabac
+acabcb
+acacab
+acacac
+acacbc
+acbcab
+acbcac
+acbcba
+ababaca
+ababacb
+ababcab
+ababcac
+ababcba
+abacbab
+abacbac
+abacbca
+abcabab
+abcabac
+abcabca
+abcabcb
+abcacab
+abcacac
+abcacba
+abcacbc
+abcbaba
+abcbabc
+abcbaca
+abcbacb
+abcbcba
+abcbcbc
+acabcab
+acabcac
+acabcba
+acacbab
+acacbac
+acacbca
+acbabab
+acbabac
+acbabca
+acbabcb
+acbacab
+acbacac
+acbacba
+acbacbc
+acbcaba
+acbcabc
+acbcaca
+acbcacb
+acbcbca
+acbcbcb
