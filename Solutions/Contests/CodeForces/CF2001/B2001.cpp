@@ -6,7 +6,7 @@ const ll MOD = 998244353;
 
 void solve() {
     int n; cin >> n;
-    if(n == 2) {
+    if(n %  2 == 0) {
         cout << "-1\n";
         return;
     }   
