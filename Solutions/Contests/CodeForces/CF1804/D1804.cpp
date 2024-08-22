@@ -15,58 +15,28 @@ int maxdoubles(string s, int t) {
     return min((int) s.size() / 4, doubles);
 }
 
-int greedy(string s) {
-    int cnt = 0;
-    int doublesleft = s.size() / 4;
-    int singlesleft = s.size() / 2;
-    vector<int> vis(s.size());
-    for(int i = 0; i + 1 < s.size(); i++) {
-        if(s[i] != s[i+1] && doublesleft && vis[i] == 0 && vis[i+1] == 0) {
-            doublesleft--;
-            vis[i] = 1;
-            vis[i+1] = 1;
-            cnt++;
-        }
-    }
-    for(int i = 0; i + 1 < s.size(); i++) {
-        if(s[i] == '0' && s[i+1] == '0' && doublesleft && vis[i] == 0 && vis[i+1] == 0) {
-            doublesleft--;
-            vis[i] = 1;
-            vis[i+1] = 1;
-        }
-    }
-    for(int i = 0; i + 1 < s.size(); i++) {
-        if(s[i] == '1' && s[i+1] == '1' && doublesleft && vis[i] == 0 && vis[i+1] == 0) {
-            doublesleft--;
-            cnt++;
-            vis[i] = 1;
-            vis[i+1] = 1;
-        }
-    }
-    for(int i = 0; i < s.size(); i++) {
-        if(vis[i] == 0) {
-            cnt += s[i] == '1';
-        }
-    }
-    return cnt;
+int dp(string s) {
+
+    
+
 }
 
-int dp(string s) {
-    vector<vector<vector<int>>> dp(s.size() + 1, vector<vector<int>>(s.size() / 2 + 1, vector<int>(s.size() / 4 + 1)));
+int dpc(string s) {
+    vector<vector<vector<int>>> dpc(s.size() + 1, vector<vector<int>>(s.size() / 2 + 1, vector<int>(s.size() / 4 + 1)));
 
     for(int i = 0; i < s.size(); i++) {
         for(int j = 0; j <= s.size() / 2; j++) {
             for(int k = 0; k <= s.size() / 4; k++) {
                 if(j != s.size() / 2) {
-                    dp[i+1][j+1][k] = max(dp[i+1][j+1][k], dp[i][j][k] + (s[i] == '1'));
+                    dpc[i+1][j+1][k] = max(dpc[i+1][j+1][k], dpc[i][j][k] + (s[i] == '1'));
                 }
                 if(i + 1 < s.size() && k != s.size() / 4) {
-                    dp[i+2][j][k+1] = max(dp[i+2][j][k+1], dp[i][j][k] + (s[i] == '1' || s[i+1] == '1'));
+                    dpc[i+2][j][k+1] = max(dpc[i+2][j][k+1], dpc[i][j][k] + (s[i] == '1' || s[i+1] == '1'));
                 }
             }
         }
     }
-    return dp.back().back().back();
+    return dpc.back().back().back();
 }
 
 signed main() {
@@ -75,6 +45,7 @@ signed main() {
 
     for(int i = 0; i < 1 << 12; i++) {
         string s = "";
+        string r = "";
         for(int j = 0; j < 12; j++) {
             if(i & (1 << j)) {
                 s.push_back('1');
@@ -82,8 +53,9 @@ signed main() {
                 s.push_back('0');
             }
         }
-        if(dp(s) != greedy(s)) {
-            cout << "s : " << s << " dp : " << dp(s) << " greedy : " << greedy(s) << '\n';
+
+        if(dpc(s) != greedy(s)) {
+            cout << "s : " << s << " dpc : " << dpc(s) << " greedy : " << greedy(s) << '\n';
             return 0;
         }
     }
