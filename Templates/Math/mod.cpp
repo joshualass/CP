@@ -1,14 +1,3 @@
-const int N = 1e6;
-ll factorials[N+1];
-
-//finds all factorials 0-N iteratively
-void factorial(int n = N, ll MOD = MOD) {
-    factorials[0] = 1;
-    for(int i = 1; i <= n; i++) {
-        factorials[i] = factorials[i-1] * i % MOD;
-    }
-}
-
 ll gcdExtended(ll a, ll b, ll *x, ll *y);
  
 ll modInverse(ll b, ll m) {
@@ -53,7 +42,15 @@ ll binexp(ll base, ll power) {
     return ans;
 }
 
-ll choose(ll n, ll k) {
-    if(k > n) return 0;
-    return modDivide(factorials[n],factorials[n-k] * factorials[k] % MOD);
+vector<ll> fact(1,1);
+vector<ll> inv_fact(1,1);
+
+ll choose(int n, int k) {
+    if(k < 0 || k > n) return 0;
+    while(fact.size() < n + 1) {
+        fact.push_back(fact.back() * fact.size() % MOD);
+        inv_fact.push_back(modInverse(fact.back(), MOD));
+    }
+
+    return fact[n] * inv_fact[k] % MOD * inv_fact[n - k] % MOD;
 }
