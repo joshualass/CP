@@ -4,165 +4,127 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 998244353;
 
-template <typename T, size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (int i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
+/*
+it's not too tricky to observe that binary search is helpful to solve this problem.
+The question is how to binary search correctly?
+
+We need to solve this question: given a fixed xor value k, for each right endpoint of a subarray, what is the highest index j such that j < i and minimum of subarray is less than k?
+We use a Trie to solve this. 
+We insert elements into the Trie, and then kind of query all the values that will xor less than k and take the maximum index from them. Takes n loga per search, and binary search runs loga times. 
+
+Quite a lot of mistakes when implementing this both times.
+Main issues: integer overflow, forgetting small things in implementation. 
+
+Things missed so far
+not assigning nextchild
+forgetting res * dp for other problem. 
+
+too many WA --> lower ego. 
+
+*/
+
+//BinaryTrie but implemented in a caseworky manner. TODO is exchange l / r with some array of sizing [N][2]. 
+
+int depth = 31;
+int nextchild = 3200000;
+
+int l[3200000];
+int r[3200000];
+int m[3200000];
+
+void reset() {
+    for(int i = 0; i < nextchild; i++) {
+        l[i] = -1;
+        r[i] = -1;
+        m[i] = -1;
     }
-    os << "]";
-    return os;
+    nextchild = 1;
 }
 
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
-    os << "[";
-    for (int i = 0; i < vec.size(); ++i) {
-        os << vec[i];
-        if (i + 1< vec.size()) {
-            os << ", ";
+void insert(int i, int x) {
+    int cur = 0;
+    for(int d = depth - 1; d >= 0; d--) {
+        int bit = (x >> d) & 1;
+        if(!bit) {           
+            if(l[cur] == -1) {
+                l[cur] = nextchild++;
+            }
+            cur = l[cur];
+        } else {
+            if(r[cur] == -1) {
+                r[cur] = nextchild++;
+            }
+            cur = r[cur];
         }
+        m[cur] = i;
     }
-    os << "]";
-    return os;
 }
 
-struct Trie {
-    const int depth = 31;
-    struct Node {
-        array<int,2> a;
-        int cnt;
-        set<int> s;
-        Node() {
-            a = {-1,-1};
-        }
-    };
-    vector<Node> nodes;
+int query(int x, int k) {
 
-    Trie () {
-        nodes.push_back(Node());
-    }
+    int res = -1;
+    int cur = 0;
 
-    void insert(int num, int idx) {
-        int curr = 0;
-        for(int i = depth - 1; i >= 0; i--) {
-            int bit = ((num >> i) & 1);
-            if(nodes[curr].a[bit] == -1) {
-                nodes[curr].a[bit] = nodes.size();
-                nodes.push_back(Node());
-            }
-            curr = nodes[curr].a[bit];
-            nodes[curr].s.insert(idx);
-        }
-    }
-
-    //querying the indicies such that the bitwise xor is < k
-    array<int,2> query(int num, int idx, int k) {
-        array<int,2> res = {INT_MIN, INT_MAX}; //nearest indices below and above such that num ^ x < k
-        int curr = 0;
-        for(int i = depth - 1; i >= 0; i--) {
-            int bit = (((num >> i) & 1) ^ 1); //go to this bit to add 1 << i
-
-            if((k >> i) & 1) { //this bit is set for k
-                if(nodes[curr].a[bit ^ 1] != -1) { //we have the option use numbers in bit ^ 1
-                    set<int> &s = nodes[nodes[curr].a[bit ^ 1]].s;
-                    if(s.upper_bound(idx) != s.end()) {
-                        res[1] = min(res[1], *s.upper_bound(idx));
-                    }
-                    if(s.lower_bound(idx) != s.begin()) {
-                        res[0] = max(res[0], (*--s.lower_bound(idx)));
-                    }
-                }
-                if(nodes[curr].a[bit] != -1) { //always follow k
-                    curr = nodes[curr].a[bit];
-                } else {
-                    return res;
-                }
-            } else {//can't check the numbers above us ever
-                if(nodes[curr].a[bit ^ 1] != -1) { //always follow k
-                    curr = nodes[curr].a[bit ^ 1];
-                } else {
-                    return res;
-                }
+    for(int d = depth - 1; d >= 0; d--) {
+        int bit = (x >> d) & 1;
+        if((k >> d) & 1) { //if bit is set for k, we have the option to check the offbit. Must not go in direction of bit
+            if(!bit && l[cur] != -1) {
+                res = max(res, m[l[cur]]);
+            } 
+            if(bit && r[cur] != -1) {
+                res = max(res, m[r[cur]]);
             }
         }
-
-        return res;
+        //in either case, go in the direction of x ^ k. 
+        if(bit == ((k >> d) & 1)) {
+            if(l[cur] != -1) {
+                cur = l[cur];
+            } else {
+                return res;
+            }
+        } else {
+            if(r[cur] != -1) {
+                cur = r[cur];
+            } else {
+                return res;
+            }
+        }
     }
-};
-
-vector<array<int,2>> rangesnocompileerrorplease(200000);
+    return res;
+}
 
 void solve() {
+
     ll n, k; cin >> n >> k;
-
-    Trie t;
     vector<int> a(n);
+    for(int &x : a) cin >> x;
 
-    for(int i = 0; i < n; i++) {
-        cin >> a[i];
-        t.insert(a[i],i);
-    }
+    int lo = 0, hi = 1073741823;
 
-    auto count_smaller = [&](int m) {
-        int p = 0;
-        for(int i = 0; i < n; i++) {
-            array<int,2> b = t.query(a[i], i, m);
-            if(b[0] != INT_MIN) {
-                // rangesnocompileerrorplease.push_back({b[0],i});
-                rangesnocompileerrorplease[p++] = {b[0],i};
-            }
-            if(b[1] != INT_MAX) {
-                // rangesnocompileerrorplease.push_back({i,b[1]});
-                rangesnocompileerrorplease[p++] = {i,b[1]};
-            }
-        }
+    while(lo != hi) {
 
-        sort(rangesnocompileerrorplease.begin(), rangesnocompileerrorplease.begin() + p, [](const auto &lhs, const auto &rhs) {
-            return lhs[1] < rhs[1];
-        });
-
-        // cout << "rangesnocompileerrorplease : " << rangesnocompileerrorplease << '\n';
-
-        int p2 = 0;
-        ll smaller = 0;
-        for(int i = 0; i < n; i++) {
-            while(p2 != p && rangesnocompileerrorplease[p2][0] < i) p2++;
-            if(p2 != p) {
-                // cout << "sz : " << rangesnocompileerrorplease.size() << " p : " << p << endl;
-                smaller += n - rangesnocompileerrorplease[p2][1];
-            }
-        }
-
-        // cout << "m : " << m << " smaller : " << smaller << '\n';
-
-        return smaller;
-
-    };
-
-    // for(int i = 0; i < 16; i++) {
-    //     cout << "cs i : " << i << " " << count_smaller(i) << '\n';
-    // }
-    k--;
-    ll l = 0, r = 1073741823;
-
-    while(l != r) {
-        ll m = (l + r + 1) / 2;
-        // cout << "l : " << l << " r : " << r << " m : " << m << '\n';
+        int m = (lo + hi + 1) / 2;
         
-        ll smaller = count_smaller(m);
+        reset();
+        ll countunder = 0;
+        int currhi = -1;
 
-        if(smaller > k) {
-            r = m - 1;
-        } else {
-            l = m;
+        for(int i = 0; i < n; i++) {
+
+            currhi = max(currhi, query(a[i], m));
+            countunder += currhi + 1;
+            insert(i,a[i]);
         }
+
+        if(countunder < k) {
+            lo = m;
+        } else {
+            hi = m - 1;
+        }
+
     }
 
-    cout << l << '\n';
+    cout << lo << '\n';
 
 }
 

@@ -5,12 +5,18 @@ using namespace std;
 const ll MOD = 1e9 + 7;
 
 template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+
+template<typename T>
 struct MinTree {
     static constexpr T base = INT_MAX;
     vector<T> v;
     int n, size;
     T comb(T a, T b) { //change this when doing maximum vs minimum etc.
-        return min(a + b);
+        return min(a, b);
     }
     MinTree(int n = 0, T def = base) {
         this->n = n; //max number of elements
@@ -58,7 +64,7 @@ struct MaxTree {
     vector<T> v;
     int n, size;
     T comb(T a, T b) { //change this when doing maximum vs minimum etc.
-        return max(a + b);
+        return max(a, b);
     }
     MaxTree(int n = 0, T def = base) {
         this->n = n; //max number of elements
@@ -105,13 +111,11 @@ signed main() {
     cin.tie(NULL);
     
     int n; cin >> n;
-    n += 2;
     vector<int> a(n);
-    for(int i = 1; i <= n; i++) cin >> a[i];
-    a[0] = -MOD;
-    a[n+1] = MOD;
+    for(int &x : a) cin >> x;
+
     vector<int> p(n,-1);
-    vector<array<int,2>> lis(n,{-1,-1}); //lis, id
+    vector<array<int,2>> lis(n + 1,{-1,-1}); //lis, id
 
     for(int i = 0; i < n; i++) {
         int l = 0, r = n - 1;
@@ -137,8 +141,10 @@ signed main() {
         maxt.update(i,a[i]);
     }
 
+    // cout << "p : " << p << '\n';
+
     vector<int> lisidx;
-    for(int i = n - 1; i >= 0; i--) {
+    for(int i = n; i >= 0; i--) {
         if(lis[i][0] != -1) {
             int curr = lis[i][1];
             while(curr != -1) {
@@ -151,10 +157,52 @@ signed main() {
     }
 
     reverse(lisidx.begin(), lisidx.end());
-    int lisp = 0;
-    for(int i = 0; i < n; i++) {
-        if()
+    // cout << "lisidx : " << lisidx << '\n';
+
+    int found = lisidx[0] != 0 || (lisidx.back() != n - 1);    
+
+    //see if we can be found by adjusting lis idx's
+    for(int i = 1; i < lisidx.size() - 1; i++) {
+
+        for(int j = lisidx[i-1] + 1; j < lisidx[i]; j++) {
+            if(a[j] > a[lisidx[i-1]] && a[j] < a[lisidx[i+1]] - 1) {
+                // cout << "found1 : " << i << " " << j << '\n';
+                found = 1;
+            }
+        }
+
+        for(int j = lisidx[i] + 1; j < lisidx[i+1]; j++) {
+            if(a[j] > a[lisidx[i-1]] + 1 && a[j] < a[lisidx[i+1]]) {
+                // cout << "found2 : " << i << " " << j << '\n';
+                found = 1;
+            }
+        }
     }
+
+    for(int i = 1; i < lisidx.size(); i++) {
+
+        if(lisidx[i] - lisidx[i-1] > 1 && a[lisidx[i]] - a[lisidx[i-1]] > 1) {
+            // cout << "found3 : " << i << '\n';
+            found = 1;
+        }
+
+    }
+
+    if(lisidx.size() >= 2) {
+        for(int i = lisidx[0] + 1; i < lisidx[1]; i++) {
+            if(a[i] < a[lisidx[1]]) {
+                found = 1;
+            }
+        }
+        int x = lisidx.size() - 1;
+        for(int i = lisidx[x - 1] + 1; i < lisidx[x]; i++) {
+            if(a[i] > a[lisidx[x-1]]) {
+                found = 1;
+            }
+        }
+    }
+
+    cout << lisidx.size() + found << '\n';
 
     return 0;
 }
