@@ -56,8 +56,8 @@ void merge(int x, int y) {
 // }
 
 signed main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
+    // ios_base::sync_with_stdio(false);
+    // cin.tie(NULL);
     //read in input
     int n, m; cin >> n >> m;
     //initialize dsu datastructure
