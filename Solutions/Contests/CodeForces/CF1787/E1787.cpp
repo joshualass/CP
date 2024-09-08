@@ -4,6 +4,11 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 998244353;
 
+/*
+We should always try to make the most groups.
+Let's do this greedily by making as many groups of size 2 as possible. If we can't make anymore groups of size 2, then we can't make anymore groups period.
+*/
+
 void solve() {
     int n, k, x; cin >> n >> k >> x;
     vector<int> unused(n + 1, 1);
