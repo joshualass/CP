@@ -7,8 +7,8 @@ const ll MOD = 1e9 + 7;
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-    
-    
+
+
 
     return 0;
 }
