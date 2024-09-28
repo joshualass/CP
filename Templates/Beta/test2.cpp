@@ -68,7 +68,9 @@ signed main() {
     // }
 
     // binexp(250,8);
-    cout << modInverse(16,27) << '\n';
+    // cout << modInverse(16,27) << '\n';
+
+    cout << "Hello World!\n";
 
     return 0;
 }
