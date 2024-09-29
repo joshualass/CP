@@ -15,21 +15,22 @@ signed main() {
     for(int i = 0; i < m; i++) {
         int u, v, w; cin >> u >> v >> w;
         u--; v--;
-        adj[u].push_back(array<ll,2>{v,w});
-        adj[v].push_back(array<ll,2>{u,-w});
+        adj[u].push_back({v,w});
+        adj[v].push_back({u,-w});
     }
 
-    vector<ll> res(n,-1);
+    vector<ll> res(n,LLONG_MIN);
     for(int i = 0; i < n; i++) {
-        if(res[i] == -1) {
+        if(res[i] == LLONG_MIN) {
 
             queue<array<ll,2> > q;
             q.push({i,0});
+            // cout << "starting i : " << i << '\n';
             while(q.size()) {
                 auto [idx, w] = q.front();
                 q.pop();
 
-                if(res[idx] != -1) continue;
+                if(res[idx] != LLONG_MIN) continue;
 
                 res[idx] = w;
                 for(auto [v, c] : adj[idx]) {
