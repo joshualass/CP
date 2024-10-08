@@ -4,20 +4,32 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 998244353;
 
-//copy jiangly's solution for practice
-//the phi function kind of auto includes the subtraction, 
+const int MAXN = 1e5 + 1;
+int phi[MAXN], p[MAXN];
+bool vis[MAXN];
+void build_phi() {
+    phi[1] = 1;
+    int cnt = 0;
+    for(int i = 2;i < MAXN;i++)
+    {
+        if(!vis[i])p[++cnt] = i,phi[i] = i-1;
+        for(int j = 1;j <= cnt&&i*p[j] < MAXN;j++)
+        {
+            int now = i*p[j];vis[now] = 1;
+            if(i%p[j] == 0){phi[now] = phi[i]*p[j];break;}
+            phi[now] = phi[i]*(p[j]-1);
+        }
+    }
+}
 
-const int N = 1e5;
-vector<int> divs[N+1];
-int phi[N + 1];
-
+vector<int> divs[MAXN+1];
 void solve() {
     int n; cin >> n;
     vector<int> a(n);
     for(int &x : a) cin >> x;
     sort(a.begin(), a.end());
     ll res = 0;
-    array<int,N+1> f{};
+    array<int,100000+1> f{};
     for(int i = 0; i < n; i++) {
         for(int d : divs[a[i]]) {
             res += 1LL * phi[d] * f[d] * (n - 1 - i);
@@ -31,25 +43,13 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    for(int i = 1; i <= N; i++) {
-        for(int j = i; j <= N; j += i) {
+    for(int i = 1; i <= 100000; i++) {
+        for(int j = i; j <= 100000; j += i) {
             divs[j].push_back(i);
         }
     }
 
-    for(int i = 1; i <= N; i++) {
-        phi[i] = i;
-    }
-
-    for(int i = 1; i <= N; i++) {
-        for(int j = i * 2; j <= N; j += i) {
-            phi[j] -= phi[i];
-        }
-    }
-
-    // for(int i = 1; i <= 100; i++) {
-    //     cout << "i : " << i << " phi[i] : " << phi[i] << '\n';
-    // }
+    build_phi();
 
     int casi; cin >> casi;
     while(casi-->0) solve();

@@ -4,6 +4,10 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 1e9 + 7;
 
+/*
+11111111111000100000
+*/
+
 template <typename T, std::size_t N>
 std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
     os << "[";
@@ -64,6 +68,63 @@ int dp(string s) {
 
 }
 
+int new_greedy(string s) {
+
+    int doubles_left = s.size() / 4;
+    int res = 0;
+
+    vector<int> vis(s.size());
+    for(int i = 1; i < s.size(); i++) {
+        if(doubles_left && s[i-1] != s[i]) {
+            res++;
+            doubles_left--;
+            vis[i-1] = 1;
+            vis[i] = 1;
+            i++;
+        }
+    }
+
+    cout << "vis : " << vis << " res : " << res << '\n';
+
+    for(int i = 1; i < s.size(); i++) {
+        if(s[i-1] == '0' && s[i] == '0' && doubles_left && vis[i-1] == 0 && vis[i] == 0) {
+            vis[i-1] = 1;
+            vis[i] = 1;
+            doubles_left--;
+            i++;
+        }
+    }
+
+    cout << "vis : " << vis << " res : " << res << '\n';
+
+    for(int i = 1; i < s.size(); i++) {
+        if(!vis[i-1] && !vis[i] && doubles_left) {
+            vis[i-1] = 1;
+            vis[i] = 1;
+            doubles_left--;
+            i++;
+            res++;
+        }
+    }
+
+    cout << "vis : " << vis << " res : " << res << '\n';
+
+    for(int i = 0; i < s.size(); i++) {
+        if(s[i] == '1' && !vis[i]) {
+            res++;
+        }
+    }
+
+    return res;
+
+}
+
+int dp3(string s) {
+
+    
+
+}
+
 int dpc(string s) {
     vector<vector<vector<int>>> dpc(s.size() + 1, vector<vector<int>>(s.size() / 2 + 1, vector<int>(s.size() / 4 + 1)));
 
@@ -90,22 +151,22 @@ signed main() {
 
     // dp(s);
 
-    for(ll i = 0; i < 1LL << 40; i++) {
-        string s = "";
-        string r = "";
-        for(int j = 0; j < 40; j++) {
-            if(i & (1 << j)) {
-                s.push_back('1');
-            } else {
-                s.push_back('0');
-            }
-        }
+    // for(ll i = 0; i < 1LL << 20; i++) {
+    //     string s = "";
+    //     string r = "";
+    //     for(int j = 0; j < 20; j++) {
+    //         if(i & (1 << j)) {
+    //             s.push_back('1');
+    //         } else {
+    //             s.push_back('0');
+    //         }
+    //     }
 
-        if(dpc(s) != dp(s)) {
-            cout << "s : " << s << " dpc : " << dpc(s) << " dp : " << dp(s) << '\n';
-            return 0;
-        }
-    }
+    //     if(dpc(s) != new_greedy(s)) {
+    //         cout << "s : " << s << " dpc : " << dpc(s) << " dp : " << new_greedy(s) << '\n';
+    //         return 0;
+    //     }
+    // }
     
     int n, m; cin >> n >> m;
     int lo = 0, hi = 0;
@@ -114,7 +175,7 @@ signed main() {
         int countzero = count(s.begin(), s.end(), '0');
         int countone = count(s.begin(),s.end(), '1');
         lo += countone - maxdoubles(s,1); //find min that can be occupied
-        hi += dp(s);
+        hi += new_greedy(s);
     }
 
     cout << lo << " " << hi << '\n';
