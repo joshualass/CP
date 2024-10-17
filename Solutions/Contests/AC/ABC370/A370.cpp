@@ -8,7 +8,15 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
+    int a, b; cin >> a >> b;
 
+    if((a + b) % 2 == 0) {
+        cout << "Invalid\n";
+    } else if(a) {
+        cout << "Yes\n";
+    } else {
+        cout << "No\n";
+    }
 
     return 0;
 }

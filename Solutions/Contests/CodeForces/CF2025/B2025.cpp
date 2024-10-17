@@ -2,7 +2,7 @@
 typedef long long ll;
 typedef long double ld;
 using namespace std;
-const ll MOD = LLONG_MAX;
+const ll MOD = 1e9 + 7;
 
 ll binexp(ll base, ll power) {
     ll ans = 1;
@@ -16,11 +16,19 @@ ll binexp(ll base, ll power) {
     return ans;
 }
 
-signed main() { 
+
+signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    cout << gcd(1739, binexp(2,5*4*3*2*1) - 1) << '\n';
+    ll t; cin >> t;
+    for(int i = 0; i < t; i++) {
+        int tt; cin >> tt;
+    }
+    for(int i = 0; i < t; i++) {
+        ll k; cin >> k;
+        cout << binexp(2,k) << '\n';
+    }
 
     return 0;
 }
