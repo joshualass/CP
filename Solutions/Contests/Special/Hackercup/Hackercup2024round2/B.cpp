@@ -20,7 +20,6 @@ vector<int> getcols(int bm) {
     return cols;
 }
 
-
 int getbm(vector<int> &cols) {
     int res = 0;
     int mult = 1;
