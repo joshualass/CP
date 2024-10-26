@@ -2,19 +2,7 @@
 typedef long long ll;
 typedef long double ld;
 using namespace std;
-const ll MOD = 1e9 + 7;
-
-template<typename T, typename D>
-std::ostream& operator<<(std::ostream& os, map<T,D> m) {
-    for(auto &x: m) os << x.first << " " << x.second << " | ";
-    return os;
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const vector<T> v) {
-    for(auto x : v) os << x << " ";
-    return os;
-}
+const ll MOD = 998244353;
 
 template<typename T, typename D>
 struct Lazy {
@@ -33,7 +21,7 @@ struct Lazy {
     }
     bool isLeaf(int node) {return node >= size;}
     T query_comb(T val1, T val2) {//update this depending on query type
-        return max(val1, val2);
+        return max(val1,val2);
     }
     //how we combine lazy updates to lazy
     void lazy_comb(int node, D val) {//update this depending on update type. how do we merge the lazy changes?
@@ -87,12 +75,11 @@ struct Lazy {
 
 int lifts[200000][20];
 
-signed main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-
-    int n, q; cin >> n >> q;
+void solve() {
+    
+    int n; cin >> n;
     vector<vector<int>> adj(n);
+    vector<int> d(n);
     for(int i = 1; i < n; i++) {
         int a, b; cin >> a >> b;
         a--; b--;
@@ -100,24 +87,16 @@ signed main() {
         adj[b].push_back(a);
     }
 
-    vector<int> tin(n), tout(n), d(n);
-    int time = 0;
-    auto dfs1 = [&](auto self, int i, int p, int depth) -> void {
-        tin[i] = time++;
-        d[i] = depth;
+    auto buildpars = [&](auto self, int i, int p, int depth) -> void {
         lifts[i][0] = p;
+        d[i] = depth;
         for(int c : adj[i]) {
             if(c != p) {
                 self(self, c, i, depth + 1);
             }
         }
-        tout[i] = time;
     };
-
-    dfs1(dfs1, 0, 0, 0);
-
-    // cout << "tin : " << tin << '\n';
-    // cout << "tout : " << tout << '\n';
+    buildpars(buildpars, 0, 0, 0);
 
     for(int i = 1; i < 20; i++) {
         for(int j = 0; j < n; j++) {
@@ -125,7 +104,7 @@ signed main() {
         }
     }
 
-    auto upk = [&](int a, int k) -> int {
+    auto goupk = [&](int a, int k) -> int {
         for(int i = 0; i < 20; i++) {
             if((k >> i) & 1) {
                 a = lifts[a][i];
@@ -134,87 +113,68 @@ signed main() {
         return a;
     };
 
-    vector<vector<pair<int,vector<int>>>> queries(n);
+    int q; cin >> q;
+    vector<vector<array<int,2>>> queries(n);
+
     for(int i = 0; i < q; i++) {
-        int x, k; cin >> x >> k;
-        x--;
-        queries[x].push_back({i,{}});
-        for(int j = 0; j < k; j++) {
-            int y; cin >> y;
-            queries[x].back().second.push_back(y-1);
-        }
-    }
+        int v, k; cin >> v >> k;
+        v--;
+        queries[v].push_back({k,i});
+    }    
 
+    vector<int> tins(n), touts(n);
     Lazy<int,int> lazy(n);
-    for(int i = 0; i < n; i++) {
-        lazy.update(tin[i],tin[i]+1,d[i]);
-    }
+    int time = 0;
 
-    vector<int> res(q);
-
-    auto dfs2 = [&](auto self, int i, int p) -> void {
-        if(i) {
-            lazy.update(tin[i], tout[i], -2);
-            lazy.update(0,n,1);
-        }
-
-        // cout << "i : " << i << '\n';
-        // for(int j = 0; j < n; j++) {
-        //     cout << "dist from node j, " << j << " is : " << lazy.query(tin[j],tin[j]+1) << '\n';
-        // }
-
-        for(auto [id, removals] : queries[i]) {
-            map<int,int> m;
-            for(int removal : removals) {
-                if(d[removal] < d[i] && upk(i,d[i]-d[removal]) == removal) {
-                    int allowedsubtree = upk(i,d[i]-d[removal]-1);
-                    m[0]++;
-                    m[tin[allowedsubtree]]--;
-                    m[tout[allowedsubtree]]++;
-                    m[n]--;
-                } else {
-                    m[tin[removal]]++;
-                    m[tout[removal]]--;
-                }
-            }
-
-            int ans = 0;
-            int previdx=0;
-            int cnt = 0;
-
-            // cout << "query id : " << id << '\n';
-            // cout << "map : " << m << '\n';
-
-            for(auto [idx, a] : m) {
-                if(cnt == 0) {
-                    // cout << "query range : " << previdx << " to " << idx << '\n';
-                    ans = max(ans, lazy.query(previdx, idx));
-                }
-                cnt += a;
-                if(cnt == 0) {
-                    previdx = idx;
-                }
-            }
-            // cout << "query range : " << previdx << " to " << n << '\n';
-            ans = max(ans, lazy.query(previdx,n));
-            res[id] = ans;
-        }
-
+    auto euler_tour = [&](auto self, int i, int p) -> void {
+        tins[i] = time++;
+        lazy.update(tins[i], tins[i] + 1, d[i]);
         for(int c : adj[i]) {
             if(c != p) {
                 self(self, c, i);
             }
         }
+        touts[i] = time;
+    };
 
+    euler_tour(euler_tour, 0, -1);
+
+    vector<int> res(q);
+
+    auto dfsqueries = [&](auto self, int i, int p) -> void {
         if(i) {
-            lazy.update(tin[i], tout[i], 2);
+            lazy.update(tins[i], touts[i], -2);
+            lazy.update(0,n,1);
+        }
+        for(auto [stamina, id] : queries[i]) {
+            int kancestor = goupk(i, stamina);
+            res[id] = lazy.query(tins[kancestor], touts[kancestor]);
+        }
+        for(int c : adj[i]) {
+            if(c != p) {
+                self(self, c, i);
+            }
+        }
+        if(i) {
+            lazy.update(tins[i], touts[i], 2);
             lazy.update(0,n,-1);
         }
-    };  
+    };
 
-    dfs2(dfs2, 0, -1);
+    dfsqueries(dfsqueries, 0, -1);
 
-    for(int x : res) cout << x << '\n';
+    for(int i = 0; i < q; i++) {
+        cout << res[i] << " \n"[i == q - 1];
+    }
+
+}
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }
