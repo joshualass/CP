@@ -1,6 +1,10 @@
 #ignore builds
+*
+!*/
+!*.*
 *.exe
 *.class
 tempCodeRunnerFile.cpp
 *.out
 .vscode/settings.json
+**/*.dSYM/

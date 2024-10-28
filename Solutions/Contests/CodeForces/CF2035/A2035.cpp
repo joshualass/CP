@@ -8,7 +8,7 @@ void solve() {
     ll n, m, r, c; cin >> n >> m >> r >> c;
     cout << (m-c) + (n-r) + (n-r) * (m * 2 - 2) << '\n';
 
-}
+} //
 
 signed main() {
     ios_base::sync_with_stdio(false);
