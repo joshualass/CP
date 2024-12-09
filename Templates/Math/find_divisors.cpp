@@ -33,26 +33,32 @@ void find_divs(int idx, int p, vector<pair<int,int>> &facts, vector<int> &nums) 
     }
 }
 
-//O(sqrt(n)), approx. cuberoot(n) factors. 
-void find_divisors(int num, vector<int> &nums) {
-    // map<int,int> factors;
-    vector<pair<int,int>> factors;
-    // cout << "num: " << num << " ";
-    for(ll i = 0; i < prime.size() && prime[i] * prime[i] <= num; i++) {
-        bool first = 1;
-        while(num % prime[i] == 0) {
-            if(first) {
-                factors.push_back({prime[i],1});
-                first = 0;
-            } else {
-                factors.back().second++;
+void prime_factorize(ll num, vector<pair<int,int>> &prime_factors) {
+    for(int i = 0; i < prime.size() && 1LL * prime[i] * prime[i] <= num; i++) {
+        if(num % prime[i] == 0) {
+            prime_factors.push_back({prime[i],0});
+            while(num % prime[i] == 0) {
+                prime_factors.back().second++;
+                num /= prime[i];
             }
-            num /= prime[i];
+        }
+        while(num < N && num != 1) {
+            int t = prime_factor[num];
+            prime_factors.push_back({t, 0});
+            while(num % t == 0) {
+                prime_factors.back().second++;
+                num /= t;
+            }
         }
     }
     if(num != 1) {
-        factors.push_back({num,1});
+        prime_factors.push_back({num,1});
     }
-    // cout << factors << "\n";
-    find_divs(0, 1, factors, nums);
+}
+
+//O(sqrt(n)), approx. cuberoot(n) factors. 
+void find_divisors(int num, vector<int> &nums) {
+    vector<pair<int,int>> prime_factors;
+    prime_factor(num, prime_factors);
+    find_divs(0, 1, prime_factors, nums);
 }

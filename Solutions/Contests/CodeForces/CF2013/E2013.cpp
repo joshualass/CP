@@ -22,7 +22,7 @@ void solve() {
         int ming = gcd(g,a[0]);
         int minidx = 0;
   
-        for(int j = 0; j < a.size(); j++) {f
+        for(int j = 0; j < a.size(); j++) {
             if(gcd(g, a[j]) < ming) {
                 ming = gcd(g,a[j]);
                 minidx = j;
