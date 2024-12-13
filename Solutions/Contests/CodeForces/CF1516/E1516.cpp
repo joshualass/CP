@@ -1,3 +1,8 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -100,17 +105,15 @@ struct Mint {
     }
 };
 
-constexpr int P = 998244353;
+constexpr int P = 1e9 + 7;
 using Z = Mint<P>;
 
-vector<Z> fact(1,1);
-vector<Z> inv_fact(1,1);
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
 
-Z choose(int n, int k) {
-    if(k < 0 || k > n) return 0;
-    while(fact.size() < n + 1) {
-        fact.push_back(fact.back() * fact.size());
-        inv_fact.push_back(1 / fact.back());
-    }
-    return fact[n] * inv_fact[k] * inv_fact[n-k];
+    ll n, k; cin >> n >> k;
+    vector<vector<Z>> dp()
+
+    return 0;
 }
