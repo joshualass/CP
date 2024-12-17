@@ -105,7 +105,7 @@ struct Mint {
     }
 };
 
-constexpr int P = 1e9 + 7;
+constexpr int P = 998244353;
 using Z = Mint<P>;
 
 vector<Z> fact(1,1);
@@ -120,56 +120,67 @@ Z choose(int n, int k) {
     return fact[n] * inv_fact[k] * inv_fact[n-k];
 }
 
+using cd = complex<double>;
+const double PI = acos(-1);
+
+void fft(vector<cd> & a, bool invert) {
+    ll n = a.size();
+    if (n == 1)
+        return;
+
+    vector<cd> a0(n / 2), a1(n / 2);
+    for (ll i = 0; 2 * i < n; i++) {
+        a0[i] = a[2*i];
+        a1[i] = a[2*i+1];
+    }
+    fft(a0, invert);
+    fft(a1, invert);
+
+    double ang = 2 * PI / n * (invert ? -1 : 1);
+    cd w(1), wn(cos(ang), sin(ang));
+    for (ll i = 0; 2 * i < n; i++) {
+        a[i] = a0[i] + w * a1[i];
+        a[i + n/2] = a0[i] - w * a1[i];
+        if (invert) {
+            a[i] /= 2;
+            a[i + n/2] /= 2;
+        }
+        w *= wn;
+    }
+}
+
+vector<Z> multiply(vector<Z> const& a, vector<Z> const& b) {
+    vector<cd> fa(a.begin(), a.end()), fb(b.begin(), b.end());
+    ll n = 1;
+    while (n < a.size() + b.size()) 
+        n <<= 1;
+    fa.resize(n);
+    fb.resize(n);
+
+    fft(fa, false);
+    fft(fb, false);
+    for (ll i = 0; i < n; i++)
+        fa[i] *= fb[i];
+    fft(fa, true);
+
+    vector<ll> result(n);
+    for (ll i = 0; i < n; i++)
+        result[i] = round(fa[i].real());
+    return result;
+}
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    choose(10000,10000);
-    ll n, k; cin >> n >> k;
-    vector<vector<Z>> dp(k+1,vector<Z>(k * 2 + 1));
-    dp[0][0] = 1;
-    for(int c = 2; c <= k + 1; c++) {
-        for(int i = k; i >= 0; i--) {
-            for(int j = 0; j <= k * 2; j++) {
-                Z fp = 1;
-                for(int l = 1; i - (c - 1) * l >= 0 && j - c * l >= 0; l++) {
-                    fp *= inv_fact[c] * fact[c-1];
-                    dp[i][j] += dp[i - (c - 1) * l][j - c * l] * fp * fact[j] * inv_fact[j - c * l] * inv_fact[l];
-                }
-            }
-        }
-    }
+    int n, m; cin >> n >> m;
+    vector<Z> a(n), b(m);
+    for(Z &x : a) cin >> x;
+    for(Z &x : b) cin >> x;
+    vector<Z> mul = multiply(a,b);
 
-    vector<Z> cm(k * 2 + 1);
-    for(int i = 0; i <= k * 2; i++) {
-        Z res = 1;
-        for(int j = 0; j < i; j++) {
-            res *= n - j;
-            res /= j + 1;
-        }
-        cm[i] = res;
-    }
-
-    // cout << "print dp zzzZZZ\n";
-    // for(int i = 0; i <= k; i++) {
-    //     for(int j = 0; j <= k * 2; j++) {
-    //         cout << dp[i][j] << " \n"[j == k * 2];
-    //     }
-    // }
-
-    // cout << "cm zzzZZZ\n";
-    // for(int i = 0; i <= k * 2; i++) {
-    //     cout << cm[i] << " \n"[i == k * 2];
-    // }
-
-    for(int op = 1; op <= k; op++) {
-        Z res = 0;
-        for(int i = op; i >= 0; i -= 2) {
-            for(int j = 0; j <= min(n, k * 2); j++) {
-                res += dp[i][j] * cm[j];
-            }
-        }
-        cout << res << " \n"[op == k];
+    for(int i = 0; i < n + m - 1; i++) {
+        cout << mul[i] << " \n"[i == n + m - 2];
     }
 
     return 0;
