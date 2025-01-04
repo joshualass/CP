@@ -22,7 +22,7 @@ void sieve (int n = N) {
 	}
 }
 
-void find_divs(int idx, int p, vector<pair<int,int>> &facts, vector<int> &nums) {
+void find_divs(int idx, int p, vector<pair<ll,int>> &facts, vector<int> &nums) {
     if(idx == facts.size()) {
         nums.push_back(p);
         return;
@@ -33,7 +33,7 @@ void find_divs(int idx, int p, vector<pair<int,int>> &facts, vector<int> &nums) 
     }
 }
 
-void prime_factorize(ll num, vector<pair<int,int>> &prime_factors) {
+void prime_factorize(ll num, vector<pair<ll,int>> &prime_factors) {
     for(int i = 0; i < prime.size() && 1LL * prime[i] * prime[i] <= num; i++) {
         if(num % prime[i] == 0) {
             prime_factors.push_back({prime[i],0});
@@ -58,7 +58,7 @@ void prime_factorize(ll num, vector<pair<int,int>> &prime_factors) {
 
 //O(sqrt(n)), approx. cuberoot(n) factors. 
 void find_divisors(int num, vector<int> &nums) {
-    vector<pair<int,int>> prime_factors;
-    prime_factor(num, prime_factors);
+    vector<pair<ll,int>> prime_factors;
+    prime_factorize(num, prime_factors);
     find_divs(0, 1, prime_factors, nums);
 }

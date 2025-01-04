@@ -120,85 +120,75 @@ Z choose(int n, int k) {
     return fact[n] * inv_fact[k] * inv_fact[n-k];
 }
 
-template<typename T>
-struct Tree {
-    static constexpr T base = 0;
-    vector<T> v;
-    int n, size;
-    T comb(T a, T b) { //change this when doing maximum vs minimum etc.
-        return a + b;
-    }
-    Tree(int n = 0, T def = base) {
-        this->n = n; //max number of elements
-        size = 1;
-        while(size < n) size *= 2;
-        v.assign(size * 2, def);
-    }
-    void update(int pos, T val) { //update 0 indexed, assignment
-        assert(pos < n && pos >= 0);
-        int curr = pos + size;
-        v[curr] = val;
-        while(curr != 1) {
-            if(curr & 1) { //handles non-communative operations
-                v[curr / 2] = comb(v[curr ^ 1], v[curr]);
-            } else {
-                v[curr / 2] = comb(v[curr], v[curr ^ 1]);
-            }
-            curr /= 2;
+void solve() {
+    int n, q; cin >> n >> q;
+    vector<vector<vector<ll>>> a(2, vector<vector<ll>>(n,vector<ll>(2)));
+    vector<vector<int>> atidx(2,vector<int>(n));
+    for(int i = 0; i < 2; i++) {
+        for(int j = 0; j < n; j++) {
+            cin >> a[i][j][0];
+            a[i][j][1] = j;
+        }
+        sort(a[i].begin(), a[i].end());
+        for(int j = 0; j < n; j++) {
+            atidx[i][a[i][j][1]] = j;
         }
     }
-    bool isLeaf(int idx) {
-        return idx >= size;
+    Z res = 1;
+    for(int i = 0; i < n; i++) {
+        res *= min(a[0][i][0], a[1][i][0]);
     }
-    T at(int idx) {
-        assert(idx >= 0 && idx < n);
-        return v[idx + size];
+    // cout << "start a, b\n";
+    // for(int j = 0; j < 2; j++) {
+    //     for(int k = 0; k < n; k++) {
+    //         cout << a[j][k][0] << " \n"[k == n - 1];
+    //     }
+    // }
+    cout << res << " ";
+    for(int i = 0; i < q; i++) {
+        int o, x; cin >> o >> x;
+        o--; x--;
+        int s = atidx[o][x];
+        int l = 0, r = n - 1;
+        while(l != r) {
+            int m = (l + r + 1) / 2;
+            if(a[o][s][0] >= a[o][m][0]) {
+                l = m;
+            } else {
+                r = m - 1;
+            }
+        }
+        int e = l;
+        res /= min(a[0][s][0], a[1][s][0]);
+        if(s != e) {
+            res /= min(a[0][e][0], a[1][e][0]);
+        }        
+        int si = a[o][s][1];
+        int ei = a[o][e][1];
+        swap(a[o][s], a[o][e]);
+        swap(atidx[o][si], atidx[o][ei]);
+        a[o][e][0]++;
+        res *= min(a[0][s][0], a[1][s][0]);
+        if(s != e) {
+            res *= min(a[0][e][0], a[1][e][0]);
+        }
+        cout << res << " \n"[i == q - 1];
+        // cout << "s : " << s << " e : " << e << '\n';
+        // cout << "after a, b\n";
+        // for(int j = 0; j < 2; j++) {
+        //     for(int k = 0; k < n; k++) {
+        //         cout << a[j][k][0] << " \n"[k == n - 1];
+        //     }
+        // }
     }
-    T query(int l, int r) {//queries in range [l,r)
-        return _query(1,0,size,l,r);
-    }
-    T _query(int idx, int currl, int currr, int &targetl, int &targetr) {
-        if(currr <= targetl || currl >= targetr) return base;
-        if(currl >= targetl && currr <= targetr) return v[idx];
-        int mid = (currl + currr) / 2;
-        return comb(
-            _query(idx * 2, currl, mid, targetl, targetr),
-            _query(idx * 2 + 1, mid, currr, targetl, targetr)
-        );
-    }
-};
+}
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n; cin >> n;
-    vector<int> a(n,-1), b(n + 1);
-    vector<vector<int>> s(n+2);
-
-    for(int i = 1; i <= n; i++) {
-        int x; cin >> x;
-        x--;
-        if(a[x] != -1) {
-            b[i] = a[x];
-            s[i + 1].push_back(a[x]);
-        }
-        a[x] = i;
-    }
-
-    Tree<Z> tree(n + 1);
-    tree.update(0,1);
-
-    for(int i = 1; i <= n + 1; i++) {
-        for(int x : s[i]) {
-            tree.update(x,0);
-        }
-        if(i < n + 1) {
-            tree.update(i, tree.query(b[i], n));
-        }
-    }
-
-    cout << tree.query(1,n + 1) << '\n';
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }

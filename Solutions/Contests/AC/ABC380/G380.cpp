@@ -172,33 +172,51 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n; cin >> n;
-    vector<int> a(n,-1), b(n + 1);
-    vector<vector<int>> s(n+2);
-
-    for(int i = 1; i <= n; i++) {
-        int x; cin >> x;
+    int n, k; cin >> n >> k;
+    vector<int> a(n);
+    for(int &x : a) {
+        cin >> x;
         x--;
-        if(a[x] != -1) {
-            b[i] = a[x];
-            s[i + 1].push_back(a[x]);
-        }
-        a[x] = i;
     }
 
-    Tree<Z> tree(n + 1);
-    tree.update(0,1);
+    Tree<int> m(n), r(n);
 
-    for(int i = 1; i <= n + 1; i++) {
-        for(int x : s[i]) {
-            tree.update(x,0);
-        }
-        if(i < n + 1) {
-            tree.update(i, tree.query(b[i], n));
-        }
+    Z cinv = 0, tinv = 0;
+
+    for(int i = k; i < n; i++) {
+        cinv += r.query(a[i], n);
+        r.update(a[i], 1);
     }
 
-    cout << tree.query(1,n + 1) << '\n';
+    // cout << "cinv : " << cinv << '\n';
+
+    for(int i = 0; i < k; i++) {
+        cinv += r.query(0, a[i]);
+        m.update(a[i], 1);
+    }
+
+    tinv += cinv;
+    // cout << "start cinv : " << cinv << '\n';
+
+    for(int i = 0; i + k < n; i++) {
+        cinv -= m.query(a[i + k], n);
+        m.update(a[i + k], 1);
+        cinv += m.query(0, a[i]);
+        m.update(a[i], 0);
+        tinv += cinv;
+        // cout << "i : " << i << " cinv : " << cinv << '\n';
+    }
+
+    // cout << "tinv : " << tinv << '\n';
+
+    tinv /= n - k + 1;
+
+    for(int i = 0; i < k; i++) {
+        Z b = k - i - 1;
+        tinv += b / 2;
+    }
+    
+    cout << tinv << '\n';
 
     return 0;
 }

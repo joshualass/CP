@@ -3,6 +3,12 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -120,85 +126,110 @@ Z choose(int n, int k) {
     return fact[n] * inv_fact[k] * inv_fact[n-k];
 }
 
-template<typename T>
-struct Tree {
-    static constexpr T base = 0;
-    vector<T> v;
-    int n, size;
-    T comb(T a, T b) { //change this when doing maximum vs minimum etc.
-        return a + b;
+/*
+*************************************
+need to build sieve --> sieve() 
+*************************************
+*/
+const int N = 1e6 + 1;
+
+int prime_factor[N]; //stores a prime factor of the number. If it is prime, stores itself.
+vector <int> prime;
+vector<int> all_divs[N];
+
+void sieve (int n = N) {
+	std::fill (prime_factor, prime_factor + n, -1);
+	for (int i = 2; i < n; ++i) {
+		if (prime_factor[i] == -1) {
+		    prime.push_back(i);
+            prime_factor[i] = i;
+        }
+		for (int j = 0; j < prime.size () && i * prime[j] < n; ++j) {
+			prime_factor[i * prime[j]] = prime[j];
+			if (i % prime[j] == 0) break;
+		}
+	}
+}
+
+void find_divs(int idx, int p, vector<pair<ll,int>> &facts, vector<int> &nums) {
+    if(idx == facts.size()) {
+        nums.push_back(p);
+        return;
     }
-    Tree(int n = 0, T def = base) {
-        this->n = n; //max number of elements
-        size = 1;
-        while(size < n) size *= 2;
-        v.assign(size * 2, def);
+    for(int j = 0; j < facts[idx].second + 1; j++) {
+        find_divs(idx + 1, p, facts, nums);
+        p *= facts[idx].first;
     }
-    void update(int pos, T val) { //update 0 indexed, assignment
-        assert(pos < n && pos >= 0);
-        int curr = pos + size;
-        v[curr] = val;
-        while(curr != 1) {
-            if(curr & 1) { //handles non-communative operations
-                v[curr / 2] = comb(v[curr ^ 1], v[curr]);
-            } else {
-                v[curr / 2] = comb(v[curr], v[curr ^ 1]);
+}
+
+void prime_factorize(ll num, vector<pair<ll,int>> &prime_factors) {
+    for(int i = 0; i < prime.size() && 1LL * prime[i] * prime[i] <= num; i++) {
+        if(num % prime[i] == 0) {
+            prime_factors.push_back({prime[i],0});
+            while(num % prime[i] == 0) {
+                prime_factors.back().second++;
+                num /= prime[i];
             }
-            curr /= 2;
+        }
+        while(num < N && num != 1) {
+            int t = prime_factor[num];
+            prime_factors.push_back({t, 0});
+            while(num % t == 0) {
+                prime_factors.back().second++;
+                num /= t;
+            }
         }
     }
-    bool isLeaf(int idx) {
-        return idx >= size;
+    if(num != 1) {
+        prime_factors.push_back({num,1});
     }
-    T at(int idx) {
-        assert(idx >= 0 && idx < n);
-        return v[idx + size];
-    }
-    T query(int l, int r) {//queries in range [l,r)
-        return _query(1,0,size,l,r);
-    }
-    T _query(int idx, int currl, int currr, int &targetl, int &targetr) {
-        if(currr <= targetl || currl >= targetr) return base;
-        if(currl >= targetl && currr <= targetr) return v[idx];
-        int mid = (currl + currr) / 2;
-        return comb(
-            _query(idx * 2, currl, mid, targetl, targetr),
-            _query(idx * 2 + 1, mid, currr, targetl, targetr)
-        );
-    }
-};
+}
+
+//O(sqrt(n)), approx. cuberoot(n) factors. 
+void find_divisors(int num, vector<int> &nums) {
+    vector<pair<ll,int>> prime_factors;
+    prime_factorize(num, prime_factors);
+    find_divs(0, 1, prime_factors, nums);
+}
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
+    sieve();
+
     int n; cin >> n;
-    vector<int> a(n,-1), b(n + 1);
-    vector<vector<int>> s(n+2);
-
-    for(int i = 1; i <= n; i++) {
-        int x; cin >> x;
-        x--;
-        if(a[x] != -1) {
-            b[i] = a[x];
-            s[i + 1].push_back(a[x]);
+    vector<Z> g(1e6 + 1);
+    for(int i = 1; i <= 1e6; i++) {
+        g[i] += ((Z) 1) / i;
+        for(int j = i * 2; j <= 1e6; j += i) {
+            g[j] -= g[i];
         }
-        a[x] = i;
+        find_divisors(i, all_divs[i]);
     }
 
-    Tree<Z> tree(n + 1);
-    tree.update(0,1);
+    vector<Z> freq(1e6 + 1);
+    Z res = 0;
+    for(int i = 0; i < n; i++) {
+        Z num; cin >> num;
+        freq[num.x] += num;
+        res -= num;
+    }
 
-    for(int i = 1; i <= n + 1; i++) {
-        for(int x : s[i]) {
-            tree.update(x,0);
-        }
-        if(i < n + 1) {
-            tree.update(i, tree.query(b[i], n));
+    vector<Z> divcnts(1e6 + 1);
+    for(int i = 1; i <= 1e6; i++) {
+        for(int div : all_divs[i]) {
+            divcnts[div] += freq[i];
         }
     }
 
-    cout << tree.query(1,n + 1) << '\n';
+    for(int i = 1; i <= 1e6; i++) {
+        for(int div : all_divs[i]) {
+            res += g[div] * divcnts[div] * freq[i];
+        }
+    }
+
+    cout << res / 2 << '\n';
 
     return 0;
 }

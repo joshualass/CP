@@ -3,6 +3,8 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+//ttfang .
+
 template <typename T, std::size_t N>
 std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
     os << "[";

@@ -105,7 +105,7 @@ struct Mint {
     }
 };
 
-constexpr int P = 998244353;
+constexpr int P = 1e9 + 7;
 using Z = Mint<P>;
 
 vector<Z> fact(1,1);
@@ -120,85 +120,71 @@ Z choose(int n, int k) {
     return fact[n] * inv_fact[k] * inv_fact[n-k];
 }
 
-template<typename T>
-struct Tree {
-    static constexpr T base = 0;
-    vector<T> v;
-    int n, size;
-    T comb(T a, T b) { //change this when doing maximum vs minimum etc.
-        return a + b;
-    }
-    Tree(int n = 0, T def = base) {
-        this->n = n; //max number of elements
-        size = 1;
-        while(size < n) size *= 2;
-        v.assign(size * 2, def);
-    }
-    void update(int pos, T val) { //update 0 indexed, assignment
-        assert(pos < n && pos >= 0);
-        int curr = pos + size;
-        v[curr] = val;
-        while(curr != 1) {
-            if(curr & 1) { //handles non-communative operations
-                v[curr / 2] = comb(v[curr ^ 1], v[curr]);
-            } else {
-                v[curr / 2] = comb(v[curr], v[curr ^ 1]);
-            }
-            curr /= 2;
-        }
-    }
-    bool isLeaf(int idx) {
-        return idx >= size;
-    }
-    T at(int idx) {
-        assert(idx >= 0 && idx < n);
-        return v[idx + size];
-    }
-    T query(int l, int r) {//queries in range [l,r)
-        return _query(1,0,size,l,r);
-    }
-    T _query(int idx, int currl, int currr, int &targetl, int &targetr) {
-        if(currr <= targetl || currl >= targetr) return base;
-        if(currl >= targetl && currr <= targetr) return v[idx];
-        int mid = (currl + currr) / 2;
-        return comb(
-            _query(idx * 2, currl, mid, targetl, targetr),
-            _query(idx * 2 + 1, mid, currr, targetl, targetr)
-        );
-    }
-};
-
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n; cin >> n;
-    vector<int> a(n,-1), b(n + 1);
-    vector<vector<int>> s(n+2);
+    int n, m; cin >> n >> m;
+    int ok = 1;
 
-    for(int i = 1; i <= n; i++) {
-        int x; cin >> x;
-        x--;
-        if(a[x] != -1) {
-            b[i] = a[x];
-            s[i + 1].push_back(a[x]);
+    vector conds(n + 1,vector<array<int,2>>(0));
+    for(int i = 0; i < m; i++) {
+        int l, r, x; cin >> l >> r >> x;
+        conds[r].push_back({l,x});
+        if(x > r - l + 1) ok = 0;
+    }
+    
+    vector dp(n + 1, vector<Z>(n + 1));
+    dp[0][0] = 1;
+
+    for(int i = 2; i <= n; i++) {
+        vector next(n + 1, vector<Z>(n + 1));
+        for(int j = 0; j < n; j++) {
+            for(int k = 0; k < n; k++) {
+                //add element of same color
+                next[j][k] += dp[j][k];
+                //add element of second color
+                next[i - 1][k] += dp[j][k];
+                //add element of third color
+                if(j) {
+                    next[i - 1][j] += dp[j][k];
+                }
+            }
         }
-        a[x] = i;
+        for(auto [l, x] : conds[i]) {
+            for(int j = 0; j <= n; j++) {
+                for(int k = 0; k <= n; k++) {
+                    if(x == 1) {
+                        if(j >= l) {
+                            next[j][k] = 0;
+                        }
+                    } else if(x == 2) {
+                        if(k >= l || j < l) {
+                            next[j][k] = 0;
+                        }
+                    } else if(x == 3) {
+                        if(k < l) {
+                            next[j][k] = 0;
+                        }
+                    }
+                }
+            }
+        }
+        swap(dp, next);
     }
 
-    Tree<Z> tree(n + 1);
-    tree.update(0,1);
-
-    for(int i = 1; i <= n + 1; i++) {
-        for(int x : s[i]) {
-            tree.update(x,0);
-        }
-        if(i < n + 1) {
-            tree.update(i, tree.query(b[i], n));
+    Z res = 0;
+    for(int j = 0; j <= n; j++) {
+        for(int k = 0; k <= n; k++) {
+            if(j == 0) {
+                res += dp[j][k] * 3;
+            } else {
+                res += dp[j][k] * 6;
+            }
         }
     }
 
-    cout << tree.query(1,n + 1) << '\n';
+    cout << res * ok << '\n';
 
     return 0;
 }
