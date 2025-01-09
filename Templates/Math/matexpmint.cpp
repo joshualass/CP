@@ -1,8 +1,7 @@
-#include <bits/stdc++.h>
-typedef long long ll;
-typedef long double ld;
-using namespace std;
-
+/*
+also see jiangly's template
+https://codeforces.com/contest/1895/submission/231571612
+*/
 template<class T>
 constexpr T power(T a, ll b, T base = 1) {
     for (; b; b /= 2, a *= a) {
@@ -163,25 +162,3 @@ struct Matrix {
         return res;
     }
 };
-
-signed main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-
-    ll n; cin >> n;
-    vector a(2,vector<Z>(2)), b(2,vector<Z>(2)), c(2,vector<Z>(2)), d(2,vector<Z>(2));
-    a[0][0] = 1;
-    b[0][1] = 1;
-    c[1][0] = 1;
-
-    Matrix<Z> A(a), B(b), C(c), D(d);
-    D += A;
-    D += B;
-    D += C;
-
-    Matrix<Z> res = power(D, n, D);
-
-    cout << res.mat[1][1] << '\n';
-
-    return 0;
-}
