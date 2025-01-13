@@ -3,12 +3,6 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const vector<T> v) {
-    for(auto x : v) os << x << " ";
-    return os;
-}
-
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -126,45 +120,20 @@ Z choose(int n, int k) {
     return fact[n] * inv_fact[k] * inv_fact[n-k];
 }
 
+Z solve(int n, int a, int b, int k) {
+    Z res = 0;
+    int ops = n - k;
+    
+
+
+
+}
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n; cin >> n;
-    vector<int> a(n);
-    vector<Z> b(n);
-    Z c = 0;
-
-    for(int i = 0; i < n; i++) {
-        cin >> a[i];
-
-        if(i >= 3 && a[i-3] == a[i-1] && a[i-2] == a[i] && a[i] != a[i-1]) {
-            c -= b[i-3];
-        }
-
-        if(i >= 2 && a[i] != a[i-1] && a[i] != a[i-2] && a[i-1] != a[i-2]) {
-            int p = i - 4;
-            while(p >= 0 && a[p] == a[p+2] && a[p+1] == a[p+3] && a[p] != a[p+1]) {
-                c += b[p--];
-            }
-        }
-
-        if(i >= 1 && a[i] == a[i-1]) {
-            b[i] = b[i-1];
-            c = b[i-1];
-        } else if(i == 0) {
-            b[0] = 1;
-            c = 1;
-        } else {
-            b[i] = c;
-            c += b[i];
-        }
-
-    }
-
-    // cout << "b : " << b << '\n';
-
-    cout << b[n-1] << '\n';
+    
 
     return 0;
 }

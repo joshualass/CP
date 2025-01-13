@@ -19,7 +19,7 @@ template<int P>
 struct Mint {
     int x;
     constexpr Mint(): x{} {}
-    constexpr Mint(ll x): x{norm(x % getMod())} {}
+    constexpr Mint(ll x): x{norm(x % getMod())} {}  
 
     static int Mod;
     constexpr static int getMod() {
@@ -105,7 +105,7 @@ struct Mint {
     }
 };
 
-constexpr int P = 1e9 + 7;
+constexpr int P = 998244353;
 using Z = Mint<P>;
 
 vector<Z> fact(1,1);
@@ -165,7 +165,7 @@ struct Matrix {
     }
 };
 
-void matpow(Matrix<Z> base, Matrix<Z> a, ll b) {
+void matpow(Matrix<Z> &base, Matrix<Z> a, ll b) {
     for(; b; b /= 2, a *= a) {
         if(b & 1) {
             base *= a;
@@ -173,79 +173,123 @@ void matpow(Matrix<Z> base, Matrix<Z> a, ll b) {
     }
 }
 
+template<typename T>
+struct Tree {
+    static constexpr T base = 0;
+    vector<T> v;
+    int n, size;
+    T comb(T a, T b) { //change this when doing maximum vs minimum etc.
+        return a + b;
+    }
+    Tree(int n = 0, T def = base) {
+        this->n = n; //max number of elements
+        size = 1;
+        while(size < n) size *= 2;
+        v.assign(size * 2, def);
+    }
+    void update(int pos, T val) { //update 0 indexed, assignment
+        assert(pos < n && pos >= 0);
+        int curr = pos + size;
+        v[curr] = val;
+        while(curr != 1) {
+            if(curr & 1) { //handles non-communative operations
+                v[curr / 2] = comb(v[curr ^ 1], v[curr]);
+            } else {
+                v[curr / 2] = comb(v[curr], v[curr ^ 1]);
+            }
+            curr /= 2;
+        }
+    }
+    bool isLeaf(int idx) {
+        return idx >= size;
+    }
+    T at(int idx) {
+        assert(idx >= 0 && idx < n);
+        return v[idx + size];
+    }
+    T query(int l, int r) {//queries in range [l,r)
+        return _query(1,0,size,l,r);
+    }
+    T _query(int idx, int currl, int currr, int &targetl, int &targetr) {
+        if(currr <= targetl || currl >= targetr) return base;
+        if(currl >= targetl && currr <= targetr) return v[idx];
+        int mid = (currl + currr) / 2;
+        return comb(
+            _query(idx * 2, currl, mid, targetl, targetr),
+            _query(idx * 2 + 1, mid, currr, targetl, targetr)
+        );
+    }
+};
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    ll n, m; cin >> n >> m;
 
-    //build transformation matrix
-    int posCnt = 3, stateCnt = 4;
-    int numStates = power(stateCnt, posCnt);
-    vector transform(numStates, vector<Z>(numStates));
-    vector base(numStates, vector<Z>(numStates));
-    for(int i = 0; i < numStates; i++) {
-        base[i][i] = 1;
+    int n, m; cin >> n >> m;
+    vector<int> a(n);
+    Tree<ll> tree(n), cnts(n);
+    for(int i = 0; i < n; i++) {
+        cin >> a[i];
+        a[i]--;
+        tree.update(a[i], a[i]);
+        cnts.update(a[i], 1);
     }
 
-    /*
-    from col
-    to row
-    */
+    vector<vector<Z>> transform(3, vector<Z>(3)); //setup the matrix as [from][to]
+    //brute-force all swaps because there are not many cases to conside r. Sanity check is that the sum of all the swaps is N * (N - 1) / 2
+    //case 0 at target indices. 
+    transform[0][1] = 4; //4 ways to do this, 2 positions on the inside, 2 positions on the outisde 2 x 2 = 4.
+    transform[0][0] = 1LL * n * (n - 1) / 2 - 4; //n * (n - 1) / 2 total swaps. 4 of them change the state, the rest don't
+    //case 1 at target indices.
+    transform[1][0] = n - 3; //1 way to select the index at the correct indices, n - 3 indices of the non target element to choose from
+    transform[1][2] = 1; //1 way to do this
+    transform[1][1] = 1LL * n * (n - 1) / 2 - (n - 3 + 1); //remainder from all possible swaps
+    //case 2 at target indices
+    transform[2][2] = 1 + 1LL * (n - 2) * (n - 3) / 2; //either select the 2 correct indices or select to outside indices
+    transform[2][1] = 2 * (n - 2); //select one of the 2 correct indices. This and the above add to n * (n - 1) / 2
 
-    auto unhash = [&](int hash) -> vector<int> {
-        vector<int> res;
-        for(int i = 0; i < posCnt; i++) {
-            res.push_back(hash % stateCnt);
-            hash /= stateCnt;
-        }
-        return res;
-    };
+    vector<vector<Z>> base(3,vector<Z>(3));
 
-    auto hash = [&](vector<int> state) -> int {
-        int res = 0;
-        for(int i = posCnt - 1; i >= 0; i--) {
-            res *= stateCnt;
-            res += state[i];
-        }
-        return res;
-    };
+    for(int i = 0; i < n - 1; i++) {
+        Z sumdiff = 0; //stores the sum of the absolute differences for all elements after i
+        sumdiff += tree.query(a[i] + 1, n) - a[i] * cnts.query(a[i] + 1, n);
+        sumdiff += a[i] * cnts.query(0, a[i]) - tree.query(0,a[i]);
 
-    for(int h = 0; h < numStates; h++) {
-        vector<int> state = unhash(h);
-        for(int pos = 0; pos < posCnt; pos++) {
-            for(int type = 0; type < stateCnt; type++) {
-                if(type == 3) {
-                    swap(state[pos], type);
-                    transform[hash(state)][h] = n - (3 - count(state.begin(), state.end(), 3));
-                    swap(state[pos], type);
-                } else {
-                    if(count(state.begin(), state.end(), type) == 0) {
-                        swap(state[pos], type);
-                        transform[hash(state)][h] = 1;
-                        swap(state[pos], type);
-                    }
-                }
-            }
-            for(int pos2 = pos + 1; pos2 < posCnt; pos2++) {
-                swap(state[pos],state[pos2]);
-                transform[hash(state)][h] = 1;
-                swap(state[pos],state[pos2]);
-            }
-            transform[h][h] = (n - 3) * (n - 4) / 2;
+        //initially N - 1 - 4 pairs should have 0 target indices in common to start. The other 4 pairs normally have 1 in common
+        base[0][0] += sumdiff * (n - 1 - 4);
+        base[1][1] += sumdiff * 4;
+        if(i == 0) { //i is at an end, so there is one less pair with 1 in common
+            base[0][0] += sumdiff;
+            base[1][1] -= sumdiff;
         }
+
+        //undo adj of the next element where there are 2 correct at the start. 
+        ll adjdiff = abs(a[i] - a[i+1]);
+        base[1][1] -= adjdiff * 2;
+        base[0][0] += adjdiff;
+        base[2][2] += adjdiff;
+
+        //update last endpoint
+        adjdiff = abs(a[i] - a[n-1]);
+        base[1][1] -= adjdiff;
+        base[0][0] += adjdiff;
+
+        tree.update(a[i],0);
+        cnts.update(a[i],0);
     }
 
     Matrix<Z> tmat(transform);
     Matrix<Z> bmat(base);
+
     matpow(bmat, tmat, m);
 
-    vector<array<int,2>> a(n);
-    for(int i = 0; i < n; i++) {
-        cin >> a[i][0];
-        a[i][1] = i;
-    }
     Z res = 0;
+    for(int i = 0; i < 3; i++) {
+        res += bmat.mat[i][2];
+    }
+
+    cout << res << '\n';
 
     return 0;
 }

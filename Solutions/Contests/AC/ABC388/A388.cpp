@@ -6,9 +6,9 @@ using namespace std;
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-    
-    ll n; cin >> n;
-    
+
+    string s; cin >> s;
+    cout << s[0] << "UPC";
 
     return 0;
 }
