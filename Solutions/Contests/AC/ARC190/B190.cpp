@@ -3,6 +3,19 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+//if you choose, you lose. 
+
+/*
+This problem has what I think to be a very tight time limit.
+This problem requires us to do the ELuo efficient inverse factorial choose method
+*/
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -107,33 +120,71 @@ struct Mint {
 
 constexpr int P = 998244353;
 using Z = Mint<P>;
-
-vector<Z> fact(1,1);
-vector<Z> inv_fact(1,1);
+const int MAXN = 1e7;
+vector<Z> fact(MAXN), inv_fact(MAXN), res(MAXN), pows(MAXN);
 
 Z choose(int n, int k) {
     if(k < 0 || k > n) return 0;
-    while(fact.size() < n + 1) {
-        fact.push_back(fact.back() * fact.size());
-        inv_fact.push_back(1 / fact.back());
-    }
     return fact[n] * inv_fact[k] * inv_fact[n-k];
 }
 
-Z solve(int n, int a, int b, int k) {
-    Z res = 0;
-    int ops = n - k;
-    
-
-
-
+void init_fact(int n) {
+    fact[0] = Z(1);
+    inv_fact[0] = Z(1);
+    for(int i = 1; i <= n; i++) {
+        fact[i] = fact[i-1] * i;
+    }
+    inv_fact[n] = 1 / fact[n];
+    for(int i = n - 1; i >= 1; i--) {
+        inv_fact[i] = inv_fact[i+1] * (i + 1);
+    }
 }
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    init_fact(1e7);
+
+    int n, a, b; cin >> n >> a >> b;
+    a--; b--;
+
+    pows[0] = Z(1);
+    for(int i = 1; i <= n; i++) {
+        pows[i] = pows[i-1] * 4;
+    }
+
+    auto solve0 = [&](int n, int a, int b) { //a, b, 0-indexed
+        Z c = 1;
+        for(int k = n; k >= 2; k--) {
+            res[k] += c * choose(n - k, b) * pows[k-2];
+            c *= 2;
+            c -= choose(n - k, a - k + 1);
+            c -= choose(n - k, a);
+        }
+    };
+
+    auto solve1 = [&](int n, int a, int b) {
+        solve0(n, a, b);
+        solve0(n, b, a);
+        for(int k = n; k >= 2; k--) {
+            res[k] -= choose(n - k, a) * choose(n - k, b) * pows[k-2];
+        }
+    };
+
+    for(int i = 0; i < 4; i++) {
+        solve1(n, a, b);
+        int na = b, nb = n - a - 1;
+        a = na, b = nb;
+    }
+
+    res[1] = choose(n - 1, a) * choose(n - 1, b);
+
+    int q; cin >> q;
+    for(int i = 0; i < q; i++) {
+        int x; cin >> x;
+        cout << res[x] << '\n';
+    }
 
     return 0;
 }

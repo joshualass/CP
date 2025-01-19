@@ -4,17 +4,35 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 1e9 + 7;
 
+/*
+Tried some silly strategies before
+On day of solve, first tried solving for each subpermutation and adding appending a row/col each time to see if possible. but approach is no good.
+Second approach was to iterate over the rows and place a 1 for any position that was less than or equal to, but this did the opposite of what we wanted.
+Third approach, do the reverse behavior. Essentially, for both rows and columns, they form subsets of each other, differing by a single 0/1 at the same time.
+ */
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    //line 1
+    int n; cin >> n;
+    vector<int> p(n), q(n);
+    for(int i = 1; i <= n; i++) {
+        int x; cin >> x;
+        p[--x] = i;
+    }
 
-    //line 2
+    for(int i = 1; i <= n; i++) {
+        int x; cin >> x;
+        q[--x] = i;
+    }
 
-    //line 3
-
-
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < n; j++) {
+            cout << (q[j] >= n - p[i] + 1);
+        }
+        cout << '\n';
+    }
 
     return 0;
 }
