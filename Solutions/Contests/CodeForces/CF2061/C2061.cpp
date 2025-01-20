@@ -3,6 +3,19 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+template <typename T, std::size_t N>
+std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
+    os << "[";
+    for (std::size_t i = 0; i < N; ++i) {
+        os << arr[i];
+        if (i < N - 1) {
+            os << ", ";
+        }
+    }
+    os << "]";
+    return os;
+}
+
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -120,63 +133,43 @@ Z choose(int n, int k) {
     return fact[n] * inv_fact[k] * inv_fact[n-k];
 }
 
+void solve() {
+    int n; cin >> n;
+    array<Z,2> dp = {1,0}; //T, L
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
+    for(int i = 0; i < n; i++) {
+        array<Z,2> next = {0,0};
+        if(i) {
+            if(a[i] == a[i-1]) {
+                next[0] += dp[0];
+            }
+        } else {
+            next[0] += a[i] == 0;
+        }
+
+        if(i == 0) {
+            //no action here
+        } else if(i == 1) {
+            next[0] += a[i] == 1;
+        } else {
+            if(a[i] == a[i-2] + 1) {
+                next[0] += dp[1];
+            }
+        }
+        next[1] += dp[0];
+        dp = next;
+        // cout << "i : " << i << " dp[i] " << dp << '\n';
+    }
+    cout << (dp[0] + dp[1]) << '\n';
+}
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n; cin >> n;
-    string s; cin >> s;
-    vector<int> a(n);
-    Z res = 0;
-    for(int i = 0; i < n; i++) {
-        res *= 2;
-        a[i] = s[i] - '0';
-        res += a[i];
-    }
-    res += 1;
-    res *= n * 2;
-
-    auto get_cnt = [&](int l) -> Z {
-        vector<int> res(a.begin(), a.begin() + l);
-        int b = 0;
-        for(int i = 0; i < n; i++) {
-            int v = res[i%l] ^ ((i / l) & 1);
-            if(a[i] < v) {
-                b = 1;
-                break;
-            } else if(a[i] > v) break;
-        }
-        if(b) {
-            if(count(res.begin(),res.end(),0) == l) return 0;
-            for(int i = l - 1; i >= 0; i--) {
-                if(res[i]) {
-                    res[i] = 0;
-                    for(int j = i + 1; j < l; j++) res[j] = 1;
-                    break;
-                }
-            }
-        }
-        Z ans = 0;
-        for(int i = 0; i < l; i++) {
-            ans *= 2;
-            ans += res[i];
-        }
-        ans += 1;
-        return ans;
-    };
-
-    vector<Z> subs(n);
-    for(int i = 1; i < n; i++) {
-        if(n % (i * 2) == i) {
-            subs[i] += get_cnt(i);
-            for(int j = 3; j * i < n; j += 2) {
-                subs[j*i] -= subs[i];
-            }
-            res += (2 * i - n * 2) * subs[i];
-        }
-    }
-
-    cout << res << '\n';
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }
