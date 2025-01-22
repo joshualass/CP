@@ -2,7 +2,6 @@
 typedef long long ll;
 typedef long double ld;
 using namespace std;
-const ll MOD = 998244353;
 
 int nums[] = {0,4,7};
 map<int,vector<int>> poss;
@@ -74,7 +73,6 @@ void solve() {
     for(int i = 0; i < 6; i++) {
         cout << res[i] << " \n"[i == 5];
     }
-
 
 }
 

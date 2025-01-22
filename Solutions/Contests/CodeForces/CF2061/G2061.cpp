@@ -16,6 +16,12 @@ std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
     return os;
 }
 
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+
 struct pent {
     array<int,5> nodes, edges;
 
@@ -27,12 +33,15 @@ struct pent {
     vector<array<int,2>> get_type_edges(int type) {
         auto start_idx = [&](int os) -> vector<array<int,2>> {
             vector<array<int,2>> res;
+            set<int> vis;
             for(int i = 0; i < 5; i++) {
-                if(edges[(i + os) % 5] == type) {
+                if(edges[(i + os) % 5] == type && vis.count((i+os)%5) == 0 && vis.count((i+os+1)%5)==0) {
                     res.push_back({nodes[(i+os)%5], nodes[(i+os+1)%5]});
-                    i++;
+                    vis.insert((i+os)%5);
+                    vis.insert((i+os+1)%5);
                 }
             }
+            // cout << "res : " << res << '\n';
             return res;
         };
         vector<array<int,2>> res = start_idx(0);
@@ -53,9 +62,10 @@ void solve() {
     int p = n / 5;
     int left = n - p * 5;
     int bars = left / 2;
-
     int k = max(p + p / 2 + (bars + 1) / 2, p + (p + 1) / 2 + bars / 2);
     cout << k << '\n';
+
+    // cout << "p : " << p << " bars : " << bars << '\n';
 
     auto query = [&](int i, int j) -> int {
         cout << "? " << i + 1 << " " << j + 1 << endl;
@@ -64,30 +74,31 @@ void solve() {
     };
 
     array<vector<array<int,2>>,2> pairings = {};
-    for(int i = 0; i < p * 2 + bars; i++) {
-        pairings[query(i * 2, i * 2 + 1)].push_back({i*2,i*2+1});
-    }
-
     vector<pent> pents;
     array<int,2> type_cnts = {0,0};
+    int r = n -1;
 
-    int i = (p * 2 + bars) * 2;
-    while(pairings[0].size() && pairings[1].size()) {
-        array<int,5> b = {pairings[0].back()[0], pairings[0].back()[1], pairings[1].back()[0], pairings[1].back()[1], i};
-        // cout << "b : " << b << '\n';
-        int c = query(b[1],b[2]);
-        int d = query(b[3], b[4]);
-        int e = query(b[4], b[0]);
-        pents.push_back(pent(b, {0,c,1,d,e}));
-        for(int j = 0; j < 2; j++) type_cnts[j] += pents.back().type_cnt(j);
-        pairings[0].pop_back();
-        pairings[1].pop_back();
-        i++;
+    for(int i = 0; i + 1 <= r; i += 2) {
+        pairings[query(i,i+1)].push_back({i,i+1});
+        if(pairings[0].size() && pairings[1].size() && i + 2 <= r) {
+            array<int,5> b = {pairings[0].back()[0], pairings[0].back()[1], pairings[1].back()[0], pairings[1].back()[1], r};
+            // cout << "b : " << b << '\n';
+            int c = query(b[1],b[2]);
+            int d = query(b[3], b[4]);
+            int e = query(b[4], b[0]);
+            pents.push_back(pent(b, {0,c,1,d,e}));
+            for(int j = 0; j < 2; j++) {
+                type_cnts[j] += pents.back().type_cnt(j);
+                // cout << "add to j : " << j << " add : " << pents.back().type_cnt(j) << '\n';    
+            }
+            pairings[0].pop_back();
+            pairings[1].pop_back();
+            r--;
+        }
     }
 
     for(int j = 0; j < 2; j++) {
-        type_cnts[j] += pairings[j].size();
-        if(type_cnts[j] >= k) {
+        if(type_cnts[j] + pairings[j].size() >= k) {
             cout << "! ";
             vector<array<int,2>> res;
             for(pent p : pents) {
@@ -102,7 +113,8 @@ void solve() {
             return;
         }    
     }
-    assert(0);
+    // assert(0);
+    cout << "n:"<<n<<"k:" << k << "tc0:" << type_cnts[0] << "tc1:" << type_cnts[1] << "p0:"<<pairings[0].size()<<"p1:"<<pairings[1].size()<<endl;
 }
 
 signed main() {
