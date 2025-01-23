@@ -3,7 +3,7 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-signed main() {
+void main_() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
@@ -17,16 +17,16 @@ signed main() {
     }
 
     int odd_cnt = 0;
-    int leaf_root = -1;
     for(int i = 0; i < n; i++) {
         odd_cnt += adj[i].size() & 1;
-        if(adj[i].size() == 1) leaf_root = i;
     }
 
     int a = odd_cnt / 2;
 
     auto poss = [&](int mp) -> bool {
         int ok = 1;
+
+        // cout << "mp : " << mp << '\n';
 
         auto can_self_match = [&](vector<int> &child_paths, int exclude) -> bool {
             for(int i = 0, j = child_paths.size() - 1; i < child_paths.size(); i++, j--) {
@@ -47,6 +47,8 @@ signed main() {
 
             sort(child_paths.begin(), child_paths.end());
 
+            // cout << "i " << i << " cp : " << child_paths << '\n';
+
             if(child_paths.empty()) return 1;
 
             if(child_paths.size() % 2 == 0) {
@@ -65,13 +67,19 @@ signed main() {
                     l = m + 1;
                 }
             }
-            if(l == child_paths.size() || child_paths[l] == mp && i != leaf_root) {
+            // cout << "l : " << l << " from cp : " << child_paths << '\n';
+            // if(child_paths.size() == 3) {
+            //     cout << "?\n";
+            //     cout << can_self_match(child_paths,1) << '\n';
+            // }
+            if(l == child_paths.size() || child_paths[l] == mp && i) {
                 ok = 0;
+                // cout << "RED ALERT\n";
                 return 0;
             }
             return child_paths[l] + 1;
         };
-        dfs(dfs, leaf_root, -1);
+        dfs(dfs, 0, -1);
         return ok;
     };
     
@@ -86,6 +94,22 @@ signed main() {
     }
 
     cout << a << " " << l << '\n';
-
+}
+static void run_with_stack_size(void (*func)(void), size_t stsize) {
+    char *stack, *send;
+    stack = (char *)malloc(stsize);
+    send = stack + stsize - 16;
+    send = (char *)((uintptr_t)send / 16 * 16);
+    asm volatile(
+        "mov %%rsp, (%0)\n"
+        "mov %0, %%rsp\n"
+        :
+        : "r"(send));
+    func();
+    asm volatile("mov (%0), %%rsp\n" : : "r"(send));
+    free(stack);
+}
+int main() {
+    run_with_stack_size(main_, 1024 * 1024 * 1024); // run with a 1 GiB stack
     return 0;
 }
