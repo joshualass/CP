@@ -21,15 +21,18 @@ signed main() {
         return res;
     };
 
-    vector<ll> f(13);
-    f[0] = 1;
+    vector f(13,vector<ll>(13));
+    f[0][0] = 1;
+
     for(int i = 1; i <= 12; i++) {
         for(int j = 1; j <= i; j++) {
-            f[i] += nck(i,j) * f[i-j];
+            for(int k = 0; k <= i - j; k++) {
+                f[i][j] += f[i-j][k] * nck(i,j);
+            }
         }
     }
 
-    cout << f << '\n';
+    for(auto ff : f) cout << ff << '\n';
 
     return 0;
 }
