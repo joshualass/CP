@@ -102,15 +102,22 @@ struct Mint {
 
 constexpr int P = 998244353;
 using Z = Mint<P>;
-
-vector<Z> fact(1,1);
-vector<Z> inv_fact(1,1);
+const int MAXN = 1e6 + 1;
+vector<Z> fact(MAXN), inv_fact(MAXN), res(MAXN), pows(MAXN);
 
 Z choose(int n, int k) {
     if(k < 0 || k > n) return 0;
-    while(fact.size() < n + 1) {
-        fact.push_back(fact.back() * fact.size());
-        inv_fact.push_back(1 / fact.back());
-    }
     return fact[n] * inv_fact[k] * inv_fact[n-k];
+}
+
+void init_fact(int n = MAXN) {
+    fact[0] = Z(1);
+    inv_fact[0] = Z(1);
+    for(int i = 1; i <= n; i++) {
+        fact[i] = fact[i-1] * i;
+    }
+    inv_fact[n] = 1 / fact[n];
+    for(int i = n - 1; i >= 1; i--) {
+        inv_fact[i] = inv_fact[i+1] * (i + 1);
+    }
 }

@@ -18,9 +18,7 @@ signed main() {
             int next_m = p / s;
             l = next_l, p = next_p, m = next_m;
         }
-
         cout << m << '\n';
-
         cin >> m;
     }
 
