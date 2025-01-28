@@ -59,11 +59,36 @@ struct pent {
 void solve() {
     
     int n; cin >> n;
-    int p = n / 5;
-    int left = n - p * 5;
-    int bars = left / 2;
-    int k = max(p + p / 2 + (bars + 1) / 2, p + (p + 1) / 2 + bars / 2);
-    cout << k << '\n';
+
+    int k = INT_MAX;
+    for(int p = 0; p * 5 <= n; p++) {
+        int left = n - p * 5;
+        int bars = left / 2;
+        if(left & 1) {
+            if(p >= bars) {
+                cout << "p0 : " << p << " c : " << (p * 3 + bars + 1) / 2 << '\n';
+                k = min(k, (p * 3 + bars + 1) / 2);
+            } else {
+                cout << "p0 : " << p << " c : " << p + bars << '\n';
+                k = min(k, p + bars);
+            }
+        } else {
+            int t = 0;
+            if(bars >= 2) {
+                t++;
+                bars -= 2;
+            }
+            if(p >= bars) {
+                cout << "p0 : " << p << " c : " << t + (p * 3 + bars + 1) / 2 << '\n';
+                k = min(k, t + (p * 3 + bars + 1) / 2);
+            } else {
+                cout << "p0 : " << p << " c : " << t + p + bars << '\n';
+                k = min(k, t + p + bars);
+            }
+        }
+    }
+
+    cout << k << endl;
 
     // cout << "p : " << p << " bars : " << bars << '\n';
 
