@@ -121,3 +121,7 @@ void init_fact(int n = MAXN) {
         inv_fact[i] = inv_fact[i+1] * (i + 1);
     }
 }
+
+/*
+init_fact()
+*/
