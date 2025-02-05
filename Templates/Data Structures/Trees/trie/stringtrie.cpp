@@ -44,15 +44,6 @@ struct Trie {
     int cnt;
 };
 
-struct Trie* getNode() {
-    struct Trie* node = new Trie;
-    node->cnt = false;
-    for(int i = 0; i < SIZE; i++) {
-        node->arr[i] = NULL;
-    }
-    return node;
-}
-
 void insert(struct Trie* root, string add) {
     struct Trie* curr = root;
     for(int i = 0; i < add.size(); i++) {

@@ -1,3 +1,10 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+#include <limits>
+using namespace std;
+
+// SOLUTION_BEGIN
 #include <bits/stdc++.h>
 typedef long long ll;
 typedef long double ld;
@@ -42,3 +49,25 @@ public:
         return ev;
     }
 };
+// SOLUTION_END
+
+int main() {
+  int arg0;
+  cin >> arg0;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  int arg1;
+  cin >> arg1;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  int arg2;
+  cin >> arg2;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  int arg3;
+  cin >> arg3;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  int n4; cin >> n4;
+  vector<int> arg4(n4);
+  for (int i=0;i<n4;++i) { cin >> arg4[i]; }
+  auto c = RandomSelection();
+  double ret = c.expectedMaximum(arg0, arg1, arg2, arg3, arg4);
+  cout << setprecision(numeric_limits<double>::max_digits10) << ret;
+}

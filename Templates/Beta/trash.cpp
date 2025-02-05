@@ -1,45 +1,71 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+#include <limits>
+using namespace std;
+
+// SOLUTION_BEGIN
 #include <bits/stdc++.h>
 typedef long long ll;
 typedef long double ld;
-using namespace std;
-const ll MOD = 998244353;
+class RandomSelection {
+public:
+    double expectedMaximum(int n, int T, int seed, int Amod, vector<int> Aprefix) {
+        map<ll,ll> m;
+        ld prod = 1;
+        ll zc = 0;
+        for(int i = 0; i < Aprefix.size(); i++) {
+            if(Aprefix[i]) {
+                m[Aprefix[i]]++;
+                prod *= Aprefix[i];
+            } else {
+                zc++;
+            }
+        }
+        ll state = seed;
+        for(int i = Aprefix.size(); i < n; i++) {
+            state = (1103515245 * state + 12345) & ((1LL << 31) - 1);
+            int num = (T + state) % Amod;
+            if(num) {
+                m[num]++;
+                prod *= num;
+            } else {
+                zc++;
+            }
+        }
 
-ll gcdExtended(ll a, ll b, ll *x, ll *y);
- 
-ll modInverse(ll b, ll m = MOD) {
-    ll x, y;
-    ll g = gcdExtended(b, m, &x, &y);
- 
-    if (g != 1) return -1;
- 
-    return (x % m + m) % m;
-}
- 
-ll gcdExtended(ll a, ll b, ll *x, ll *y) {
-    if (a == 0) {
-        *x = 0, *y = 1;
-        return b;
+        ll cnt = n - zc;
+        ll L = 0;
+        ld ev = 0;
+        for(auto [R, x] : m) {
+            ld contrib = 1 / prod * cnt / (cnt + 1) * (powl(R,cnt+1)-powl(L,cnt+1));
+            ev += contrib;
+            cnt -= x;
+            prod /= powl(R,x);
+            L = R;
+        }
+        return ev;
     }
- 
-    ll x1, y1;
-    ll gcd = gcdExtended(b % a, a, &x1, &y1);
- 
-    *x = y1 - (b / a) * x1;
-    *y = x1;
- 
-    return gcd;
-}
+};
+// SOLUTION_END
 
-mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-
-signed main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-
-    vector<ll> res(1e7 + 1);
-    for(int i = 1; i <= 1e7; i++) {
-        res[i] = modInverse(rng() % MOD);
-    }
-
-    return 0;
+int main() {
+  int arg0;
+  cin >> arg0;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  int arg1;
+  cin >> arg1;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  int arg2;
+  cin >> arg2;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  int arg3;
+  cin >> arg3;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  int n4; cin >> n4;
+  vector<int> arg4(n4);
+  for (int i=0;i<n4;++i) { cin >> arg4[i]; }
+  auto c = RandomSelection();
+  double ret = c.expectedMaximum(arg0, arg1, arg2, arg3, arg4);
+  cout << setprecision(numeric_limits<double>::max_digits10) << ret;
 }
