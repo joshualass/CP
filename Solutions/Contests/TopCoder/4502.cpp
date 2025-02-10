@@ -1,3 +1,10 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+#include <limits>
+using namespace std;
+
+// SOLUTION_BEGIN
 #include <bits/stdc++.h>
 typedef long long ll;
 typedef long double ld;
@@ -30,3 +37,16 @@ public:
         return res;
     }
 };
+// SOLUTION_END
+
+int main() {
+  int arg0;
+  cin >> arg0;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  int arg1;
+  cin >> arg1;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  auto c = CardCosts();
+  long long ret = c.mincost(arg0, arg1);
+  cout << ret;
+}

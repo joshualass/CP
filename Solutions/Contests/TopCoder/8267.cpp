@@ -50,15 +50,15 @@ public:
         map<char,map<char,int>> dists;
 
         for(auto [c, edges] : adj) {
-            queue<pair<char,int>> q;
-            q.push({c,0});
-            while(q.size()) {
-                auto [ch, d] = q.front();
-                q.pop();
+            priority_queue<pair<int,char>, vector<pair<int,char>>, greater<pair<int,char>>> pq;
+            pq.push({0,c});
+            while(pq.size()) {
+                auto [d,ch] = pq.top();
+                pq.pop();
                 if(dists[c].count(ch)) continue;
                 dists[c][ch] = d;
                 for(auto [nei, w] : adj[ch]) {
-                    q.push({nei,d+w});
+                    pq.push({d+w,nei});
                 }
             }
         }

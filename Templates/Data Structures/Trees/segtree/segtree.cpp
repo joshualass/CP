@@ -25,9 +25,6 @@ struct Tree {
             curr /= 2;
         }
     }
-    bool isLeaf(int idx) {
-        return idx >= size;
-    }
     T at(int idx) {
         assert(idx >= 0 && idx < n);
         return v[idx + size];
