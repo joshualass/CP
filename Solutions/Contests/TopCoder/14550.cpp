@@ -138,6 +138,17 @@ class OrderedProduct {
 public:
     int count(vector<int> a) {
         init_fact();
+
+        vector<vector<Z>> pc(2501,vector<Z>(51));
+        pc[0][0] = 1;
+        for(int i = 1; i <= 2500; i++) {
+            for(int j = 0; j <= 50; j++) {
+                for(int k = 0; k <= j; k++) {
+                    pc[i][j] += pc[i-1][k];
+                }
+            }
+        }
+
         vector<Z> dp;
         for(int i = 0; i < a.size(); i++) {
             vector<Z> ndp;
@@ -146,17 +157,8 @@ public:
                     for(int k = 0; k <= a[i]; k++) { //appending length
                         int left = a[i] - k;
                         int total_len = j + k;
-                        vector<vector<Z>> tdp(total_len + 1, vector<Z>(left + 1));
-                        tdp[0][0] = 1;
-                        for(int l = 1; l <= total_len; l++) {
-                            for(int m = 0; m <= left; m++) {
-                                for(int n = 0; n <= m; n++) {
-                                    tdp[l][m] += tdp[l-1][n];
-                                }
-                            }
-                        }   
                         while(ndp.size() <= total_len) ndp.push_back(0);
-                        ndp[total_len] += dp[j] * tdp[total_len][left] * choose(total_len,k);
+                        ndp[total_len] += dp[j] * pc[total_len][left] * choose(total_len,k);
                     }
                 }
             } else {
@@ -164,17 +166,8 @@ public:
                 for(int k = 0; k <= a[i]; k++) { //appending length
                     int left = a[i] - k;
                     int total_len = j + k;
-                    vector<vector<Z>> tdp(total_len + 1, vector<Z>(left + 1));
-                    tdp[0][0] = 1;
-                    for(int l = 1; l <= total_len; l++) {
-                        for(int m = 0; m <= left; m++) {
-                            for(int n = 0; n <= m; n++) {
-                                tdp[l][m] += tdp[l-1][n];
-                            }
-                        }
-                    }   
                     while(ndp.size() <= total_len) ndp.push_back(0);
-                    ndp[total_len] += tdp[total_len][left] * choose(total_len,k);
+                    ndp[total_len] += pc[total_len][left] * choose(total_len,k);
                 }
             }
             dp = ndp;

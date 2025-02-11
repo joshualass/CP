@@ -1,13 +1,13 @@
-#include <iostream>
-#include <vector>
-#include <iomanip>
-#include <limits>
-using namespace std;
-
-// SOLUTION_BEGIN
 #include <bits/stdc++.h>
 typedef long long ll;
 typedef long double ld;
+using namespace std;
+
+template<typename T, typename D>
+std::ostream& operator<<(std::ostream& os, map<T,D> m) {
+    for(auto &x: m) os << x.first << " " << x.second << " | ";
+    return os;
+}
 
 template<class T>
 constexpr T power(T a, ll b) {
@@ -113,7 +113,6 @@ struct Mint {
 
 constexpr int P = 1e9 + 7;
 using Z = Mint<P>;
-
 const int MAXN = 1e6 + 1;
 vector<Z> fact(MAXN), inv_fact(MAXN), res(MAXN), pows(MAXN);
 
@@ -134,63 +133,45 @@ void init_fact(int n = MAXN) {
     }
 }
 
-class OrderedProduct {
-public:
-    int count(vector<int> a) {
-        init_fact();
-        vector<Z> dp;
-        for(int i = 0; i < a.size(); i++) {
-            vector<Z> ndp;
-            if(i) {
-                for(int j = 1; j < dp.size(); j++) { //initial length
-                    for(int k = 0; k <= a[i]; k++) { //appending length
-                        int left = a[i] - k;
-                        int total_len = j + k;
-                        vector<vector<Z>> tdp(total_len + 1, vector<Z>(left + 1));
-                        tdp[0][0] = 1;
-                        for(int l = 1; l <= total_len; l++) {
-                            for(int m = 0; m <= left; m++) {
-                                for(int n = 0; n <= m; n++) {
-                                    tdp[l][m] += tdp[l-1][n];
-                                }
-                            }
-                        }   
-                        while(ndp.size() <= total_len) ndp.push_back(0);
-                        ndp[total_len] += dp[j] * tdp[total_len][left] * choose(total_len,k);
-                    }
-                }
-            } else {
-                int j = 0;
-                for(int k = 0; k <= a[i]; k++) { //appending length
-                    int left = a[i] - k;
-                    int total_len = j + k;
-                    vector<vector<Z>> tdp(total_len + 1, vector<Z>(left + 1));
-                    tdp[0][0] = 1;
-                    for(int l = 1; l <= total_len; l++) {
-                        for(int m = 0; m <= left; m++) {
-                            for(int n = 0; n <= m; n++) {
-                                tdp[l][m] += tdp[l-1][n];
-                            }
-                        }
-                    }   
-                    while(ndp.size() <= total_len) ndp.push_back(0);
-                    ndp[total_len] += tdp[total_len][left] * choose(total_len,k);
-                }
-            }
-            dp = ndp;
-        }
-        Z res = 0;
-        for(Z z : dp) res += z;
-        return res.x;
-    }
-};
-// SOLUTION_END
+/*
+init_fact()
+*/
 
-int main() {
-  int n0; cin >> n0;
-  vector<int> arg0(n0);
-  for (int i=0;i<n0;++i) { cin >> arg0[i]; }
-  auto c = OrderedProduct();
-  int ret = c.count(arg0);
-  cout << ret;
+void solve() {
+    int n; cin >> n;
+    map<int,Z> dp;
+    dp[0] = 1;
+
+    int c = 0;
+
+    // cout << "dp : " << dp << '\n';
+
+    for(int i = 0; i < n; i++) {
+        int x; cin >> x;
+        int p = x ^ c;
+        Z v = dp[p];
+        Z z = dp[c];
+        dp.erase(p);
+        dp.erase(c);
+        Z nz = v;
+        Z nv = z * 3 + v * 2;
+        dp[p] = nz;
+        dp[c] = nv;
+        // cout << "i : " << i << " x : " << x << " c : " << c << " p : " << p << " dp : " << dp << '\n';
+        c ^= x;
+    }
+
+    Z res = 0;
+    for(auto [_, cnt] : dp) res += cnt;
+    cout << res << '\n';
+}
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int casi; cin >> casi;
+    while(casi-->0) solve();
+
+    return 0;
 }
