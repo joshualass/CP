@@ -1,7 +1,7 @@
-#include <bits/stdc++.h>
-typedef long long ll;
-typedef long double ld;
-using namespace std;
+// #include <bits/stdc++.h>
+// typedef long long ll;
+// typedef long double ld;
+// using namespace std;
 
 /*
 ll dinic(int source, int sink, int n, vector<vector<ll>> capacity, vector<vector<ll>> adj) {
@@ -108,62 +108,131 @@ int main() {
 }
 */
 
-template<class T>
-T edmondsKarp(vector<unordered_map<int,T>>& graph, int source, int sink) {
-    assert(source != sink);
-    T flow = 0;
-    vector<int> par(graph.size());
-    vector<int> q = par;
+// template<class T>
+// T edmondsKarp(vector<unordered_map<int,T>>& graph, int source, int sink) {
+//     assert(source != sink);
+//     T flow = 0;
+//     vector<int> par(graph.size());
+//     vector<int> q = par;
 
-    for(;;) {
-        fill(par.begin(), par.end(), -1);
-        par[source] = 0;
-        int ptr = 1;
-        q[0] = source;
+//     for(;;) {
+//         fill(par.begin(), par.end(), -1);
+//         par[source] = 0;
+//         int ptr = 1;
+//         q[0] = source;
 
-        for(int i = 0; i < ptr; i++) {
-            int x = q[i];
-            for(auto e : graph[x]) {
-                if(par[e.first] == -1 && e.second > 0) {
-                    par[e.first] = x;
-                    q[ptr++] = e.first;
-                    if(e.first == sink) goto out;
+//         for(int i = 0; i < ptr; i++) {
+//             int x = q[i];
+//             for(auto e : graph[x]) {
+//                 if(par[e.first] == -1 && e.second > 0) {
+//                     par[e.first] = x;
+//                     q[ptr++] = e.first;
+//                     if(e.first == sink) goto out;
+//                 }
+//             }
+//         }
+//     return flow;
+// out:
+//     T inc = numeric_limits<T>::max();
+//     for(int y = sink; y != source; y = par[y]) {
+//         inc = min(inc, graph[par[y]][y]);
+//     }
+
+//     flow += inc;
+//     for(int y = sink; y != source; y = par[y]) {
+//         int p = par[y];
+//         if((graph[p][y] -= inc) <= 0) {
+//             graph[p].erase(y);
+//         }
+//         graph[y][p] += inc;
+//         }
+//     }
+// }
+
+// int main() {
+//     ios_base::sync_with_stdio(false);
+//     cin.tie(NULL);
+
+//     int n, m; cin >> n >> m;
+//     vector<unordered_map<int,ll>> graph(n);
+
+//     for(int i = 0; i < m; i++) {
+//         int a, b, c; cin >> a >> b >> c;
+//         a--;
+//         b--;
+//         graph[a][b] += c;
+//     }
+
+//     cout << edmondsKarp(graph,0,n-1) << '\n';
+
+//     return 0;
+// }
+
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+
+ll flow(vector<unordered_map<int,ll>> &adj, int s, int t) {
+
+    ll res = 0;
+    int n = adj.size();
+    vector<int> p;
+
+    while(1) {
+        p.assign(n,-1);
+        queue<int> q;
+        q.push(s);
+        while(q.size()) {
+            int i = q.front();
+            q.pop();
+            for(auto [c, fl] : adj[i]) {
+                if(p[c] == -1) {
+                    p[c] = i;
+                    q.push(c);
                 }
             }
         }
-    return flow;
-out:
-    T inc = numeric_limits<T>::max();
-    for(int y = sink; y != source; y = par[y]) {
-        inc = min(inc, graph[par[y]][y]);
+
+        if(p[t] == -1) {
+            break;
+        }
+
+        ll bn = LLONG_MAX;
+        int cur = t;
+        while(cur != s) {
+            int par = p[cur];
+            bn = min(bn, adj[par][cur]);
+            cur = par;
+        }
+        res += bn;
+        cur = t;
+        while(cur != s) {
+            int par = p[cur];
+            adj[par][cur] -= bn;
+            if(adj[par][cur] == 0) adj[par].erase(cur);
+            adj[cur][par] += bn;
+            cur = par;
+        }
     }
 
-    flow += inc;
-    for(int y = sink; y != source; y = par[y]) {
-        int p = par[y];
-        if((graph[p][y] -= inc) <= 0) {
-            graph[p].erase(y);
-        }
-        graph[y][p] += inc;
-        }
-    }
+    return res;
+
 }
 
-int main() {
+signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
     int n, m; cin >> n >> m;
-    vector<unordered_map<int,ll>> graph(n);
-
+    vector<unordered_map<int,ll>> adj(n);
     for(int i = 0; i < m; i++) {
         int a, b, c; cin >> a >> b >> c;
-        a--;
-        b--;
-        graph[a][b] += c;
+        a--; b--;
+        adj[a][b] += c;
     }
 
-    cout << edmondsKarp(graph,0,n-1) << '\n';
+    cout << flow(adj, 0, n - 1) << '\n';
 
     return 0;
 }

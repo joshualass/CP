@@ -17,6 +17,7 @@ int main(){
             string name; int p, q, k; cin >> name >> p >> q >> k;
             cars[name] = {p, q, k};
         }
+        
         // process events
         unordered_map<string, string> driving;
         unordered_map<string, int> bill;
@@ -29,6 +30,7 @@ int main(){
 
             quer.push_back({stTime, line});
         }
+
         sort(quer.begin(), quer.end());
 
         for (auto line: quer){

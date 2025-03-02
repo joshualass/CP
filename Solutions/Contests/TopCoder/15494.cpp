@@ -1,3 +1,14 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+#include <limits>
+using namespace std;
+
+// SOLUTION_BEGIN
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -100,7 +111,7 @@ struct Mint {
     }
 };
 
-constexpr int P = 998244353;
+constexpr int P = 1e9 + 7;
 using Z = Mint<P>;
 // using Z = double;
 const int MAXN = 1e6 + 1;
@@ -126,3 +137,83 @@ void init_fact(int n = MAXN) {
 /*
 init_fact()
 */
+
+class PBG {
+public:
+    int findEV(int P, int B, int G) {
+
+        Z p = P, b = B, g = G;
+
+        vector<Z> inv(P + B + G + 1);
+        for(int i = 1; i <= P + B + G; i++) {
+            inv[i] = Z(1) / i;
+        }
+
+        vector<vector<Z>> expected_brown_path(G + P + 1, vector<Z>(B + 1));
+        vector<Z> expected_brown(G + P + 1);
+
+        expected_brown_path[G + P][B] = 1;
+
+        for(int i = P + G; i >= 0; i--) {
+            for(int j = B; j >= 0; j--) {
+                if(i == 0 && j == 0) continue;
+                Z GP_fight = Z(i) * inv[i + j] * Z(i - 1) * inv[i + j - 1];
+                Z B_fight = 1 - GP_fight;
+                expected_brown[i] += expected_brown_path[i][j] * GP_fight * j;
+                if(i) {
+                    expected_brown_path[i - 1][j] += expected_brown_path[i][j] * GP_fight;
+                }
+                if(j) {
+                    expected_brown_path[i][j - 1] += expected_brown_path[i][j] * B_fight;
+                }
+            }
+        }
+
+        vector<vector<Z>> la(G + 1, vector<Z>(P + 1));
+        la[G][P] = 1;
+
+        Z res = 0;
+
+        for(int i = G; i >= 0; i--) {
+            for(int j = P; j >= 0; j--) {
+                if(i == 0 && j == 0) continue;
+                Z limak_dies = (Z(i) + Z(j - 1) * inv[2]) * inv[i + j] * inv[i + j - 1] * 2;
+                Z G_dies = Z(i) * Z(i - 1) * inv[i + j] * inv[i + j - 1];
+                Z P_dies = 1 - limak_dies - G_dies; //not Limak
+                Z expected_brown_alive = expected_brown[i + j];
+
+                Z d = (i == 0 && j == 1 ? la[i][j] : (expected_brown_alive + i + j) * la[i][j] * limak_dies);
+
+                res += d;
+
+                if(i) {
+                    la[i-1][j] += la[i][j] * G_dies;
+                }
+
+                if(j) {
+                    la[i][j-1] += la[i][j] * P_dies;
+                }
+
+            }   
+        }
+
+        return res.x;
+
+    }
+};
+// SOLUTION_END
+
+int main() {
+  int arg0;
+  cin >> arg0;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  int arg1;
+  cin >> arg1;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  int arg2;
+  cin >> arg2;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  auto c = PBG();
+  int ret = c.findEV(arg0, arg1, arg2);
+  cout << ret;
+}

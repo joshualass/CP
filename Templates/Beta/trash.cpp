@@ -1,389 +1,219 @@
 #include <bits/stdc++.h>
-
+typedef long long ll;
+typedef long double ld;
 using namespace std;
 
-template<typename Type>
-void print_grid(const vector<vector<Type>>& grid) {
-    cout << "[";
-    for (const auto& row : grid) {
-        cout << "[";
-        for (const auto& i : row) {
-            cout << i << ", ";
+template<class T>
+constexpr T power(T a, ll b) {
+    T res = 1;
+    for (; b; b /= 2, a *= a) {
+        if (b % 2) {
+            res *= a;
         }
-        cout << "]," << endl;
     }
-    cout << "]" << endl;
+    return res;
 }
 
-// diagonal different parity check
-bool check_diagonal(const vector<vector<long long>>& grid, const int& i, const int& j) {
-    size_t rows = grid.size();
-    size_t cols = grid[0].size();
+//Modular Division currently uses Little Fermat's Theorem, so won't work for nonprime p. 
+template<int P>
+struct Mint {
+    int x;
+    constexpr Mint(): x{} {}
+    constexpr Mint(ll x): x{norm(x % getMod())} {}
 
-    // can only have diagonal elements if 2x2 or bigger
-    if (rows > 1 && cols > 1) {
-        long long val = grid[i][j];
-        long long rem = val % 2;
-
-        long long bottom_right = (i < rows - 1 && j < cols - 1 && grid[i + 1][j + 1] != 0) ? grid[i + 1][j + 1] % 2 : -1;
-        long long bottom_left = (i < rows - 1 && j > 0 && grid[i + 1][j - 1] != 0) ? grid[i + 1][j - 1] % 2 : -1;
-        long long top_right = (i > 0 && j < cols - 1 && grid[i - 1][j + 1] != 0) ? grid[i - 1][j + 1] % 2 : -1;
-        long long top_left = (i > 0 && j > 0 && grid[i - 1][j - 1] != 0) ? grid[i - 1][j - 1] % 2 : -1;
-
-        if (val == 0) {
-            return true;
-        }
-
-        // top left corner
-        if (i == 0 && j == 0) {
-            if (bottom_right == rem) {
-                return false;
-            }
-        }
-        // top right corner
-        else if (i == 0 && j == cols - 1) {
-            if (bottom_left == rem) {
-                return false;
-            }
-        }
-        // bottom left corner
-        else if (i == rows - 1 && j == 0) {
-            if (top_right == rem) {
-                return false;
-            }
-        }
-        // bottom right corner
-        else if (i == rows - 1 && j == cols - 1) {
-            if (top_left == rem) {
-                return false;
-            }
-        }
-        // top row but not corner
-        else if (i == 0) {
-            if (bottom_left == rem || bottom_right == rem) {
-                return false;
-            }
-        }
-        // bottom row but not corner
-        else if (i == rows - 1) {
-            if (top_left == rem || top_right == rem) {
-                return false;
-            }
-        }
-        // left column but not corner
-        else if (j == 0) {
-            if (top_right == rem || bottom_right == rem) {
-                return false;
-            }
-        }
-        // right column but not corner
-        else if (j == cols - 1) {
-            if (top_left == rem || bottom_left == rem) {
-                return false;
-            }
-        }
-        // has all 4 diagonals
-        else {
-            if (top_left == rem || top_right == rem || bottom_left == rem || bottom_right == rem) {
-                return false;
-            }
+    static int Mod;
+    constexpr static int getMod() {
+        if(P > 0) {
+            return P;
+        } else {
+            return Mod;
         }
     }
-    return true;
+    constexpr static void setMod(int Mod_) {
+        Mod = Mod_;
+    }
+    constexpr int norm(int x) const {
+        if(x < 0) {
+            x += getMod();
+        }
+        if(x >= getMod()) { //not sure why this is needed
+            x -= getMod();
+        }
+        return x;
+    }
+    constexpr int val() const {
+        return x;
+    }
+    constexpr Mint operator-() const {
+        Mint res;
+        res.x = norm(getMod() - x);
+        return res;
+    }
+    constexpr Mint inv() const {
+        assert(x != 0);
+        return power(*this, getMod() - 2);
+    }
+    constexpr Mint &operator*=(Mint rhs) & {
+        x = 1LL * x * rhs.x % getMod();
+        return *this;
+    }
+    constexpr Mint &operator+=(Mint rhs) & {
+        x = norm(x + rhs.x);
+        return *this;
+    }
+    constexpr Mint &operator-=(Mint rhs) & {
+        x = norm(x - rhs.x);
+        return *this;
+    }
+    constexpr Mint &operator/=(Mint rhs) & {
+        return *this *= rhs.inv();
+    }
+    friend constexpr Mint operator*(Mint lhs, Mint rhs) {
+        Mint res = lhs;
+        res *= rhs;
+        return res;
+    }
+    friend constexpr Mint operator+(Mint lhs, Mint rhs) {
+        Mint res = lhs;
+        res += rhs;
+        return res;
+    }
+    friend constexpr Mint operator-(Mint lhs, Mint rhs) {
+        Mint res = lhs;
+        res -= rhs;
+        return res;
+    }
+    friend constexpr Mint operator/(Mint lhs, Mint rhs) {
+        Mint res = lhs;
+        res /= rhs;
+        return res;
+    }
+    friend constexpr std::istream &operator>>(std::istream &is, Mint &a) {
+        ll v;
+        is >> v;
+        a = Mint(v);
+        return is;
+    }
+    friend constexpr std::ostream &operator<<(std::ostream &os, const Mint &a) {
+        return os << a.val();
+    }
+    friend constexpr bool operator==(Mint lhs, Mint rhs) {
+        return lhs.val() == rhs.val();
+    }
+    friend constexpr bool operator!=(Mint lhs, Mint rhs) {
+        return lhs.val() != rhs.val();
+    }
+};
+
+constexpr int P = 998244353;
+using Z = Mint<P>;
+const int MAXN = 1e6 + 1;
+vector<Z> fact(MAXN), inv_fact(MAXN), res(MAXN), pows(MAXN);
+
+Z choose(int n, int k) {
+    if(k < 0 || k > n) return 0;
+    return fact[n] * inv_fact[k] * inv_fact[n-k];
 }
 
-bool check_increasing(const vector<vector<long long>>& grid, const int& i, const int& j) {
-    size_t rows = grid.size();
-    size_t cols = grid[0].size();
-
-    long long val = grid[i][j];
-
-    if (val == 0) {
-        return true;
+void init_fact(int n = MAXN) {
+    fact[0] = Z(1);
+    inv_fact[0] = Z(1);
+    for(int i = 1; i <= n; i++) {
+        fact[i] = fact[i-1] * i;
     }
-
-    return (j == 0 || val > grid[i][j - 1] || grid[i][j - 1] == 0) && (j == cols - 1 || val < grid[i][j + 1] || grid[i][j + 1] == 0) && (i == 0 || val > grid[i - 1][j] || grid[i - 1][j] == 0) && (i == rows - 1 || val < grid[i + 1][j] || grid[i + 1][j] == 0);
+    inv_fact[n] = 1 / fact[n];
+    for(int i = n - 1; i >= 1; i--) {
+        inv_fact[i] = inv_fact[i+1] * (i + 1);
+    }
 }
 
-// used to make sure grid is valid
-bool check(const vector<vector<long long>>& grid) {
-    size_t rows = grid.size();
-    size_t cols = grid[0].size();
+/*
+init_fact()
+*/
 
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            if (!(check_diagonal(grid, i, j) && check_increasing(grid, i, j))) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
 
-long long get_lowest(const vector<vector<long long>>& grid, const vector<vector<bool>>& parity, int i, int j) {
-    size_t rows = grid.size();
-    size_t cols = grid[0].size();
-    long long left = j == 0 ? 0 : grid[i][j - 1];
-    long long top = i == 0 ? 0 : grid[i - 1][j];
+    init_fact();
 
-    long long lower_bound = 0;
+    // Z res = 0;
+    // int n = 6;
+    // int b = 3;
 
-    if (left == 0 && top == 0) {
-        lower_bound = 0;
-    }
-    else if (left == 0) {
-        lower_bound = top;
-    }
-    else if (top == 0) {
-        lower_bound = left;
-    }
-    else {
-        lower_bound = max(left, top);
-    }
-
-    lower_bound++;
-
-    if ((lower_bound % 2 == 0) != parity[i][j] && rows != 1 && cols != 1) {
-        lower_bound++;
-    }
-
-    return lower_bound;
-}
-
-long long get_highest(const vector<vector<long long>>& grid, const vector<vector<bool>>& parity, int i, int j) {
-    size_t rows = grid.size();
-    size_t cols = grid[0].size();
-    long long right = j == cols - 1 ? 0 : grid[i][j + 1];
-    long long down = i == rows - 1 ? 0 : grid[i + 1][j];
-
-    long long upper_bound = 0;
-
-    if (right == 0 && down == 0) {
-        upper_bound = numeric_limits<long long>::max();
-    }
-    else if (right == 0) {
-        upper_bound = down;
-    }
-    else if (down == 0) {
-        upper_bound = right;
-    }
-    else {
-        upper_bound = min(right, down);
-    }
-
-    upper_bound--;
-
-    if ((upper_bound % 2 == 0) != parity[i][j] && rows != 1 && cols != 1) {
-        upper_bound--;
-    }
-
-    return upper_bound;
-}
-
-long long sum_grid(const vector<vector<long long>>& grid) {
-    size_t rows = grid.size();
-    size_t cols = grid[0].size();
-    long long total = 0;
-
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            total += grid[i][j];
-        }
-    }
-
-    return total;
-}
-
-pair<bool, bool> get_parity(const vector<vector<long long>>& grid, vector<vector<bool>>& parity_row, vector<vector<bool>>& parity_col) {
-    size_t rows = grid.size();
-    size_t cols = grid[0].size();
-
-    int i_arg = -1;
-    int j_arg = -1;
-
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            if (grid[i][j] != 0) {
-                i_arg = i;
-                j_arg = j;
-                parity_col[i][j] = grid[i][j] % 2 == 0;
-                parity_row[i][j] = grid[i][j] % 2 == 0;
-            }
-        }
-    }
-
-    // every value in grid is a 0
-    if (i_arg == -1) {
-        // top left value will be a 1, so 1st column is odd, 2nd column is even, etc.
-        for (int j = 0; j < cols; j++) {
-            for (int i = 0; i < rows; i++) {
-                parity_row[i][j] = j % 2 == 1;
-                parity_col[i][j] = j % 2 == 1;
-            }
-        }
-    }
-    else {
-        bool use_col = true;
-        bool use_row = true;
-
-        // alternate parities of columns
-        bool is_even_og = grid[i_arg][j_arg] % 2 == 0;
-
-        for (int j = 0; j < cols; j++) {
-            bool is_even = (abs(j - j_arg) % 2 == 0) ? is_even_og : !is_even_og;
-
-            for (int i = 0; i < rows; i++) {
-                if (grid[i][j] == 0) {
-                    parity_col[i][j] = is_even;
-                }
-                else {
-                    if ((grid[i][j] % 2 == 0) == is_even) {
-                        parity_col[i][j] = is_even;
-                    }
-                    // grid is not possible to solve
-                    else {
-                        use_col = false;
-                        goto exit_col;
-                    }
-                }
-            }
-        }
-
-        exit_col:
-
-        // try rows
-        for (int i = 0; i < rows; i++) {
-            bool is_even = (abs(i - i_arg) % 2 == 0) ? is_even_og : !is_even_og;
-
-            for (int j = 0; j < cols; j++) {
-                if (grid[i][j] == 0) {
-                    parity_row[i][j] = is_even;
-                }
-                else {
-                    if ((grid[i][j] % 2 == 0) == is_even) {
-                        parity_row[i][j] = is_even;
-                    }
-                    // grid is not possible to solve
-                    else {
-                        use_row = false;
-                        goto exit_row;
-                    }
-                }
-            }
-        }
-
-        exit_row:
-
-        return {use_row, use_col};
-    }
-    return {true, true};
-}
-
-long long algorithm(vector<vector<long long>>& grid, const vector<vector<bool>>& parity) {
-    size_t rows = grid.size();
-    size_t cols = grid[0].size();
-
-    // for n x 1 and 1 x n, only need to check increasing condition since there are no diagonals
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            if (grid[i][j] == 0) {
-                long long lower_bound = get_lowest(grid, parity, i, j);
-                // long long upper_bound = get_highest(grid, parity, i, j);
-                //
-                // if (upper_bound < lower_bound) {
-                //     return -1;
-                // }
-
-                grid[i][j] = lower_bound;
-            }
-        }
-    }
-
-    if (check(grid)) {
-        return sum_grid(grid);
-    }
-
-    // print_grid(grid);
-
-    return -1;
-}
-
-bool is_all_zeros(const vector<vector<long long>>& grid) {
-    for (const vector<long long>& row : grid) {
-        for (const long long& num : row) {
-            if (num != 0) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-int main(void) {
-    // ifstream cin("input.txt"); // UNCOMMENT WHEN SUBMITTING
-    // ofstream cout("output.txt"); // UNCOMMENT WHEN SUBMITTING
-
-    std::ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-    cout.tie(nullptr);
-
-    long long rows, cols;
-    cin >> rows >> cols;
-
-    vector grid(rows, vector(cols, static_cast<long long>(0)));
-
-    vector parity_row(rows, vector(cols, false));
-    vector parity_col(rows, vector(cols, false));
-
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            long long num;
-            cin >> num;
-
-            grid[i][j] = num;
-        }
-    }
-
-    if (is_all_zeros(grid)) {
-        long long pos1 = cols * rows * (rows + (2 * cols) - 1) / 2;
-        long long pos2 = cols * rows * (cols + (2 * rows) - 1) / 2;
-
-        cout << min(pos1, pos2) << endl;
-        return 0;
-    }
-
-    pair<bool, bool> pair_status = get_parity(grid, parity_row, parity_col);
-    bool row_status = pair_status.first;
-    bool col_status = pair_status.second;
-
-    // if (!((row_status || col_status) && check(grid))) {
-    //     cout << -1 << endl;
-    //     return 0;
+    // for(int i = 1; i <= n - 1; i++) {
+    //     for(int j = 1; j <= b; j++) {
+    //         res += choose(b,j) * power<Z>(n-i,j) * power<Z>((i - 1) * (n - i + 1), b - j);
+    //         cout << "i : " << i << " j : " << j << " sum : " << choose(b,j) * power<Z>(n-i,j) * power<Z>((i - 1) * (n - i + 1), b - j) << '\n';
+    //     }
     // }
 
-    auto grid2 = grid;
+    // cout << res << '\n';
 
-    // try both parities
-    long long pos1 = -1;
-    long long pos2 = -1;
-    if (row_status) {
-        pos1 = algorithm(grid, parity_row);
+    int n = 6;
+    int res = 0;
+
+    auto di = [](int l1, int r1, int l2, int r2) -> int {
+        int l = max(l1, l2);
+        int r = min(r1, r2);
+        return l <= r;
+    };
+
+    int c2 = 0;
+
+    vector<int> cnts(8);
+    vector<int> cntsss(8);
+
+    for(int i = 0; i < n; i++) {
+        for(int j = i + 1; j < n; j++) {
+            for(int k = 0; k < n; k++) {
+                for(int l = k + 1; l < n; l++) {
+                    for(int o = 0; o < n; o++) {
+                        for(int p = o + 1; p < n; p++) {
+                            // int maxl = max({i,k,o});
+                            // int minr = min({j,l,p});
+                            if(i == 0 && j == 1 && k == 2 && l == 3 && o == 4 && p == 5) cout << "vis\n";
+                            if(!di(i,j,k,l) && !di(i,j,o,p) && !di(k,l,o,p)) {
+                                res++;
+                                // cout << "i : " << i << " j : " << j << " k : " << k << " l : " << l << " o : " << o << " p : " << p << '\n';
+                            }
+                            int b = 0;
+                            if(di(i,j,k,l)) {
+                                b += 1;
+                            }
+                            if(di(i,j,o,p)) {
+                                b += 2;
+                            }
+                            if(di(k,l,o,p)) {
+                                b += 4;
+                            }
+                            cnts[b]++;
+                            for(int a = 0; a < 8; a++) {
+                                if((a & b) == a) {
+                                    cntsss[a]++;
+                                }
+                            }
+                            if(di(i,j,k,l)) {
+                                c2++;
+                            }
+                            // if(maxl <= minr) {
+                            //     res++;
+                            // }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    if (col_status) {
-        pos2 = algorithm(grid2, parity_col);
-    }
+    cout << res << '\n';
+    cout << "c2 : " << c2 << '\n';
 
-    if (pos1 == -1) {
-        cout << pos2 << endl;
+    for(int i = 0; i < 8; i++) {
+        cout << "i : " << i << " cnts[i] : " << cnts[i] << '\n';
     }
-    else if (pos2 == -1) {
-        cout << pos1 << endl;
+    for(int i = 0; i < 8; i++) {
+        cout << "i : " << i << " cntsss[i] : " << cntsss[i] << '\n';
     }
-    else {
-        cout << min(pos1, pos2) << endl;
-        // print_grid(grid);
-    }
-
     return 0;
 }

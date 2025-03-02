@@ -1,3 +1,10 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+#include <limits>
+using namespace std;
+
+// SOLUTION_BEGIN
 #include <bits/stdc++.h>
 typedef long long ll;
 typedef long double ld;
@@ -98,3 +105,20 @@ public:
         return res;
     }
 };
+// SOLUTION_END
+
+int main() {
+  int n0; cin >> n0;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  vector<string> arg0(n0);
+  for (int i=0;i<n0;++i) { getline(cin, arg0[i]); }
+  int arg1;
+  cin >> arg1;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  int arg2;
+  cin >> arg2;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  auto c = JumpingOnTheGrid();
+  long long ret = c.maxEnergy(arg0, arg1, arg2);
+  cout << ret;
+}

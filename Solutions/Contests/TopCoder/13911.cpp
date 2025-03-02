@@ -1,3 +1,14 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+#include <limits>
+using namespace std;
+
+// SOLUTION_BEGIN
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -102,27 +113,51 @@ struct Mint {
 
 constexpr int P = 998244353;
 using Z = Mint<P>;
-// using Z = double;
-const int MAXN = 1e6 + 1;
-vector<Z> fact(MAXN), inv_fact(MAXN), res(MAXN), pows(MAXN);
 
-Z choose(int n, int k) {
-    if(k < 0 || k > n) return 0;
-    return fact[n] * inv_fact[k] * inv_fact[n-k];
-}
-
-void init_fact(int n = MAXN) {
-    fact[0] = Z(1);
-    inv_fact[0] = Z(1);
-    for(int i = 1; i <= n; i++) {
-        fact[i] = fact[i-1] * i;
+class LongSeat {
+public:
+    Z compute_intersection_ways(int b, int _n) {
+        Z n = _n;
+        if(b == 1) {
+            return (n - 1) * n / 2;
+        } else if(b == 2) {
+            return (n - 1) * power<Z>(n,2) * (n + 1) / 12;
+        } else if(b == 3) {
+            return power<Z>(n,2) * (power<Z>(n,4) - 1) / 60;
+        } else if(b == 4) {
+            return power<Z>(n,2) * (3 * power<Z>(n,6) + 7 * power<Z>(n,2) - 10) / 840;
+        } else if(b == 5) {
+            power<Z>(n,2) * (power<Z>(n,8) + 20 * power<Z>(n,2) - 21) / 1260;
+        } else if(b == 6) {
+            return power<Z>(n,2) * (power<Z>(n,10) - 22 * power<Z>(n,4) + 231 * power<Z>(n,2) - 210) / 5544;
+        }
+        assert(0);
     }
-    inv_fact[n] = 1 / fact[n];
-    for(int i = n - 1; i >= 1; i--) {
-        inv_fact[i] = inv_fact[i+1] * (i + 1);
-    }
-}
 
-/*
-init_fact()
-*/
+    vector<string> canSit(int L, vector<int> width) {
+        
+
+
+        vector<string> res;
+        for(int i = 0; i < width.size(); i++) {
+
+
+            
+
+
+        }
+    }
+};
+// SOLUTION_END
+
+int main() {
+  int arg0;
+  cin >> arg0;
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  int n1; cin >> n1;
+  vector<int> arg1(n1);
+  for (int i=0;i<n1;++i) { cin >> arg1[i]; }
+  auto c = LongSeat();
+  vector<string> ret = c.canSit(arg0, arg1);
+  for (auto& item : ret) { cout << item << "\n"; }
+}
