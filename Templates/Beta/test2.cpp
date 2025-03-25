@@ -2,26 +2,14 @@
 typedef long long ll;
 typedef long double ld;
 using namespace std;
-const ll MOD = 23;
-
-ll binexp(ll base, ll power) {
-    ll ans = 1;
-    while(power != 0) {
-        if(power & 1) {
-            ans = ans*base%MOD;
-        }
-        base = base*base%MOD;
-        power >>= 1;
-    }
-    return ans;
-}
-
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    cout << binexp(2,51) << '\n';
+    // cout << 134.0 / 21 << " vs " << 8.0 / 3 + 24.0 / 7 << " vs " << 128.0/21 << '\n';
+    cout << 64.0/15 << " vs " << 3 + 5.0/8 * 8 / 3 + 3.0 / 8 * 22 / 5 << '\n';
+
 
     return 0;
 }

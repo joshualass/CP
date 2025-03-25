@@ -1,0 +1,200 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << (x < 10 ? " " : "") << x << " ";
+    return os;
+}
+
+template<class T>
+constexpr T power(T a, ll b) {
+    T res = 1;
+    for (; b; b /= 2, a *= a) {
+        if (b % 2) {
+            res *= a;
+        }
+    }
+    return res;
+}
+
+//Modular Division currently uses Little Fermat's Theorem, so won't work for nonprime p. 
+template<int P>
+struct Mint {
+    int x;
+    constexpr Mint(): x{} {}
+    constexpr Mint(ll x): x{norm(x % getMod())} {}
+
+    static int Mod;
+    constexpr static int getMod() {
+        if(P > 0) {
+            return P;
+        } else {
+            return Mod;
+        }
+    }
+    constexpr static void setMod(int Mod_) {
+        Mod = Mod_;
+    }
+    constexpr int norm(int x) const {
+        if(x < 0) {
+            x += getMod();
+        }
+        if(x >= getMod()) { //not sure why this is needed
+            x -= getMod();
+        }
+        return x;
+    }
+    constexpr int val() const {
+        return x;
+    }
+    constexpr Mint operator-() const {
+        Mint res;
+        res.x = norm(getMod() - x);
+        return res;
+    }
+    constexpr Mint inv() const {
+        assert(x != 0);
+        return power(*this, getMod() - 2);
+    }
+    constexpr Mint &operator*=(Mint rhs) & {
+        x = 1LL * x * rhs.x % getMod();
+        return *this;
+    }
+    constexpr Mint &operator+=(Mint rhs) & {
+        x = norm(x + rhs.x);
+        return *this;
+    }
+    constexpr Mint &operator-=(Mint rhs) & {
+        x = norm(x - rhs.x);
+        return *this;
+    }
+    constexpr Mint &operator/=(Mint rhs) & {
+        return *this *= rhs.inv();
+    }
+    friend constexpr Mint operator*(Mint lhs, Mint rhs) {
+        Mint res = lhs;
+        res *= rhs;
+        return res;
+    }
+    friend constexpr Mint operator+(Mint lhs, Mint rhs) {
+        Mint res = lhs;
+        res += rhs;
+        return res;
+    }
+    friend constexpr Mint operator-(Mint lhs, Mint rhs) {
+        Mint res = lhs;
+        res -= rhs;
+        return res;
+    }
+    friend constexpr Mint operator/(Mint lhs, Mint rhs) {
+        Mint res = lhs;
+        res /= rhs;
+        return res;
+    }
+    friend constexpr std::istream &operator>>(std::istream &is, Mint &a) {
+        ll v;
+        is >> v;
+        a = Mint(v);
+        return is;
+    }
+    friend constexpr std::ostream &operator<<(std::ostream &os, const Mint &a) {
+        return os << a.val();
+    }
+    friend constexpr bool operator==(Mint lhs, Mint rhs) {
+        return lhs.val() == rhs.val();
+    }
+    friend constexpr bool operator!=(Mint lhs, Mint rhs) {
+        return lhs.val() != rhs.val();
+    }
+};
+
+constexpr int P = 998244353;
+using Z = Mint<P>;
+// using Z = double;
+const int MAXN = 1e6 + 1;
+vector<Z> fact(MAXN), inv_fact(MAXN), res(MAXN), pows(MAXN);
+
+Z choose(int n, int k) {
+    if(k < 0 || k > n) return 0;
+    return fact[n] * inv_fact[k] * inv_fact[n-k];
+}
+
+void init_fact(int n = MAXN) {
+    fact[0] = Z(1);
+    inv_fact[0] = Z(1);
+    for(int i = 1; i <= n; i++) {
+        fact[i] = fact[i-1] * i;
+    }
+    inv_fact[n] = 1 / fact[n];
+    for(int i = n - 1; i >= 1; i--) {
+        inv_fact[i] = inv_fact[i+1] * (i + 1);
+    }
+}
+
+/*
+init_fact()
+*/
+
+void solve() {
+    
+    ll n, m, a, b; cin >> n >> m >> a >> b;
+
+    Z res = (a + 1) * (b + 1); //1, 1
+    //a - 1, b - 2
+    res += (a + 1) * Z(b * (b + 1) / 2) * (power<Z>(2, m) - 2);
+    //a - 2, b - 1
+    res += Z(a * (a + 1) / 2) * (b + 1) * (power<Z>(2, n) - 2);
+    //a - 2, b - 2
+    res += Z(min(a,b) * (min(a,b) + 1) / 2) * (power<Z>(2, n) - 2) * (power<Z>(2, m) - 2);
+
+    cout << res << '\n';
+
+}
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    // int res = 0;
+    // vector<vector<int>> a(3, vector<int>(3));
+    // for(int i = 0; i < 4; i++) {
+    //     for(int j = 0; j < 4; j++) {
+    //         for(int k = 0; k < 4; k++) {
+    //             for(int l = 0; l < 4; l++) {
+    //                 set<int> s = {i ^ k, i ^ l, j ^ k, j ^ l};
+    //                 if(s.size() <= 2) {
+    //                     res++;
+    //                     set<int> b = {i,j}, c = {k,l};
+    //                     a[b.size() - 1][c.size() - 1]++;    
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
+    // cout << res << '\n';
+
+    // for(int i = 0; i < 3; i++) {
+    //     for(int j = 0; j < 3; j++) {
+    //         cout << a[i][j] << " \n"[j == 2];
+    //     }
+    // }
+
+    for(int A = 1; A <= 16; A++) {
+        vector<int> a(A * 2);
+        for(int i = 0; i <= A; i++) {
+            for(int j = 0; j <= A; j++) {
+                a[i^j]++;
+            }
+        }
+        cout << "A : " << bitset<8>(A) << " vec : " << a << '\n';
+    }
+
+    int casi; cin >> casi;
+    while(casi-->0) solve();
+
+    return 0;
+}

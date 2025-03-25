@@ -1,3 +1,17 @@
+/*
+Solution Idea
+Considered dynamic programming approaches and max flow approaches. 
+For the dp approaches, we would have to convert to a DAG, but it is still not easy, so we should consider max flow.
+Considered a lot of normal max flow, mcmf, and flow with demand. 
+We should give each node in the graph 2 nodes in the flow graph with a low and high node. and have a flow from low to high with capacity one 
+to demonstrate the flow of a messenger. 
+We should ultimately observe that the source should never have an edge to the low node, as this allows us to have extra messengers. 
+Then, we need to maximize the number of cities visited by messengers with a copy. 
+We can give a negative cost for satisfying a city, as to maximize the number, but we should also ensure that every city gets a messenger. 
+Therefore, we give every low to high a -1 flow and the cities with no messengers, a large extra constant of -10000 as they are necessary for this to be possible. 
+Then, we run MCMF. 
+*/
+
 // #include <bits/stdc++.h>
 // typedef long long ll;
 // typedef long double ld;

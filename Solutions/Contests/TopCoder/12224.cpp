@@ -2,57 +2,56 @@
 #include <vector>
 #include <iomanip>
 #include <limits>
-using namespace std;
 
 // SOLUTION_BEGIN
 #include <bits/stdc++.h>
-typedef long long ll;
-typedef long double ld;
+using namespace std;
+
 class PeriodicTiling {
 public:
     int minBlock(vector<string> part) {
-        int r = part.size(), c = part[0].size();
-        int sr = -1, sc = -1;
-        for(int i = 1; i <= r; i++) {
-            int ok = 1;
-            for(int j = 0; j < r; j++) {
-                for(int k = 0; k < c; k++) {
-                    if(part[j][k] != part[(i+j)%r][k]) {
-                        ok = 0;
+
+        int res = INT_MAX;
+        for(int tt = 0; tt < 2; tt++) {
+            int r = part.size(), c = part[0].size();
+            for(int x = 1; x <= r; x++) {
+                for(int y = 1; y * x <= r * c; y++) {
+                    for(int pc = 0; pc < y; pc++) {
+
+                        vector<string> pattern(x, string(y, '.'));
+                        int ok = 1;
+
+                        for(int i = 0; i < r; i++) {
+                            for(int j = 0; j < c; j++) {
+                                int row = i % x;
+                                int offset_cnt = i / x;
+                                int undo_offset = (j - offset_cnt * pc + y * r * c) % y;
+                                if(pattern[row][undo_offset] == '.') pattern[row][undo_offset] = part[i][j];
+                                if(pattern[row][undo_offset] != part[i][j]) {
+                                    ok = 0;
+                                }
+                            }
+                        }
+
+                        if(ok) {
+                            res = min(res, x * y);
+                        }
+
                     }
                 }
             }
-            if(ok) {
-                sr = i;
-                break;
-            }
-        }
 
-        for(int i = 1; i <= c; i++) {
-            int ok = 1;
-            for(int j = 0; j < r; j++) {
-                for(int k = 0; k < c; k++) {
-                    if(part[j][k] != part[j][(k+i)%c]) {
-                        ok = 0;
-                    }
+            vector<string> part_transpose(c, string(r,'-'));
+            for(int i = 0; i < r; i++) {
+                for(int j = 0; j < c; j++) {
+                    part_transpose[j][i] = part[i][j];
                 }
             }
-            if(ok) {
-                sc = i;
-                break;
-            }
-        }
-        // cout << "sr : " << sr << " sc : " << sc << '\n';
 
-        int mul = 10;
-        for(int i = 0; i < r * mul; i++) {
-            for(int j = 0; j < mul; j++) {
-                cout << part[i%r];
-            }
-            cout << '\n';
         }
 
-        return sr * sc / gcd(sr,sc);
+        return res;
+
     }
 };
 // SOLUTION_END

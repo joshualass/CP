@@ -12,6 +12,9 @@ int main() {
     for(int l = 1; l * l * l <= 400000; l++) {
         for(int r = l; l * l * l + r * r * r <= 400000; r++) {
             ary[l * l * l + r * r * r]++;
+            if(l * l * l + r * r * r == 1729) {
+                cout << "l : " << l << " r : " << r << '\n';
+            }
         }
     }
     int num = 0;
