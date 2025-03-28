@@ -3,22 +3,6 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-/*
-
-
-
-*/
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const vector<T> v) {
-    // for(auto x : v) os << (x < 10 ? " " : "") << x << " ";
-    // os << v.size() << ' ';
-    // for(int i = 0; i < v.size(); i++) if(i == 0 || v[i] != v[i-1]) os << i << ", s : " << v[i] << " ";
-    for(int i = 0; i < v.size(); i++) if(__builtin_popcount(i) <= 1) os << "i : " << i << ", s : " << v[i] << " ";
-    // os << v.size() 
-    return os;
-}
-
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -121,7 +105,7 @@ struct Mint {
     }
 };
 
-constexpr int P = 998244353;
+constexpr int P = 1e9 + 7;
 using Z = Mint<P>;
 // using Z = double;
 const int MAXN = 1e6 + 1;
@@ -148,101 +132,26 @@ void init_fact(int n = MAXN) {
 init_fact()
 */
 
-int get_cnt(int x, int y) {
-
-    if(y > x) return 0;
-
-    int b = 31 - __builtin_clz(y);
-    int left = x - y;
-    int res = 0;
-    int free = x >> (b + 1);
-    res += free << b;
-
-    if(x & y) {
-        res += 1 + (((1 << b) - 1) & left);
-    }
-    return res;
-}
-
 void solve() {
-    
-    int n, m, a, b; cin >> n >> m >> a >> b;
+    int n; cin >> n;
+    string s; cin >> s;
+    array<Z,2> dp = {1, 0};
 
-    Z res = 1LL * (a + 1) * (b + 1); //1, 1
-    //a - 1, b - 2
-    res += Z(a + 1) * Z(1LL * b * (b + 1) / 2) * Z(power<Z>(2, m) - 2);
-    //a - 2, b - 1
-    res += Z(1LL * a * (a + 1) / 2) * Z(b + 1) * Z(power<Z>(2, n) - 2);
-    //a - 2, b - 2
-    // res += Z(min(a,b) * (min(a,b) + 1) / 2) * (power<Z>(2, n) - 2) * (power<Z>(2, m) - 2);
-
-    Z combo = 0;
-
-    for(int i = 0; i < 29; i++) {
-        Z a_ways = get_cnt(a, 1 << i);
-        Z b_ways = get_cnt(b, 1 << i);
-        Z add = a_ways * b_ways * (power<Z>(2, n) - 2) * (power<Z>(2, m) - 2) * (1 << i);
-        // cout << "i : " << i << " add : " << add << '\n';
-        combo += add;
+    for(int i = n - 1; i > 0; i--) {
+        array<Z,2> ndp = {-1,-1};
+        if(s[i] == '0') {
+            ndp = {dp[0] + dp[1] / 2, dp[1] / 2};
+        } else {
+            ndp = {dp[0] / 2, dp[0] / 2 + dp[1]};
+        }
+        dp = ndp;
     }
-
-    // cout << "combo : " << combo << '\n';
-
-    res += combo;
-
-    cout << res << '\n';
-
+    cout << dp[0] * (n - 1) + dp[1] * n << '\n';
 }
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-
-    // int res = 0;
-    // vector<vector<int>> a(2, vector<int>(2));
-    // for(int i = 0; i < 3; i++) {
-    //     for(int j = 0; j < 3; j++) {
-    //         for(int k = 0; k < 3; k++) {
-    //             for(int l = 0; l < 3; l++) {
-    //                 set<int> s = {i ^ k, i ^ l, j ^ k, j ^ l};
-    //                 if(s.size() <= 2) {
-    //                     res++;
-    //                     set<int> b = {i,j}, c = {k,l};
-    //                     a[b.size() - 1][c.size() - 1]++;    
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-
-    // cout << res << '\n';
-
-    // for(int i = 0; i < 2; i++) {
-    //     for(int j = 0; j < 2; j++) {
-    //         cout << a[i][j] << " \n"[j == 1];
-    //     }
-    // }
-
-    // for(int A = 1; A <= 16; A++) {
-    //     vector<int> a(1 << (32 - __builtin_  clz(A)));
-    //     for(int i = 0; i <= A; i++) {
-    //         vector<int> t(1 << (32 - __builtin_clz(A)));
-    //         for(int j = 0; j <= A; j++) {
-    //             // t[i^j]++;
-    //             a[i^j]++;
-    //         }
-    //         // cout << "A : " << bitset<8>(A) << " poss : " << 
-    //     }
-    //     // cout << "A + 1 : " << bitset<8>(A + 1) << " vec : " << a << '\n';
-    //     // cout << "A : " << A << " vec : " << a << '\n';
-    //     // cout << "ans : " << a[256] << '\n';
-    //     cout << "A : " << A << '\n';
-    //     for(int i = 1; i <= A; i++) {
-    //         if(__builtin_popcount(i) == 1) {
-    //             cout << "i : " << i << " a[i] : " << a[i] << " get_cnt(A, i) : " << get_cnt(A, i) << '\n';
-    //         }
-    //     }
-    // }
 
     int casi; cin >> casi;
     while(casi-->0) solve();

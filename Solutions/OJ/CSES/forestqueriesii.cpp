@@ -1,124 +1,257 @@
-#pragma GCC optimize("Ofast,fast-math,unroll-loops,no-stack-protector") 
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,avx,mmx,avx2,fma,tune=native") 
-
-
-
 #include <bits/stdc++.h>
 typedef long long ll;
 typedef long double ld;
 using namespace std;
-const ll MOD = 1e9 + 7;
 
-static constexpr int base = 0;
-int a[5000][5000];
-int sz = 1 << 10;
-int n;
-
-int comb(int a, int b) {
-    return a + b;
-}
-
-void update(int x, int y, int val) {
-    assert(x < n && x >= 0 && y < n && y >= 0);
-    int cx = x + sz;
-    int cy = y + sz;
-    a[cx][cy] = val;
-    bool parity = 1;
-    //maintain cx >
-    while(cx != 1) {
-        if(parity == 0) {
-            cx /= 2;
-            a[cx][cy] = comb(a[cx * 2][cy], a[cx * 2 + 1][cy]);
-        } else {
-            cy /= 2;
-            a[cx][cy] = comb(a[cx][cy * 2], a[cx][cy * 2 + 1]);
+template<typename T>
+struct Tree {
+    static constexpr T base = 0;
+    vector<T> v;
+    int n, size;
+    T comb(T a, T b) { //change this when doing maximum vs minimum etc.
+        return a + b;
+    }
+    Tree(int n = 0, T def = base) {
+        this->n = n; //max number of elements
+        size = 1;
+        while(size < n) size *= 2;
+        v.assign(size * 2, def);
+    }
+    void update(int pos, T val) { //update 0 indexed, assignment
+        assert(pos < n && pos >= 0);
+        int curr = pos + size;
+        v[curr] += val;
+        while(curr != 1) {
+            if(curr & 1) { //handles non-communative operations
+                v[curr / 2] = comb(v[curr ^ 1], v[curr]);
+            } else {
+                v[curr / 2] = comb(v[curr], v[curr ^ 1]);
+            }
+            curr /= 2;
         }
-        parity ^= 1;
     }
-}
-
-bool isLeaf(int x, int y) {
-    return x >= sz || y >= sz;
-}
-
-int at(int x, int y) {
-    assert(x >= 0 && x < n && y >= 0 && y < n);
-    return a[x + sz][y + sz];
-}
-
-int _query(int xid, int yid, int clx, int cly, int crx, int cry, int tlx, int tly, int trx, int tryy, bool parity) {
-    // cout << "x [l,r) [" << clx << "," << crx << ")\n";
-    // cout << "y [l,r) [" << cly << "," << cry << ")\n";
-    //check complete overlap
-    if(clx >= tlx && crx <= trx && cly >= tly && cry <= tryy) return a[xid][yid];
-    //check if 0 overlap
-    if(clx >= trx || crx <= tlx || cly >= tryy || cry <= tly) {
-        // cout << "no overlap returning\n";
-        return base;
+    T at(int idx) {
+        assert(idx >= 0 && idx < n);
+        return v[idx + size];
     }
-    if(parity == 0) {
-        int mx = (clx + crx) / 2;
+    T query(int l, int r) {//queries in range [l,r)
+        return _query(1,0,size,l,r);
+    }
+    T _query(int idx, int currl, int currr, int &targetl, int &targetr) {
+        if(currr <= targetl || currl >= targetr) return base;
+        if(currl >= targetl && currr <= targetr) return v[idx];
+        int mid = (currl + currr) / 2;
         return comb(
-            _query(xid * 2, yid, clx, cly, mx, cry, tlx, tly, trx, tryy, parity ^ 1),
-            _query(xid * 2 + 1, yid, mx, cly, crx, cry, tlx, tly, trx, tryy, parity ^ 1)
-        );
-    } else {
-        int my = (cly + cry) / 2;
-        return comb(
-            _query(xid, yid * 2, clx, cly, crx, my, tlx, tly, trx, tryy, parity ^ 1),
-            _query(xid, yid * 2 + 1, clx, my, crx, cry, tlx, tly, trx, tryy, parity ^ 1)
+            _query(idx * 2, currl, mid, targetl, targetr),
+            _query(idx * 2 + 1, mid, currr, targetl, targetr)
         );
     }
-}
- 
-int query(int lx, int ly, int rx, int ry) {
-    return _query(1, 1, 0, 0, sz, sz, lx, ly, rx, ry,0);
-}
+};
+
+template<typename T>
+struct Tree2D {
+    static constexpr T base = 0;
+    vector<Tree<T>> v;
+    int n, m, size;
+    T comb(T a, T b) { //change this when doing maximum vs minimum etc.
+        return a + b;
+    }
+    Tree2D(int n = 0, int m = 0, T def = base) {
+        this->n = n; //max number of elements
+        this->m = m;
+        size = 1;
+        while(size < n) size *= 2;
+        v.assign(size * 2, Tree<T>(m, def));
+    }
+    void update(int x, int y, T val) { //update 0 indexed, assignment
+        assert(x < n && x >= 0 && y >= 0 && y < m);
+        int curr = x + size;
+        while(curr != 1) {
+            v[curr].update(y, val);
+            curr /= 2;
+        }
+        v[curr].update(y, val);
+    }
+    T query(int l1, int r1, int l2, int r2) {//queries in range [l,r)
+        return _query(1,0,size,l1, r1, l2, r2);
+    }
+    T _query(int idx, int cl1, int cr1, int l1, int r1, int l2, int r2) {
+        // cout << "idx : " << idx << " cl1 : " << cl1 << " cr1 : " << cr1 << " l1 : " << l1 << " r1 : " << r1 << " l2 : " << l2 << " r2 : " << r2 << endl;
+        if(cr1 <= l1 || cl1 >= r1) return base;
+        if(cl1 >= l1 && cr1 <= r1) {
+            // cout << "add query 2 val : " << v[idx].query(l2, r2);    
+            
+            return v[idx].query(l2, r2);
+        }
+        int mid = (cl1 + cr1) / 2;
+        return comb (
+            _query(idx * 2, cl1, mid, l1, r1, l2, r2),
+            _query(idx * 2 + 1, mid, cr1, l1, r1, l2, r2)
+        );
+    }
+};
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    memset(a,0,sizeof(a));
-
-    clock_t tStart = clock();
-    freopen("forestqueriesii.txt","r",stdin);
-    // freopen(".out","w",stdout);
-    
-    int q; cin >> n >> q;
- 
+    int n, q; cin >> n >> q;
+    Tree2D<int> tree(n, n);
+    vector<vector<int>> board(n, vector<int>(n));
     for(int i = 0; i < n; i++) {
         string s; cin >> s;
         for(int j = 0; j < n; j++) {
             if(s[j] == '*') {
-                update(i,j,1);
+                board[i][j] = 1;
+                tree.update(i, j, 1);
             }
         }
     }
 
-    // cout << query(0,0,n,n) << '\n';
-    // cout << query(0,0,2,2) << '\n';
- 
     for(int i = 0; i < q; i++) {
         int t; cin >> t;
         if(t == 1) {
             int x, y; cin >> x >> y;
             x--; y--;
-            // tree.update(x,y,tree.at(x,y) ^ 1);
-            update(x,y,at(x,y) ^ 1);
+            if(board[x][y]) {
+                tree.update(x, y, -1);
+            } else {
+                tree.update(x, y, 1);
+            }
+            board[x][y] ^= 1;
         } else {
-            int lx, ly, rx, ry; cin >> lx >> ly >> rx >> ry;
-            // cout << tree.query(lx-1,ly-1,rx,ry) << '\n';
-            // cout << query(lx-1,ly-1,rx,ry) << '\n';
-            // tree.query(lx-1,ly-1,rx,ry);
-            query(lx-1,ly-1,rx,ry);
+            int l1, l2, r1, r2; cin >> l1 >> l2 >> r1 >> r2;
+            l1--;
+            l2--;
+            cout << tree.query(l1, r1, l2, r2) << '\n';
         }
     }
 
-    printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
- 
     return 0;
 }
+
+
+// #pragma GCC optimize("Ofast,fast-math,unroll-loops,no-stack-protector") 
+// #pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,avx,mmx,avx2,fma,tune=native") 
+
+
+
+// #include <bits/stdc++.h>
+// typedef long long ll;
+// typedef long double ld;
+// using namespace std;
+// const ll MOD = 1e9 + 7;
+
+// static constexpr int base = 0;
+// int a[5000][5000];
+// int sz = 1 << 10;
+// int n;
+
+// int comb(int a, int b) {
+//     return a + b;
+// }
+
+// void update(int x, int y, int val) {
+//     assert(x < n && x >= 0 && y < n && y >= 0);
+//     int cx = x + sz;
+//     int cy = y + sz;
+//     a[cx][cy] = val;
+//     bool parity = 1;
+//     //maintain cx >
+//     while(cx != 1) {
+//         if(parity == 0) {
+//             cx /= 2;
+//             a[cx][cy] = comb(a[cx * 2][cy], a[cx * 2 + 1][cy]);
+//         } else {
+//             cy /= 2;
+//             a[cx][cy] = comb(a[cx][cy * 2], a[cx][cy * 2 + 1]);
+//         }
+//         parity ^= 1;
+//     }
+// }
+
+// bool isLeaf(int x, int y) {
+//     return x >= sz || y >= sz;
+// }
+
+// int at(int x, int y) {
+//     assert(x >= 0 && x < n && y >= 0 && y < n);
+//     return a[x + sz][y + sz];
+// }
+
+// int _query(int xid, int yid, int clx, int cly, int crx, int cry, int tlx, int tly, int trx, int tryy, bool parity) {
+//     // cout << "x [l,r) [" << clx << "," << crx << ")\n";
+//     // cout << "y [l,r) [" << cly << "," << cry << ")\n";
+//     //check complete overlap
+//     if(clx >= tlx && crx <= trx && cly >= tly && cry <= tryy) return a[xid][yid];
+//     //check if 0 overlap
+//     if(clx >= trx || crx <= tlx || cly >= tryy || cry <= tly) {
+//         // cout << "no overlap returning\n";
+//         return base;
+//     }
+//     if(parity == 0) {
+//         int mx = (clx + crx) / 2;
+//         return comb(
+//             _query(xid * 2, yid, clx, cly, mx, cry, tlx, tly, trx, tryy, parity ^ 1),
+//             _query(xid * 2 + 1, yid, mx, cly, crx, cry, tlx, tly, trx, tryy, parity ^ 1)
+//         );
+//     } else {
+//         int my = (cly + cry) / 2;
+//         return comb(
+//             _query(xid, yid * 2, clx, cly, crx, my, tlx, tly, trx, tryy, parity ^ 1),
+//             _query(xid, yid * 2 + 1, clx, my, crx, cry, tlx, tly, trx, tryy, parity ^ 1)
+//         );
+//     }
+// }
+ 
+// int query(int lx, int ly, int rx, int ry) {
+//     return _query(1, 1, 0, 0, sz, sz, lx, ly, rx, ry,0);
+// }
+
+// signed main() {
+//     ios_base::sync_with_stdio(false);
+//     cin.tie(NULL);
+
+//     memset(a,0,sizeof(a));
+
+//     clock_t tStart = clock();
+//     freopen("forestqueriesii.txt","r",stdin);
+//     // freopen(".out","w",stdout);
+    
+//     int q; cin >> n >> q;
+ 
+//     for(int i = 0; i < n; i++) {
+//         string s; cin >> s;
+//         for(int j = 0; j < n; j++) {
+//             if(s[j] == '*') {
+//                 update(i,j,1);
+//             }
+//         }
+//     }
+
+//     // cout << query(0,0,n,n) << '\n';
+//     // cout << query(0,0,2,2) << '\n';
+ 
+//     for(int i = 0; i < q; i++) {
+//         int t; cin >> t;
+//         if(t == 1) {
+//             int x, y; cin >> x >> y;
+//             x--; y--;
+//             // tree.update(x,y,tree.at(x,y) ^ 1);
+//             update(x,y,at(x,y) ^ 1);
+//         } else {
+//             int lx, ly, rx, ry; cin >> lx >> ly >> rx >> ry;
+//             // cout << tree.query(lx-1,ly-1,rx,ry) << '\n';
+//             // cout << query(lx-1,ly-1,rx,ry) << '\n';
+//             // tree.query(lx-1,ly-1,rx,ry);
+//             query(lx-1,ly-1,rx,ry);
+//         }
+//     }
+
+//     printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
+ 
+//     return 0;
+// }
  
 // #include <bits/stdc++.h>
 // typedef long long ll;

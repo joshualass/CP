@@ -3,9 +3,28 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+template <typename T, std::size_t N>
+std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
+    os << "[";
+    for (std::size_t i = 0; i < N; ++i) {
+        os << arr[i];
+        if (i < N - 1) {
+            os << ", ";
+        }
+    }
+    os << "]";
+    return os;
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+
 template<typename T, typename D>
 struct Lazy {
-    static constexpr T qn = 0; // query neutral, when we query, doing the operation with this value won't change our query
+    static constexpr T qn = -5; // query neutral, when we query, doing the operation with this value won't change our query
     static constexpr D ln = 0; //lazy neutral, applying this value to its node will not change its value
     vector<T> v;      //stores values at each index we are querying for
     vector<D> lazy;   //stores lazy update values
@@ -20,7 +39,7 @@ struct Lazy {
     }
     bool isLeaf(int node) {return node >= size;}
     T query_comb(T val1, T val2) {//update this depending on query type
-        return val1 + val2;
+        return max(val1, val2);
     }
     //how we combine lazy updates to lazy
     void lazy_comb(int node, D val) {//update this depending on update type. how do we merge the lazy changes?
@@ -107,7 +126,81 @@ void solve() {
 
     reverse(r.begin(), r.end());
 
-    
+    // cout << "l : " << l << '\n';
+    // cout << "r : " << r << '\n';
+
+    vector<int> in(n);
+    Lazy<int,int> lazy(p, 0);
+
+    auto upd = [&](int i, int u) -> void {
+
+        int v = a[i];
+
+        int lo = 0, hi = r.size();
+        while(lo != hi) {
+            int mid = (lo + hi) / 2;
+            if(r[mid][0] > i) {
+                hi = mid;
+            } else {
+                lo = mid + 1;
+            }
+        }
+
+        int left_range = v + 1;
+        int right_range = (lo == r.size() ? v + 1 : r[lo][1] + 1);
+
+        // cout << "i : " << i << " u : " << u << " " << " left range : " << left_range << " right range : " << right_range << '\n';
+
+        lazy.update(left_range, right_range, u);
+
+    };
+
+    int res = 1;
+
+    int pv = p - 1, pi = 0;
+    for(auto [i, v] : l) {
+        // cout << "i : " << i << " v : " << v << '\n';
+        for(int j = pi; j < i; j++) {
+            if(in[j]) {
+                in[j] = 0;
+                upd(j, -1);
+                // cout << "remove index i : " << j << '\n';
+            }
+        }    
+
+        for(int j = pv; j > v; j--) {
+            for(int x : b[j]) {
+                if(x > i) {
+                    if(in[x] == 0) {
+                        in[x] = 1;
+                        upd(x, 1);
+                        // cout << "add index i : " << x << '\n';
+                    }
+                }
+            }
+        }
+
+        int lo = 0, hi = r.size();
+        while(lo != hi) {
+            int mid = (lo + hi) / 2;
+            if(r[mid][0] > i) {
+                hi = mid;
+            } else {
+                lo = mid + 1;
+            }
+        }
+
+        int qv = 2 + lazy.query(v + 1, (lo == r.size() ? 0 : r[lo][1] + 1));
+
+        // cout << "qv : " << qv << '\n';
+
+        res = max(res, qv);
+
+        pv = v;
+        pi = i;
+    }
+
+    cout << res << '\n';
 
 }
 
