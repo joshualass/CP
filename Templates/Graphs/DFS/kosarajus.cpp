@@ -26,6 +26,7 @@ vector<vector<int>> kosarajus(vector<vector<int>> &adj) {
             tp[x].push_back(i);
         }
     }
+    
     vector<int> order(n);
     vector<int> vis(n);
     for(int i = 0; i < n; i++) {

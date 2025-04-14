@@ -111,6 +111,7 @@ void solve() {
             c[x] = i;
         }
     }
+    
     vector<int> idg(sccs.size());
     vector<int> odg(sccs.size());
     for(int i = 0; i < n; i++) {

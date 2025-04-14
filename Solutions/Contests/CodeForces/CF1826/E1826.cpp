@@ -4,7 +4,8 @@ typedef long double ld;
 using namespace std;
 const ll MOD = 1e9 + 7;
 
-//so far, best solution is n^2 m / 64 with bitset optimization
+// i have no idea how to do better than m * n^2 / 64
+
 
 signed main() {
     ios_base::sync_with_stdio(false);
@@ -12,8 +13,7 @@ signed main() {
     
     int m, n; cin >> m >> n;
 
-
-
+    
 
     return 0;
 }

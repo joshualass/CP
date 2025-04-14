@@ -7,20 +7,17 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    string s = "garlic";
-
-    vector<int> perm(6);
-    iota(perm.begin(), perm.end(), 0);
-    set<string> words;
-    for(int i = 0; i < 720; i++) {
-        string t = "";
-        for(int j = 0; j < 5; j++) {
-            t.push_back(s[perm[j]]);
+    ld l = 0, r = 5;
+    while(r - l > 1e-9) {
+        ld m0 = l + (r - l) / 3, m1 = l + (r - l) * 2 / 3;
+        if(powl(m0,5-m0) > powl(m1,5-m1)) {
+            r = m1;
+        } else {
+            l = m0;
         }
-        words.insert(t);
-        next_permutation(perm.begin(), perm.end());
     }
-    for(auto t : words) cout << t << '\n';
+
+    cout << fixed << setprecision(10) << "l : " << l << " pow : " << 5 - l << '\n';
 
     return 0;
 }

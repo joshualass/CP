@@ -1,63 +1,3 @@
-// #include <bits/stdc++.h>
-// typedef long long ll;
-// typedef long double ld;
-// using namespace std;
-// const ll MOD = 1e9 + 7;
-
-// signed main() {
-//     ios_base::sync_with_stdio(false);
-//     cin.tie(NULL);
-    
-//     int n; cin >> n;
-//     map<pair<int,int>, pair<int,int>> m;
-//     vector<array<int,3>> f(n);
-//     vector<array<int,3>> s(n);
-//     for(int i = 0; i < n; i++) {
-//         int l, r; cin >> l >> r;
-//         f[i] = {l,r,i};
-//         s[i] = {r,l,i};
-//     }
-//     sort(f.begin(), f.end());
-//     sort(s.begin(), s.end());
-
-//     vector<bool> within(n);
-//     vector<bool> contains(n);
-//     int sidx = 0;
-//     int sidx2 = 0;
-//     for(auto a : f) {
-//         while(sidx != n && (s[sidx][1] < a[0] || s[sidx][2] == a[2])) sidx++;
-//         sidx2 = max(sidx2, sidx);
-//         if(sidx != n && a[1] >= s[sidx][0]) {
-//             contains[a[2]] = 1;
-//             within[s[sidx][2]] = 1;
-//             if(a[0] == s[sidx][1] && a[1] == s[sidx][0]) {
-//                 within[a[2]] = 1;
-//                 contains[s[sidx][2]] = 1; 
-//             }
-//         }
-//         while(sidx2 != n && a[1] >= s[sidx2][0]) {
-//             // cout << "i : " << s[sidx2][2] << " is within : " << a[2] << '\n';
-//             if(a[2] != s[sidx2][2]) {
-//                 within[s[sidx2][2]] = 1;
-//                 if(a[0] == s[sidx][1] & a[1] == s[sidx][0]) {
-//                     within[a[2]] = 1;
-//                     contains[s[sidx2][2]] = 1;
-//                 }
-//             }
-//             sidx2++;
-//         }
-//     }
-
-//     for(int i = 0; i < n; i++) {
-//         cout << contains[i] << " \n"[i == n - 1];
-//     }
-//     for(int i = 0; i < n; i++) {
-//         cout << within[i] << " \n"[i == n - 1];
-//     }
-
-//     return 0;
-// }
-
 #pragma GCC optimize("Ofast,fast-math,unroll-loops,no-stack-protector") 
 #pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,avx,mmx,avx2,fma,tune=native") 
 
@@ -200,12 +140,12 @@ int main() {
 
     for(int i = 0; i < n; i++) {
         pair<int,int> p = {ids[ranges[i].first], ids[ranges[i].second]};
-        cout << (bool) (resc[1000000001LL * p.first + p.second] - 1) << " \n"[i == n - 1];
+        cout << ((bool) resc[1000000001LL * p.first + p.second] - 1)  << " \n"[i == n - 1];
     }
 
     for(int i = 0; i < n; i++) {
         pair<int,int> p = {ids[ranges[i].first], ids[ranges[i].second]};
-        cout << (bool) (resw[1000000001LL * p.first + p.second] - 1) << " \n"[i == n - 1];
+        cout << ((bool) resw[1000000001LL * p.first + p.second] - 1) << " \n"[i == n - 1];
     }
 
     return 0;
