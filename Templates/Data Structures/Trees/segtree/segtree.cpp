@@ -3,7 +3,7 @@ struct Tree {
     static constexpr T base = 0;
     vector<T> v;
     int n, size;
-    T comb(T a, T b) { //change this when doing maximum vs minimum etc.
+    T f(T a, T b) { //change this when doing maximum vs minimum etc.
         return a + b;
     }
     Tree(int n = 0, T def = base) {
@@ -18,9 +18,9 @@ struct Tree {
         v[curr] = val;
         while(curr != 1) {
             if(curr & 1) { //handles non-communative operations
-                v[curr / 2] = comb(v[curr ^ 1], v[curr]);
+                v[curr / 2] = f(v[curr ^ 1], v[curr]);
             } else {
-                v[curr / 2] = comb(v[curr], v[curr ^ 1]);
+                v[curr / 2] = f(v[curr], v[curr ^ 1]);
             }
             curr /= 2;
         }
@@ -36,7 +36,7 @@ struct Tree {
         if(currr <= targetl || currl >= targetr) return base;
         if(currl >= targetl && currr <= targetr) return v[idx];
         int mid = (currl + currr) / 2;
-        return comb(
+        return f(
             _query(idx * 2, currl, mid, targetl, targetr),
             _query(idx * 2 + 1, mid, currr, targetl, targetr)
         );

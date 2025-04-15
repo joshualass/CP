@@ -5,6 +5,12 @@ using namespace std;
 const ll MOD = 1e9 + 7;
 //Once you know about the xor basis technique, you can find several ways to solve this problem
 
+/*
+we see that a node's children will not have a smaller basis
+we see that we can insert elements into a basis a single time
+we can handle the queries offline, and add things to each basis as needed. 
+*/
+
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const vector<T> v) {
     for(auto x : v) os << x << " ";

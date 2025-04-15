@@ -72,13 +72,32 @@ void solve() {
 
     int n, q; cin >> n >> q;
     map<int,set<int>> m;
+    vector<int> a(n);
+    
     for(int i = 0; i < n; i++) {
-        int x; cin >> x;
-        m[x].insert(i);
+        cin >> a[i];
+        m[a[i]].insert(i);
     }
 
     for(int i = 0; i < q; i++) {
-        
+        int k, l, r; cin >> k >> l >> r;
+        l--;
+        ll res = 0;
+        int c = l;
+        while(c < r) {
+            int nr = r;
+            vector<int> f;
+            find_divisors(k, f);
+            for(int d : f) {
+                if(m[d].lower_bound(c) != m[d].end()) {
+                    nr = min(nr, *m[d].lower_bound(c));
+                }
+            }
+            res += 1LL * (nr - c) * k;
+            while(nr < n && k % a[nr] == 0) k /= a[nr];
+            c = nr;
+        }
+        cout << res << '\n';
     }
     
 }

@@ -7,16 +7,9 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n; cin >> n;
-
-    //still the same k, 
-    for(int k = 1; k <= n / 2; k++) {
-        int ok = true;
-        for(int j = k - 1; j < n; j += k) {
-            //check to make sure this element is strictly larger than the previous element 
-            
-        }
-    }
+    ll sum = 0;
+    for(int i = 1; i <= 1e9; i++) sum += i;
+    cout << sum << '\n';
 
     return 0;
 }
