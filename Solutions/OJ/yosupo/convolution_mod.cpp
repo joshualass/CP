@@ -3,170 +3,55 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-template<class T>
-constexpr T power(T a, ll b) {
-    T res = 1;
-    for (; b; b /= 2, a *= a) {
-        if (b % 2) {
-            res *= a;
-        }
+void fft(vector<complex<double>>& a) {
+    int n = a.size(), L = 31 - __builtin_clz(n);
+    static vector<complex<long double>> R(2, 1);
+    static vector<complex<double>> rt(2, 1);  // (^ 10% faster if double)
+    for (static int k = 2; k < n; k *= 2) {
+        R.resize(n);
+        rt.resize(n);
+        auto x = polar(1.0L, acos(-1.0L) / k);
+        for (int i = k; i < 2 * k; i++) 
+            rt[i] = R[i] = i & 1 ? R[i / 2] * x : R[i / 2];
+    }
+    vector<int> rev(n);
+    for (int i = 0; i < n; i++) 
+        rev[i] = (rev[i / 2] | (i & 1) << L) / 2;
+    for (int i = 0; i < n; i++) 
+        if (i < rev[i]) swap(a[i], a[rev[i]]);
+    for (int k = 1; k < n; k *= 2) 
+        for (int i = 0; i < n; i += 2 * k) 
+            for (int j = 0; j < k; j++) {
+                // complex<double> z = rt[j + k] * a[i + j + k]; // (25% faster if hand-rolled)  /// include-line
+                auto x = (double*)&rt[j + k], y = (double*)&a[i + j + k];  /// exclude-line
+                complex<double> z(x[0] * y[0] - x[1] * y[1], x[0] * y[1] + x[1] * y[0]);  /// exclude-line
+                a[i + j + k] = a[i + j] - z;
+                a[i + j] += z;
+            }
+}
+
+template<int M> vector<ll> convMod(const vector<ll> &a, const vector<ll> &b) {
+    if (a.empty() || b.empty()) return {};
+    vector<ll> res(a.size() + b.size() - 1);
+    int B = 32 - __builtin_clz(res.size()), n = 1 << B, cut = int(sqrt(M));
+    vector<complex<double>> L(n), R(n), outs(n), outl(n);
+    for (int i = 0; i < a.size(); i++) 
+        L[i] = complex<double>((int)a[i] / cut, (int)a[i] % cut);
+    for (int i = 0; i < b.size(); i++) 
+        R[i] = complex<double>((int)b[i] / cut, (int)b[i] % cut);
+    fft(L), fft(R);
+    for (int i = 0; i < n; i++) {
+        int j = -i & (n - 1);
+        outl[j] = (L[i] + conj(L[j])) * R[i] / (2.0 * n);
+        outs[j] = (L[i] - conj(L[j])) * R[i] / (2.0 * n) / 1i;
+    }
+    fft(outl), fft(outs);
+    for (int i = 0; i < res.size(); i++) {
+        ll av = ll(real(outl[i]) + .5), cv = ll(imag(outs[i]) + .5);
+        ll bv = ll(imag(outl[i]) + .5) + ll(real(outs[i]) + .5);
+        res[i] = ((av % M * cut + bv) % M * cut + cv) % M;
     }
     return res;
-}
-
-//Modular Division currently uses Little Fermat's Theorem, so won't work for nonprime p. 
-template<int P>
-struct Mint {
-    int x;
-    constexpr Mint(): x{} {}
-    constexpr Mint(ll x): x{norm(x % getMod())} {}
-
-    static int Mod;
-    constexpr static int getMod() {
-        if(P > 0) {
-            return P;
-        } else {
-            return Mod;
-        }
-    }
-    constexpr static void setMod(int Mod_) {
-        Mod = Mod_;
-    }
-    constexpr int norm(int x) const {
-        if(x < 0) {
-            x += getMod();
-        }
-        if(x >= getMod()) { //not sure why this is needed
-            x -= getMod();
-        }
-        return x;
-    }
-    constexpr int val() const {
-        return x;
-    }
-    constexpr Mint operator-() const {
-        Mint res;
-        res.x = norm(getMod() - x);
-        return res;
-    }
-    constexpr Mint inv() const {
-        assert(x != 0);
-        return power(*this, getMod() - 2);
-    }
-    constexpr Mint &operator*=(Mint rhs) & {
-        x = 1LL * x * rhs.x % getMod();
-        return *this;
-    }
-    constexpr Mint &operator+=(Mint rhs) & {
-        x = norm(x + rhs.x);
-        return *this;
-    }
-    constexpr Mint &operator-=(Mint rhs) & {
-        x = norm(x - rhs.x);
-        return *this;
-    }
-    constexpr Mint &operator/=(Mint rhs) & {
-        return *this *= rhs.inv();
-    }
-    friend constexpr Mint operator*(Mint lhs, Mint rhs) {
-        Mint res = lhs;
-        res *= rhs;
-        return res;
-    }
-    friend constexpr Mint operator+(Mint lhs, Mint rhs) {
-        Mint res = lhs;
-        res += rhs;
-        return res;
-    }
-    friend constexpr Mint operator-(Mint lhs, Mint rhs) {
-        Mint res = lhs;
-        res -= rhs;
-        return res;
-    }
-    friend constexpr Mint operator/(Mint lhs, Mint rhs) {
-        Mint res = lhs;
-        res /= rhs;
-        return res;
-    }
-    friend constexpr std::istream &operator>>(std::istream &is, Mint &a) {
-        ll v;
-        is >> v;
-        a = Mint(v);
-        return is;
-    }
-    friend constexpr std::ostream &operator<<(std::ostream &os, const Mint &a) {
-        return os << a.val();
-    }
-    friend constexpr bool operator==(Mint lhs, Mint rhs) {
-        return lhs.val() == rhs.val();
-    }
-    friend constexpr bool operator!=(Mint lhs, Mint rhs) {
-        return lhs.val() != rhs.val();
-    }
-};
-
-constexpr int P = 998244353;
-using Z = Mint<P>;
-
-vector<Z> fact(1,1);
-vector<Z> inv_fact(1,1);
-
-Z choose(int n, int k) {
-    if(k < 0 || k > n) return 0;
-    while(fact.size() < n + 1) {
-        fact.push_back(fact.back() * fact.size());
-        inv_fact.push_back(1 / fact.back());
-    }
-    return fact[n] * inv_fact[k] * inv_fact[n-k];
-}
-
-using cd = complex<double>;
-const double PI = acos(-1);
-
-void fft(vector<cd> & a, bool invert) {
-    ll n = a.size();
-    if (n == 1)
-        return;
-
-    vector<cd> a0(n / 2), a1(n / 2);
-    for (ll i = 0; 2 * i < n; i++) {
-        a0[i] = a[2*i];
-        a1[i] = a[2*i+1];
-    }
-    fft(a0, invert);
-    fft(a1, invert);
-
-    double ang = 2 * PI / n * (invert ? -1 : 1);
-    cd w(1), wn(cos(ang), sin(ang));
-    for (ll i = 0; 2 * i < n; i++) {
-        a[i] = a0[i] + w * a1[i];
-        a[i + n/2] = a0[i] - w * a1[i];
-        if (invert) {
-            a[i] /= 2;
-            a[i + n/2] /= 2;
-        }
-        w *= wn;
-    }
-}
-
-vector<Z> multiply(vector<Z> const& a, vector<Z> const& b) {
-    vector<cd> fa(a.begin(), a.end()), fb(b.begin(), b.end());
-    ll n = 1;
-    while (n < a.size() + b.size()) 
-        n <<= 1;
-    fa.resize(n);
-    fb.resize(n);
-
-    fft(fa, false);
-    fft(fb, false);
-    for (ll i = 0; i < n; i++)
-        fa[i] *= fb[i];
-    fft(fa, true);
-
-    vector<ll> result(n);
-    for (ll i = 0; i < n; i++)
-        result[i] = round(fa[i].real());
-    return result;
 }
 
 signed main() {
@@ -174,14 +59,11 @@ signed main() {
     cin.tie(NULL);
 
     int n, m; cin >> n >> m;
-    vector<Z> a(n), b(m);
-    for(Z &x : a) cin >> x;
-    for(Z &x : b) cin >> x;
-    vector<Z> mul = multiply(a,b);
-
-    for(int i = 0; i < n + m - 1; i++) {
-        cout << mul[i] << " \n"[i == n + m - 2];
-    }
+    vector<ll> a(n), b(m);
+    for(ll &x : a) cin >> x;
+    for(ll &x : b) cin >> x;
+    vector<ll> res = convMod<1'000'000'007>(a, b);
+    for(int i = 0; i < n + m - 1; i++) cout << res[i] << " \n"[i == n + m - 2];
 
     return 0;
 }

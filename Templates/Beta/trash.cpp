@@ -7,9 +7,10 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    ll sum = 0;
-    for(int i = 1; i <= 1e9; i++) sum += i;
-    cout << sum << '\n';
+    cout << "35 35\n";
+    for(int i = 0; i < 35; i++) {
+        cout << (1LL << i) << " \n"[i == 34];
+    }
 
     return 0;
 }
