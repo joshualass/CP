@@ -3,6 +3,12 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+/*
+for a given tree state, if there exists a selection of nodes with 3+ moves, then there exists a node with a forced 1 move left. 
+
+given several sets, find the largest value of an element in a set such that there exists a larger value in another set. 
+*/
+
 void solve() {
     int n; cin >> n;
     vector<int> a(n);
@@ -14,6 +20,15 @@ void solve() {
         adj[u].push_back(v);
         adj[v].push_back(u);
     }
+
+    vector<int> b(n);
+
+
+    auto dfs0 = [&](auto self, int i, int p) -> void {
+
+
+
+    };
     
 }
 

@@ -65,3 +65,10 @@ struct Tree {
         }
     }
 };
+
+/*
+general find first logic
+just like a query, make sure there is some overlap
+then see if there is anything good in interval to keep pursuing
+if so, see if done if leaf else, try the greedy sides. 
+*/
