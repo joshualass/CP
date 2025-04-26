@@ -6,6 +6,11 @@ typedef pair<int, int> pii;
 typedef vector<int> vi;
 
 /*
+
+string problems are not for me
+
+asymptotic behavior of 
+
 3
 PNPK
 PNPKN
@@ -131,10 +136,6 @@ void insert(string s, vector<int> z) {
         }
     }
 
-    // for(int i = 0; i < s.size(); i++) {
-    //     res += 1LL * _tm[cur][i][(bad + 1) % 3] * _tm[cur][i][(bad + 2) % 3];
-    // }
-
     res += ttfang[cur];
 
 }
@@ -154,6 +155,10 @@ signed main() {
     for(int i = n - 1; i >= 0; i--) insert(a[i], Z(a[i]));
 
     cout << res << '\n';
+
+    // ld res = 0;
+    // for(int i = 1; i <= 60480; i++) res += 60480.0 / gcd(i, 60480);
+    // cout << res << '\n';
 
     return 0;
 }

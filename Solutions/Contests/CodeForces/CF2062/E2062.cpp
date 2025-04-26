@@ -7,6 +7,7 @@ using namespace std;
 for a given tree state, if there exists a selection of nodes with 3+ moves, then there exists a node with a forced 1 move left. 
 
 given several sets, find the largest value of an element in a set such that there exists a larger value in another set. 
+just do things 3 times for this special case. 
 */
 
 void solve() {
@@ -21,15 +22,15 @@ void solve() {
         adj[v].push_back(u);
     }
 
-    vector<int> b(n);
+    vector<int> sm(n); //stores largest value node, so that there is another move available 
 
-
-    auto dfs0 = [&](auto self, int i, int p) -> void {
+    auto dfsu = [&](auto self, int i, int p) -> void {
 
 
 
     };
-    
+
+
 }
 
 signed main() {
