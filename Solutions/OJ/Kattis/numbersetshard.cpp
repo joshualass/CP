@@ -94,6 +94,7 @@ void merge(int x, int y) {
     if(x == y) {
         return;
     }
+    
     if(sizes[x] == sizes[y]) {
         dsu[y] = x;
         sizes[x] += sizes[y];
