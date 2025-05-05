@@ -486,13 +486,6 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    // int n = 3000, d = 2;
-    // vector pts = gen_rand_pts(n, d, 10);
-
-    // auto res = test(pts);
-    // for(int i = 0; i < res.size(); i++) {
-    //     cout << "i : " << i << " res[i] : " << res[i] << '\n';
-    // }
 
     //FIRST TEST
     /*
@@ -528,60 +521,66 @@ signed main() {
         cout << "BNNG Prim : " << res[4] << '\n';
     }
 
+    //debugging
+    /*
+    int n = 3000, d = 2;
+    vector pts = gen_rand_pts(n, d, 10);
 
-    // cout << "res : " << res << '\n';
-    // vector<vector<double>> pts = {
-    //     {0.156284,8.23871},
-    //     {7.82192,1.92364},
-    //     {0.987821,1.6248},
-    //     {3.76146,3.72461},
-    //     {6.75499,0.976975},
-    //     {9.4827,6.06199},
-    //     {9.90717,6.11535},
-    //     {6.51607,7.47325},
-    //     {8.0892,8.20846},
-    //     {8.12619,8.37216}
-    // };
+    auto res = test(pts);
+    for(int i = 0; i < res.size(); i++) {
+        cout << "i : " << i << " res[i] : " << res[i] << '\n';
+    }
 
-    // auto part = bi_means(pts);
-    // cout << "pts : " << pts << '\n';
-    // cout << "pnice\n";
-    // pnice(pts, part);
+    cout << "res : " << res << '\n';
+    vector<vector<double>> pts = {
+        {0.156284,8.23871},
+        {7.82192,1.92364},
+        {0.987821,1.6248},
+        {3.76146,3.72461},
+        {6.75499,0.976975},
+        {9.4827,6.06199},
+        {9.90717,6.11535},
+        {6.51607,7.47325},
+        {8.0892,8.20846},
+        {8.12619,8.37216}
+    };
 
-    // auto [res_bnng_kruskal, mst_bnng_kruskal] = BNNG_Kruskal(pts);
-    // cout << "res_bnng_kruskal : " << res_bnng_kruskal << '\n';
-    // cout << "kruskal mst\n";
-    // print_mst(pts, res_bnng_kruskal, mst_bnng_kruskal, n, d);
+    auto part = bi_means(pts);
+    cout << "pts : " << pts << '\n';
+    cout << "pnice\n";
+    pnice(pts, part);
 
-    // auto [res_bnng_prim, mst_bnng_prim] = BNNG_Prim(pts);
-    // cout << "res_bnng_prim : " << res_bnng_prim << "\n";
-    // cout << "prim mst\n";
-    // print_mst(pts, res_bnng_prim, mst_bnng_prim, n, d);
+    auto [res_bnng_kruskal, mst_bnng_kruskal] = BNNG_Kruskal(pts);
+    cout << "res_bnng_kruskal : " << res_bnng_kruskal << '\n';
+    cout << "kruskal mst\n";
+    print_mst(pts, res_bnng_kruskal, mst_bnng_kruskal, n, d);
+
+    auto [res_bnng_prim, mst_bnng_prim] = BNNG_Prim(pts);
+    cout << "res_bnng_prim : " << res_bnng_prim << "\n";
+    cout << "prim mst\n";
+    print_mst(pts, res_bnng_prim, mst_bnng_prim, n, d);
+
+    vector<vector<pair<int,double>>> adj(n);
+    add_complete_edges(pts, adj, 0, n);
+    auto [res, mst] = MST_Kruskal(adj);
+    cout << "mst mst\n";
+    print_mst(pts, res, mst, n, d);
+
+    auto [res_pts, mst] = info;
 
 
-
-    // vector<vector<pair<int,double>>> adj(n);
-    // add_complete_edges(pts, adj, 0, n);
-    // auto [res, mst] = MST_Kruskal(adj);
-    // cout << "mst mst\n";
-    // print_mst(pts, res, mst, n, d);
-
-    // auto [res_pts, mst] = info;
-
-
-    // for(int n = 1000; n <= 10000; n += 5000) {
-        // for(int d = 2; d <= 128; d *= 2) {
-        // int d = 2;
-            // vector pts = gen_rand_pts(n, d, 1e9);
-            // cout << "pts : " << pts << '\n';
-            // cout << "n : " << n << '\n';
-            // auto [res_bnng_kruskal, mst_bnng_kruskal] = BNNG_Kruskal(pts);
+    for(int n = 1000; n <= 10000; n += 5000) {
+        for(int d = 2; d <= 128; d *= 2) {
+        int d = 2;
+            vector pts = gen_rand_pts(n, d, 1e9);
+            cout << "pts : " << pts << '\n';
+            cout << "n : " << n << '\n';
+            auto [res_bnng_kruskal, mst_bnng_kruskal] = BNNG_Kruskal(pts);
             
 
-        // }
-    // }
-
-
+        }
+    }
+    */
 
     return 0;
 }

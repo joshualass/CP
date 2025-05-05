@@ -7,9 +7,10 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    cout << "35 35\n";
-    for(int i = 0; i < 35; i++) {
-        cout << (1LL << i) << " \n"[i == 34];
+    // \includegraphics[width=\textwidth]{1.png}
+
+    for(int i = 1; i <= 62; i++) {
+        cout << "\\includegraphics[width=\\textwidth]{" << i << ".png}\n";
     }
 
     return 0;
