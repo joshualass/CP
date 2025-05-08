@@ -3,12 +3,87 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+/*
+try to find some algorithm where we are able to incrementally insert the seeds of the lattice - graph
+it is ok to do some swaps (logn) for each element we insert
+we initially set the element equal to itself and then add the element with the highest complement of the parent that is valid
+repeat this operation until we are done
+*/
+
+/*
+insert order
+0000
+1000
+0100
+0010
+0001
+1100
+1010
+1001
+0110
+0101
+0011
+1110
+1101
+1011 
+0111
+1111
+
+0000 - 1111
+1000 - 0111
+0100 - 1011
+0010 - 1101
+0001 - 1110
+1100 - 0011
+1010 - 0101
+1001 - 0110
+0110 - 1001
+0101 - 1010
+0011 - 1100
+1110 - 0001
+1101 - 0010
+1011 - 0100
+0111 - 1000
+1111 - 0000
+
+ L   -   R 
+0000 - 0111
+0001 - 0110
+0010 - 0101
+0011 - 0100
+0100 - 0011
+0101 - 0010
+0110 - 0001
+0111 - 0000
+1000 - 1000
+
+want to go to highest subset of L that R is reachable. 
+Destination on L side = L - (L & R)
+
+*/
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
     int n; cin >> n;
-    
+    vector<ll> a(n), b(n);  
+    for(ll &x : a) cin >> x;
+    b = a;
+
+    sort(a.begin(), a.end());
+
+    map<ll,ll> m;
+    for(ll x : a) {
+        ll c = x;
+        while(x & c) {
+            ll take = x - (x & c);
+            swap(m[take], c);
+        }
+        m[x] = c;
+    }
+
+    for(ll x : b) cout << m[x] << '\n';
 
     return 0;
 }

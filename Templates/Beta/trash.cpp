@@ -3,14 +3,18 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    // \includegraphics[width=\textwidth]{1.png}
+    int n = 200000;
 
-    for(int i = 1; i <= 62; i++) {
-        cout << "\\includegraphics[width=\\textwidth]{" << i << ".png}\n";
+    cout << n << '\n';
+    for(ll i = 0; i < n; i++) {
+        for(int j = 0; j < 25; j++) cout << rng() % 10;
+        cout << '\n';
     }
 
     return 0;
