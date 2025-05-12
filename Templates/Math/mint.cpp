@@ -103,8 +103,8 @@ struct Mint {
 constexpr int P = 998244353;
 using Z = Mint<P>;
 // using Z = double;
-const int MAXN = 1e6 + 1;
-vector<Z> fact(MAXN), inv_fact(MAXN), res(MAXN), pows(MAXN);
+const int MAXN = 1e6;
+vector<Z> fact(MAXN + 1), inv_fact(MAXN + 1);
 
 Z choose(int n, int k) {
     if(k < 0 || k > n) return 0;
@@ -126,3 +126,5 @@ void init_fact(int n = MAXN) {
 /*
 init_fact()
 */
+
+//RECENTLY MODIFIED AND COULD BE UNSTABLE. REMOVE ME WHEN THIS IS WORKING. 

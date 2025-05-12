@@ -3,11 +3,11 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const vector<T> v) {
-    for(auto x : v) os << x << " ";
-    return os;
-}
+/*
+combo is still very hard
+thought of several approaches. just need to be able to keep generating ideas
+fix a to be at the beginning, d to be at the end. Then, iterate over i, the number of B's after the last a, then we count for the numbers of ways to do A and B at the beginning, i, C, D, at the end, and uncount the ways to do i, D. 
+*/
 
 template<class T>
 constexpr T power(T a, ll b) {
@@ -114,7 +114,7 @@ struct Mint {
 constexpr int P = 998244353;
 using Z = Mint<P>;
 // using Z = double;
-const int MAXN = 1e6 + 1;
+const int MAXN = 5e6 + 1;
 vector<Z> fact(MAXN), inv_fact(MAXN), res(MAXN), pows(MAXN);
 
 Z choose(int n, int k) {
@@ -142,53 +142,19 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n; cin >> n;
-    vector<int> a(n);
-    for(int i = 0; i < n; i++) {
-        char t; cin >> t;
-        if(t == '+') {
-            cin >> a[i];
-        }
-    }
+    init_fact();
 
     Z res = 0;
-    vector<Z> dp(n), ndp(n); //on iteration i, dp[j][k], analyzing in how many subsequences that the + x from operation i remains. 
-    //j the current operation number index
-    //k is the count of elements smaller than a[i]
-    for(int i = 0; i < n; i++) {
-        if(a[i]) {
-            dp.assign(n,0);
-            dp[0] = 1;
-            for(int j = 0; j < n; j++) {
-                ndp = dp;
-                for(int k = 0; k < n; k++) {
-                    if(j < i) {
-                        if(a[j]) {
-                            if(a[j] <= a[i] && k + 1 < n) {
-                                ndp[k+1] += dp[k];
-                            } else {
-                                ndp[k] += dp[k];
-                            }
-                        } else {
-                            ndp[max(0,k-1)] += dp[k];
-                        }
-                    } else if(j > i) {
-                        if(a[j]) {
-                            if(a[j] < a[i] && k + 1 < n) {
-                                ndp[k+1] += dp[k];
-                            } else {
-                                ndp[k] += dp[k];
-                            }
-                        } else {
-                            if(k) ndp[k-1] += dp[k];
-                        }
-                    }
-                }
-                swap(dp, ndp);
-            }
-        }
-        // cout << "i : " << i << " dp : " << dp << '\n';
-        res += accumulate(dp.begin(), dp.end(), Z(0)) * a[i];
+    int a, b, c, d; cin >> a >> b >> c >> d;
+    // for(int i = 0; i <= b; i++) {
+    //     for(int j = 0; j <= c; j++) {
+    //         // res += choose(a-1 + b - i, a - 1) * choose(i - 1 + c - j, i - 1) * choose(d + j, j);
+    //         res += choose(a - 1 + i, i) * choose(d - 1 + j, j) * choose(b - i + c - j, b - i);
+    //     }
+    // }
+
+    for(int i = 0; i <= b; i++) {
+        res += choose(a - 1 + b - i, a - 1) * choose(i + c, i) * choose(i + c + d, i + c) / choose(i + d, i);
     }
 
     cout << res << '\n';

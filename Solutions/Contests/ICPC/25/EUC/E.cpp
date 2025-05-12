@@ -68,29 +68,31 @@ signed main() {
 
     vector<int> d(n), p(n), vis(n);
 
-    queue<array<int,3>> q; // {i, par, d}
-    q.push({n - 1, n - 1, 0});
-    while(q.size()) {
-        auto [i, par, dep] = q.front();
-        q.pop();
-        if(vis[i]) {
-            eadj[i].push_back(par);
-            eadj[par].push_back(i);
-            continue;
+    {    
+        queue<array<int,3>> q; // {i, par, d}
+        q.push({n - 1, n - 1, 0});
+        while(q.size()) {
+            auto [i, par, dep] = q.front();
+            q.pop();
+            if(vis[i]) {
+                eadj[i].push_back(par);
+                eadj[par].push_back(i);
+                continue;
+            }
+            vis[i] = 1;
+            if(i != n - 1) {
+                tadj[i].push_back(par);
+                tadj[par].push_back(i);
+            }
+            d[i] = dep;
+            p[i] = par;
+            for(int c : adj[i]) if(vis[c] == 0) q.push({c, i, dep + 1});
         }
-        vis[i] = 1;
-        if(i != n - 1) {
-            tadj[i].push_back(par);
-            tadj[par].push_back(i);
-        }
-        d[i] = dep;
-        p[i] = par;
-        for(int c : adj[i]) if(vis[c] == 0) q.push({c, i, dep + 1});
     }
 
-    cout << "adj\n" << adj << '\n';
-    cout << "tadj\n" << tadj << '\n';
-    cout << "eadj\n" << eadj << '\n';
+    // cout << "adj\n" << adj << '\n';
+    // cout << "tadj\n" << tadj << '\n';
+    // cout << "eadj\n" << eadj << '\n';
 
     auto tbl = treeJump(p);
 
@@ -135,9 +137,79 @@ signed main() {
 
     dfs0(dfs0, n - 1, n - 1);
 
-    cout << "f : " << f << '\n';
+    f[n-1] = 0;
+    // cout << "f : " << f << '\n';
 
+    // vector<int> dists(n, -1);
+    // {
+    //     queue<array<int,2>> q;
+    //     q.push({0,0});
+    //     while(q.size()) {
+    //         auto [i, d] = q.front();
+    //         q.pop();
+    //         if(dists[i] != -1) continue;
+    //         dists[i] = d;
+    //         for(int c : adj[i]) q.push({c, d + 1});
+    //     }
+    // }
+
+    // {    
+    //     vector<vector<int>> rtop(n);
+    //     vector<int> ind(n);
+    //     for(int i = 0; i < n; i++) {
+    //         for(int c : adj[i]) {
+    //             if(d[c] < d[i]) {
+    //                 rtop[c].push_back(i);
+    //                 ind[i]++;
+    //             }
+    //         }
+    //     }
+
+    //     queue<int> q;
+
+    //     for(int i = 0; i < n; i++) {
+    //         if(ind[i] == 0) q.push(i);
+    //     }
+
+    //     vector<int> g(n, inf);
+    //     g[n - 1] = 0;
+
+    //     while(q.size()) {
+    //         int x = q.front();
+    //         q.pop();
+    //         int ming = inf;
+    //         for(int c : adj[x]) {
+    //             ming = min(ming, g[c]);
+    //         }
+    //         if(x != n - 1) g[x] = max(f[x], 1 + ming);
+    //         for(int c : rtop[x]) {
+    //             ind[c]--;
+    //             if(ind[c] == 0) q.push(c);
+    //         }
+    //     }
+
+    //     cout << "g1 : " << g << '\n';
     
+    // }
+
+    vector<int> g(n, inf);
+    vis.assign(n, 0);
+    priority_queue<array<int,2>, vector<array<int,2>>, greater<array<int,2>>> pq;
+    pq.push({0, n - 1});
+    while(pq.size()) {
+        auto [gval, i] = pq.top();
+        pq.pop();
+        if(vis[i]) continue;
+        vis[i] = 1;
+        g[i] = gval;
+        for(int c : adj[i]) {
+            pq.push({max(f[c], gval + 1), c});
+        }
+    }
+
+    // cout << "g2 : " << g << '\n';
+
+    cout << (g[0] >= inf ? -1 : g[0]) << '\n';
 
     return 0;
 }

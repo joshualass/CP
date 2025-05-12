@@ -3,12 +3,6 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const vector<T> v) {
-    for(auto x : v) os << x << " ";
-    return os;
-}
-
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -114,8 +108,8 @@ struct Mint {
 constexpr int P = 998244353;
 using Z = Mint<P>;
 // using Z = double;
-const int MAXN = 1e6 + 1;
-vector<Z> fact(MAXN), inv_fact(MAXN), res(MAXN), pows(MAXN);
+const int MAXN = 1e6;
+vector<Z> fact(MAXN + 1), inv_fact(MAXN + 1);
 
 Z choose(int n, int k) {
     if(k < 0 || k > n) return 0;
@@ -138,60 +132,15 @@ void init_fact(int n = MAXN) {
 init_fact()
 */
 
+//RECENTLY MODIFIED AND COULD BE UNSTABLE. REMOVE ME WHEN THIS IS WORKING. 
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n; cin >> n;
-    vector<int> a(n);
-    for(int i = 0; i < n; i++) {
-        char t; cin >> t;
-        if(t == '+') {
-            cin >> a[i];
-        }
-    }
+    
 
-    Z res = 0;
-    vector<Z> dp(n), ndp(n); //on iteration i, dp[j][k], analyzing in how many subsequences that the + x from operation i remains. 
-    //j the current operation number index
-    //k is the count of elements smaller than a[i]
-    for(int i = 0; i < n; i++) {
-        if(a[i]) {
-            dp.assign(n,0);
-            dp[0] = 1;
-            for(int j = 0; j < n; j++) {
-                ndp = dp;
-                for(int k = 0; k < n; k++) {
-                    if(j < i) {
-                        if(a[j]) {
-                            if(a[j] <= a[i] && k + 1 < n) {
-                                ndp[k+1] += dp[k];
-                            } else {
-                                ndp[k] += dp[k];
-                            }
-                        } else {
-                            ndp[max(0,k-1)] += dp[k];
-                        }
-                    } else if(j > i) {
-                        if(a[j]) {
-                            if(a[j] < a[i] && k + 1 < n) {
-                                ndp[k+1] += dp[k];
-                            } else {
-                                ndp[k] += dp[k];
-                            }
-                        } else {
-                            if(k) ndp[k-1] += dp[k];
-                        }
-                    }
-                }
-                swap(dp, ndp);
-            }
-        }
-        // cout << "i : " << i << " dp : " << dp << '\n';
-        res += accumulate(dp.begin(), dp.end(), Z(0)) * a[i];
-    }
 
-    cout << res << '\n';
 
     return 0;
 }
