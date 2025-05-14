@@ -3,22 +3,28 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
-    return os;
-}
+/*
+1
+5
+1 1 1 1 1
+1 1 1 0 1
+1 1 1 1 0
+1 0 1 1 1
+1 1 0 1 1 
 
-template <typename T, typename D>
-std::ostream& operator<<(std::ostream& os, const pair<T,D> &p) {
-    os << '(' << p.first << ", " << p.second << ") ";
+checks ---
+setup
+
+if two nodes have the same set of edges, then they must be on the same path and are interchangeable (exception root is not interchangeable)
+then, there is the case where one if a subset of the other. this is akin to a node being in the subtree of the other
+else, they are in different subtrees. if they are in different subtrees, they cannot share an edge that is no on the path from node to to their lca. 
+do these checks and all g. 
+
+*/
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
     return os;
 }
 
@@ -153,8 +159,86 @@ init_fact()
 */
 
 //RECENTLY MODIFIED AND COULD BE UNSTABLE. REMOVE ME WHEN THIS IS WORKING. 
-int p[51][100001];
-int x[100001];
+
+void solve() {
+    
+    int n; cin >> n;
+    vector a(n, vector<int>(n));
+    vector<int> b(n);
+    for(auto &x : a) for(auto &y : x) cin >> y;
+    for(int i = 0; i < n; i++) b[i] = accumulate(a[i].begin(), a[i].end(), 0);
+
+    Z res = accumulate(a[0].begin(), a[0].end(), 0) == n;
+    vector<int> vis(n), curr_path(n);
+        
+    auto dfs = [&](auto self) -> void {
+
+        vector<int> on_path;
+        for(int i = 0; i < n; i++) {
+            int ok = 1;
+            for(int j = 0; j < n; j++) {
+                if(curr_path[j] && !a[i][j]) ok = 0;
+            }
+            if(ok) on_path.push_back(i);
+        }
+
+        sort(on_path.rbegin(), on_path.rend(), [&](const auto &lhs, const auto &rhs) {
+            return b[lhs] < b[rhs];
+        });
+
+        for(int i = 0; i < on_path.size(); i++) {
+            int idx = on_path[i];
+            if(vis[idx] == 0) {
+
+                for(int j = 0; j < n; j++) {
+                    int is_ss = 1, iiss = 1;;
+                    for(int k = 0; k < n; k++) {
+                        if(a[idx][k] && !a[j][k]) is_ss = 0;
+                        if(!a[idx][k] && a[j][k]) iiss = 0;
+                    }
+                    if(!is_ss && !iiss) {
+                        // cout << "make it here ? idx : " << idx << " j : " << j << '\n';
+                        // cout << "vis : " << vis << " curr_path : " << curr_path << '\n';
+                        for(int k = 0; k < n; k++) {
+                            if(a[idx][k] && a[j][k] && curr_path[k] == 0) {
+                                // cout << "vis : " << vis << " curr_path : " << curr_path << " idx : " << idx << " j : " << j << " k : " << k << '\n';
+                                res = 0;
+                            }
+                        }
+                    }
+                }
+
+                vector<int> nx;
+                for(int j = 0; j < n; j++) {
+                    if(a[idx] == a[j]) {
+                        nx.push_back(j);
+                        assert(vis[j] == 0);
+                        vis[j] = 1;
+                        curr_path[j] = 1;
+                    }
+                }
+                if(a[idx] == a[0]) {
+                    res *= fact[nx.size() - 1];
+                } else {
+                    res *= fact[nx.size()];
+                }
+
+
+                
+                self(self);
+                for(int x : nx) curr_path[x] = 0;
+
+            }
+        }
+    };
+
+    dfs(dfs);
+
+    if(count(vis.begin(),vis.end(), 0)) res = 0;
+
+    cout << res << '\n';
+
+}
 
 signed main() {
     ios_base::sync_with_stdio(false);
@@ -162,102 +246,8 @@ signed main() {
 
     init_fact();
 
-    int n, q; cin >> n >> q;
-    for(int i = 1; i <= n; i++) {
-        int a; cin >> a;
-        p[a][i]++;
-        x[i] = a;
-    }
-
-    for(int i = 0; i <= 50; i++) {
-        for(int j = 1; j <= n; j++) {
-            p[i][j] += p[i][j-1];
-        }
-    }
-
-    for(int i = 1; i <= n; i++) x[i] ^= x[i-1];
-
-    vector<pair<array<int,2>,Z>> dp(64), ndp(64); //{{max, poss}, # ways}
-
-    auto add = [&](int t, int m, Z w) -> void {
-        // if(w.x) {
-        //     cout << "add called t : " << t << " m : " << m << " w : " << w << '\n';
-        // }
-        if(ndp[t].first[0] < m) {
-            ndp[t] = {{m, 0}, 0};
-        }
-        if(ndp[t].first[0] == m) {
-            ndp[t].first[1] = 1;
-            ndp[t].second += w;
-        }
-    };
-
-    for(int i = 0; i < q; i++) {
-
-        int l, r; cin >> l >> r;
-        l--;
-
-        dp.assign(64, {{0,0}, 0});
-        // cout << "start\n";
-
-        int cx = 0, tot = 0;
-
-        // for(int l = 0; l < 8; l++) {
-        //     cout << "i : " << i << " dp[i] : " << dp[l] << '\n';
-        // }
-
-        for(int j = 0; j <= 50; j++) {
-            int c = p[j][r] - p[j][l];
-            tot += c;
-            ndp.assign(64, {{0,0}, 0});
-            // cout << "after adding j : " << j << " c : " << c << '\n';
-
-            for(int k = 0; k < 64; k++) {
-                if(dp[k].first[1]) {
-
-                    int t = (c & 1 ? k ^ j : k);
-
-                    add(t, dp[k].first[0] + c, dp[k].second);
-
-                    if(c) {
-                        t ^= j;
-                        add(t, dp[k].first[0] + c - 1, dp[k].second * c);
-                    }
-                }
-            }
-
-            // cout << "interm add\n";
-
-            // for(int l = 0; l < 8; l++) {
-            //     cout << "i : " << i << " dp[i] : " << ndp[l] << '\n';
-            // }
-
-            if(c & 1) cx ^= j;
-            if(c) {
-                int t = cx ^ j;
-                add(t, tot - 1, choose(c, 1));
-                if(c > 1) {
-                    add(cx, tot - 2, choose(c, 2));
-                }
-            }
-
-            swap(dp, ndp);
-
-            // cout << "done add\n";
-
-            // for(int l = 0; l < 8; l++) {
-            //     cout << "i : " << i << " dp[i] : " << dp[l] << '\n';
-            // }
-        }
-
-        int t = x[r] ^ x[l];
-        auto res = dp[t];
-        if(res.first[1]) {
-            cout << res.first[0] << " " << res.second << '\n';
-        } else {
-            cout << "-1\n";
-        }
-    }
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }

@@ -1,3 +1,12 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+
+/*
+200'000th prime is 2750159
+*/
+
 template<typename T>
 struct Tree {
     static constexpr T base = 0;
@@ -102,4 +111,35 @@ then see if there is anything good in interval to keep pursuing
 if so, see if done if leaf else, try the greedy sides. 
 */
 
-//TODO check that range properly works with tl and tr. only tested for tl = 0 and tr = n. 
+const int p = 2750159;
+int vis[p + 1];
+int in[p + 1];
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    Tree<int> tree(p + 1);
+    for(int i = 1; i <= p; i++) {
+        tree.update(i, 1);
+        in[i] = 1;
+    }
+
+    int q; cin >> q;
+    for(int i = 0; i < q; i++) {
+        int a, b; cin >> a >> b;
+        if(a <= p && vis[a] == 0) {
+            vis[a] = 1;
+            for(int j = a; j <= p; j += a) {
+                if(in[j]) {
+                    in[j] = 0;
+                    tree.update(j, 0);
+                }
+            }
+        }
+
+        cout << tree.find_first_range(0, p + 1, b) << '\n';
+    }
+
+    return 0;
+}
