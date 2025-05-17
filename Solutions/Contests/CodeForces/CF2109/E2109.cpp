@@ -1,3 +1,14 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -104,7 +115,7 @@ constexpr int P = 998244353;
 using Z = Mint<P>;
 // using Z = double;
 const int MAXN = 1e6;
-Z fact[MAXN + 1], inv_fact[MAXN + 1];
+vector<Z> fact(MAXN + 1), inv_fact(MAXN + 1);
 
 Z choose(int n, int k) {
     if(k < 0 || k > n) return 0;
@@ -128,3 +139,66 @@ init_fact()
 */
 
 //RECENTLY MODIFIED AND COULD BE UNSTABLE. REMOVE ME WHEN THIS IS WORKING. 
+
+Z pc[501][501][2]; // [i ops here, j ops later, 0/1 of value here]
+
+void solve() {
+    
+    int n, k; cin >> n >> k;
+    string s; cin >> s;
+
+
+
+
+
+    vector<Z> dp(k + 1), ndp(k + 1);
+
+    dp[0] = 1;
+
+    for(int i = 0; i < n; i++) {
+        // cout << "i : " << i << " dp[i] : " << dp << '\n';
+        ndp.assign(k + 1, 0);
+        for(int j = 0; j <= k; j++) {
+            for(int l = 0; j + l <= k; l++) {
+                int left = k - (j + l);
+                Z ways = pc[l][left][s[i] == '1'];
+                ndp[j + l] += dp[j] * ways;
+            }
+        }
+
+        swap(dp, ndp);
+    }
+
+    // cout << "i : " << n << " dp[i] : " << dp << '\n';
+
+    cout << dp[k] << '\n';
+
+}
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    init_fact();
+
+    pc[0][0][0] = 1;
+    pc[0][0][1] = 1;
+
+    for(int i = 0; i <= 500; i++) {
+        for(int j = 0; j <= 500; j++) {
+            for(int k = 0; k < 2; k++) {
+                if(i && k == 0) {
+                    pc[i][j][k] += pc[i-1][j][k ^ 1];
+                }
+                if(j) {
+                    pc[i][j][k] += pc[i][j-1][k ^ 1];
+                }
+            }
+        }
+    }
+
+    int casi; cin >> casi;
+    while(casi-->0) solve();
+
+    return 0;
+}

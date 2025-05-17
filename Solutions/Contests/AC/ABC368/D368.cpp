@@ -26,6 +26,7 @@ signed main() {
         begin = num - 1;
     }
     int removes = 0;
+    
     auto dfs = [&](auto self, int i, int p) -> int {
 
         int cnt = isk[i];

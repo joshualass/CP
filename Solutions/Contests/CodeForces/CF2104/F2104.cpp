@@ -109,8 +109,19 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int casi; cin >> casi;
-    while(casi-->0) solve();
+    set<string> s;
+    for(int i = 1; i <= 10000; i++) {
+        string t = to_string(i) + to_string(i+1);
+        sort(t.begin(), t.end());
+        if(s.count(t) == 0) {
+            s.insert(t);
+        } else {
+            cout << i << '\n';
+        }
+    }
+
+    // int casi; cin >> casi;
+    // while(casi-->0) solve();
 
     return 0;
 }

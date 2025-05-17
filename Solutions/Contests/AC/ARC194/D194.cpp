@@ -1,3 +1,8 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -104,7 +109,7 @@ constexpr int P = 998244353;
 using Z = Mint<P>;
 // using Z = double;
 const int MAXN = 1e6;
-Z fact[MAXN + 1], inv_fact[MAXN + 1];
+vector<Z> fact(MAXN + 1), inv_fact(MAXN + 1);
 
 Z choose(int n, int k) {
     if(k < 0 || k > n) return 0;
@@ -128,3 +133,72 @@ init_fact()
 */
 
 //RECENTLY MODIFIED AND COULD BE UNSTABLE. REMOVE ME WHEN THIS IS WORKING. 
+
+mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+
+ll r[5000];
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    init_fact();
+    for(int i = 0; i < 5000; i++) {
+        r[i] = rng() % INT_MAX;
+    }
+
+    int n; cin >> n;
+    string s; cin >> s;
+
+    vector<vector<int>> adj(1);
+    stack<int> st;
+    st.push(0);
+
+    for(char c : s) {
+        if(c == '(') {
+            st.push(adj.size());
+            adj.push_back(vector<int>());
+        } else {
+            int i = st.top();
+            st.pop();
+            int par = st.top();
+            adj[i].push_back(par);
+            adj[par].push_back(i);
+        }
+    }
+
+    Z res = 1;
+
+    auto dfs = [&](auto self, int i, int p) -> ll {
+
+        map<ll,int> m;
+        vector<ll> a;
+
+        for(int c : adj[i]) {
+            if(c != p) {
+                ll h = self(self, c, i);
+                m[h]++;
+                a.push_back(h);
+            }
+        }
+
+        res *= fact[a.size()];
+        for(auto [_, c] : m) res *= inv_fact[c];
+
+        sort(a.begin(), a.end());
+
+        ll h = r[4999];
+        for(int i = 0; i < a.size(); i++) {
+            h = (h + a[i] * r[i]) % INT_MAX;
+        }
+
+        return h;
+
+    };
+
+    dfs(dfs, 0, -1);
+
+    cout << res << '\n';
+
+    return 0;
+}
