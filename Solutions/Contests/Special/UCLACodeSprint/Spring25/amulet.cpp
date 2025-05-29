@@ -42,39 +42,7 @@ struct SuffixArray {
 	}
 };
 
-int pcd[400001], lo[400001], hi[400001], lens[400001], cnts[400001];
-
-template<typename T>
-struct sparse {
-    vector<vector<T>> sparsetable;
-    int n, d;
-    sparse() {}
-    sparse(vector<T> a) {
-        buildTable(a);
-    }
-    T op(T a, T b) {
-        return min(a,b);
-    }
-    void buildTable(vector<T> a) {
-        n = a.size();
-        d = 32 - __builtin_clz(n);
-        sparsetable.assign(n, vector<T>(d));
-        for(int depth = 0; depth < d; depth++) {
-            for(int i = 0; i < n; i++) {
-                if(depth) {
-                    sparsetable[i][depth] = op(sparsetable[i][depth - 1], sparsetable[min(n - 1, i + (1 << (depth - 1)))][depth - 1]);
-                } else {
-                    sparsetable[i][depth] = a[i];
-                }
-            }
-        }
-    }
-    //[l,r) always. 
-    T query(int l, int r) {
-        int depth = 31 - __builtin_clz(r - l);
-        return op(sparsetable[l][depth], sparsetable[max(l,r - (1 << depth))][depth]);
-    }
-};
+int lo[400001], hi[400001], cnts[400001];
 
 signed main() {
     ios_base::sync_with_stdio(false);
@@ -100,13 +68,13 @@ signed main() {
         s.push_back(z);
     }
 
-    cout << "s : " << s << '\n';
+    // cout << "s : " << s << '\n';
     SuffixArray sa(s);
 
-    cout << "sa  : " << sa.sa << '\n';
-    cout << "lcp : " << sa.lcp << '\n';
+    // cout << "sa  : " << sa.sa << '\n';
+    // cout << "lcp : " << sa.lcp << '\n';
 
-    int stop = 1 + (r + 1) * c + r * (c + 1);
+    int stop = 1 + r * c * 2;
 
     vector<int> b(stop, -1); //which row/col is this idx assoc. with
 
@@ -123,7 +91,6 @@ signed main() {
     int rcnt = 0, ccnt = 0;
     lo[0] = stop;
     hi[0] = -1;
-    sparse<int> rmq(sa.lcp);
 
     //add item for sliding window
     auto add = [&](int i) -> void {
@@ -149,6 +116,15 @@ signed main() {
             }
         }
         cnts[v]--;
+    };
+
+    auto get_len = [&](int i) -> int {
+        if(i < r * (c + 1)) {
+            return c - i % (c + 1);
+        } else {
+            i -= r * (c + 1);
+            return r - i % (r + 1);
+        }
     };
 
     int sz = 0, idx = -1;
@@ -208,46 +184,54 @@ signed main() {
 
     stack<array<int,2>> st; //{idx, lcp}
 
+    // cout << "stop : " << stop << '\n';
+
     for(int i = 1; i < stop; i++) {
-        int lcp = sa.lcp[i];
+        int lcp = min({sa.lcp[i], get_len(sa.sa[i-1]), get_len(sa.sa[i])});
         int p = i;
 
         while(st.size() && st.top()[1] > lcp) {
             p = st.top()[0];
+            int plcp = st.top()[1];
+            st.pop();
             int j = i - 1;
 
-            if(lo[p] <= j && j <= hi[p] && (lcp > sz || lcp == sz && ))
+            // cout << "p : " << p << " lcp : " << lcp << '\n';
 
-
+            if(lo[p] <= j && j <= hi[p] && (plcp > sz || plcp == sz && p < idx)) {
+                // cout << "upd size plcp : " << plcp << " idx : " << idx << '\n';
+                sz = plcp;
+                idx = p;
+            }
         }
 
+        if(st.empty() || st.top()[1] != lcp) {
+            st.push({p, lcp});
+        }
 
+        int len = get_len(sa.sa[i]);
+        // cout << "i : " << i << " len : " << len << '\n';
+        if(len > st.top()[1]) {
+            st.push({i, len});
+        }
     }
 
-        // int p = 0;
-        // for(int j = 1; j < r * c * 2 + 1; j++) {
-        //     if(lens[j] < i) continue;
+    while(st.size()) {
+        int p = st.top()[0];
+        int lcp = st.top()[1];
+        st.pop();
+        int j = stop - 1;
 
-        //     if(rmq.query(p + 1, j + 1) < i) {
-        //         if(lo[p] <= j - 1 && j - 1 <= hi[p]) {
-        //             if(i > sz) {
-        //                 sz = i;
-        //                 idx = p;
-        //             }
-        //         }
-        //         p = j;
-        //     }
-        // }
+        // cout << "p : " << p << " lcp : " << lcp << '\n';
 
-        // if(lo[p] <= r * c * 2 && r * c * 2 <= hi[p]) {
-        //     if(i > sz) {
-        //         sz = i;
-        //         idx = p;
-        //     }
-        // }
+        if(lo[p] <= j && j <= hi[p] && (lcp > sz || lcp == sz && p < idx)) {
+            // cout << "upd size lcp : " << lcp << " idx : " << idx << '\n';
+            sz = lcp;
+            idx = p;
+        }
+    }
 
-    // cout << "sz : " << sz << " idx : " << idx << '\n';
-    // cout << "r : " << r << " c : " << c << '\n';
+    // cout << "idx : " << idx << " sz : " << sz << '\n';
 
     if(idx == -1) {
         cout << "-1\n";
@@ -257,14 +241,14 @@ signed main() {
     idx = sa.sa[idx];
     string res;
 
-    if(idx < r * c) {
-        int row = idx / c;
-        int col = idx % c;
+    if(idx < r * (c + 1)) {
+        int row = idx / (c + 1);
+        int col = idx % (c + 1);
         for(int j = 0; j < sz; j++) res.push_back(a[row][col + j]);
     } else {
-        idx -= r * c;
-        int col = idx / r;
-        int row = idx % r;
+        idx -= r * (c + 1);
+        int col = idx / (r + 1);
+        int row = idx % (r + 1);
         for(int j = 0; j < sz; j++) res.push_back(a[row + j][col]);
     }
 

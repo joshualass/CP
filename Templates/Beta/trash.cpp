@@ -1,143 +1,62 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
-typedef long double ld;
-typedef vector<int> vi;
-typedef vector<ll> vl;
-typedef vector<vi> vvi;
-typedef vector<bool> vb;
 
-#define rep(i, a, b) for(int i = a; i < (b); i++)
+#define rep(i, a, b) for(int i = a; i < (b); ++i)
 #define all(x) begin(x), end(x)
-#define sz(x) (int) (x).size()
+#define sz(x) (int)(x).size()
+typedef long long ll;
+typedef pair<int, int> pii;
+typedef vector<int> vi;
 
-const int inf = 1e9;
+/**
+ * Author: 罗穗骞, chilli
+ * Date: 2019-04-11
+ * License: Unknown
+ * Source: Suffix array - a powerful tool for dealing with strings
+ * (Chinese IOI National team training paper, 2009)
+ * Description: Builds suffix array for a string.
+ * \texttt{sa[i]} is the starting index of the suffix which
+ * is $i$'th in the sorted suffix array.
+ * The returned vector is of size $n+1$, and \texttt{sa[0] = n}.
+ * The \texttt{lcp} array contains longest common prefixes for
+ * neighbouring strings in the suffix array:
+ * \texttt{lcp[i] = lcp(sa[i], sa[i-1])}, \texttt{lcp[0] = 0}.
+ * The input string must not contain any nul chars.
+ * Time: O(n \log n)
+ * Status: stress-tested
+ */
+#pragma once
 
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const vector<vector<T>> adj) {
-    for(auto x : adj) {
-        for(auto y : x) os << y << " ";
-        os << "\n";
-    }
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const vector<int> v) {
-    for(auto x : v) os << x << " ";
-    return os;
-}
-
-vector<vi> treeJump(vi& P){
-	int on = 1, d = 1;
-	while(on < sz(P)) on *= 2, d++;
-	vector<vi> jmp(d, P);
-	rep(i,1,d) rep(j,0,sz(P))
-		jmp[i][j] = jmp[i-1][jmp[i-1][j]];
-	return jmp;
-}
-
-int jmp(vector<vi>& tbl, int nod, int steps){
-	rep(i,0,sz(tbl))
-		if(steps&(1<<i)) nod = tbl[i][nod];
-	return nod;
-}
-
-int lca(vector<vi>& tbl, vi& depth, int a, int b) {
-	if (depth[a] < depth[b]) swap(a, b);
-	a = jmp(tbl, a, depth[a] - depth[b]);
-	if (a == b) return a;
-	for (int i = sz(tbl); i--;) {
-		int c = tbl[i][a], d = tbl[i][b];
-		if (c != d) a = c, b = d;
+struct SuffixArray {
+	vi sa, lcp;
+	SuffixArray(string s, int lim=256) { // or vector<int>
+		s.push_back(0); int n = sz(s), k = 0, a, b;
+		vi x(all(s)), y(n), ws(max(n, lim));
+		sa = lcp = y, iota(all(sa), 0);
+		for (int j = 0, p = 0; p < n; j = max(1, j * 2), lim = p) {
+			p = j, iota(all(y), n - j);
+			rep(i,0,n) if (sa[i] >= j) y[p++] = sa[i] - j;
+			fill(all(ws), 0);
+			rep(i,0,n) ws[x[i]]++;
+			rep(i,1,lim) ws[i] += ws[i - 1];
+			for (int i = n; i--;) sa[--ws[x[y[i]]]] = y[i];
+			swap(x, y), p = 1, x[sa[0]] = 0;
+			rep(i,1,n) a = sa[i - 1], b = sa[i], x[b] =
+				(y[a] == y[b] && y[a + j] == y[b + j]) ? p - 1 : p++;
+		}
+		for (int i = 0, j; i < n - 1; lcp[x[i++]] = k)
+			for (k && k--, j = sa[x[i] - 1];
+					s[i + k] == s[j + k]; k++);
 	}
-	return tbl[0][a];
-}
+};
 
-signed main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL), cout.tie(NULL);
+int main() {
+	cin.tie(0)->sync_with_stdio(0);
+	cin.exceptions(cin.failbit);
 
-    int n, m; cin >> n >> m;
-    vector<vector<int>> adj(n), tadj(n), eadj(n);
-    for(int i = 0; i < m; i++) {
-        int u, v; cin >> u >> v;
-        u--; v--;
-        adj[u].push_back(v);
-        adj[v].push_back(u);
-    }
+    string s = "zsefacbdafaf";
+    SuffixArray sa(s);
+    for(int i = 0; i < sa.sa.size(); i++) cout << s.substr(sa.sa[i]) << '\n';
+    cout << '\n';
 
-    vector<int> d(n), p(n), vis(n);
-
-    queue<array<int,3>> q; // {i, par, d}
-    q.push({n - 1, n - 1, 0});
-    while(q.size()) {
-        auto [i, par, dep] = q.front();
-        q.pop();
-        if(vis[i]) {
-            eadj[i].push_back(par);
-            eadj[par].push_back(i);
-            continue;
-        }
-        vis[i] = 1;
-        if(i != n - 1) {
-            tadj[i].push_back(par);
-            tadj[par].push_back(i);
-        }
-        d[i] = dep;
-        p[i] = par;
-        for(int c : adj[i]) if(vis[c] == 0) q.push({c, i, dep + 1});
-    }
-
-    cout << "adj\n" << adj << '\n';
-    cout << "tadj\n" << tadj << '\n';
-    cout << "eadj\n" << eadj << '\n';
-
-    auto tbl = treeJump(p);
-
-    auto add = [&](map<int,int> &m, int k, int v) -> void {
-        //there exists an element with smaller key and larger value already
-        if(m.upper_bound(k) != m.begin() && (--m.upper_bound(k))->second <= v) return;
-        //erase all elements with larger key and larger value. 
-        while(m.upper_bound(k) != m.end() && m.upper_bound(k)->second >= v) m.erase(m.upper_bound(k));
-        m[k] = v;
-    };
-
-    vector<map<int,int>> a(n);
-    vector<int> f(n);
-
-    auto dfs0 = [&](auto self, int i, int p) -> void {
-        int li = i;
-        for(int c : tadj[i]) {
-            if(c != p) {
-                self(self, c, i);
-                if(a[c].size() > a[li].size()) li = c;
-            }
-        }
-        swap(a[i], a[li]);
-        for(int c : tadj[i]) {
-            for(auto [k, v] : a[c]) add(a[i], k, v);
-        }
-        
-        for(int c : eadj[i]) {
-            int anc = lca(tbl, d, i, c);
-            int anc_d = d[anc];
-            int cycle_size = 1 + d[i] + d[c];
-            add(a[i], anc_d, cycle_size);
-        }
-
-        if(a[i].lower_bound(d[i]) != a[i].begin()) {
-            auto [k, v] = *--a[i].lower_bound(d[i]);
-            f[i] = v - d[i];
-        } else {
-            f[i] = inf;
-        }
-    }; 
-
-    dfs0(dfs0, n - 1, n - 1);
-
-    cout << "f : " << f << '\n';
-
-    
-
-    return 0;
 }
