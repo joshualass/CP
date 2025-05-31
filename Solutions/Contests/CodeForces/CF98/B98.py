@@ -1,3 +1,4 @@
+from math import gcd
 
 def main():
 
@@ -6,7 +7,7 @@ def main():
     p2 = 0
 
     while n % 2 == 0:
-        n /= 2
+        n //= 2
         p2 += 1
 
     if n == 1:
@@ -15,19 +16,30 @@ def main():
 
     cnt = 0
     l = 1
-
+    res = 0
     first = True
 
     while first or l != 1:
         first = False
         cnt += 1
         l = l * 2
+        res *= 2
         if l > n:
             l -= n
+            res += n * cnt
 
-    print("cnt",cnt)
+    res += cnt
 
-    
+    # print("cnt",cnt)
+    # print("res",res)
+
+    d = (1 << cnt) - 1
+    g = gcd(d, res)
+    res //= g
+    d //= g
+
+    print(res + p2 * d,"/",d,sep='')
+
 
 if __name__ == "__main__":
     main()
