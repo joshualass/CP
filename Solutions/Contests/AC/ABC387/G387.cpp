@@ -206,6 +206,11 @@ signed main() {
 
     cout << "prime cnt : " << prime.size() << '\n';
 
+    ld res = 0;
+    for(int x : prime) res += ((ld) N - 1) / x;
+
+    cout << res * (N - 1) << '\n';
+
     
 
     return 0;
