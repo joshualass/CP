@@ -78,21 +78,18 @@ signed main() {
         set<int> &s2 = m[x];
         s2.insert(idx);
 
-        it = s2.lower_bound(idx);
+        it = s2.upper_bound(idx);
         if(it != s2.end()) {
-            auto nit = next(it);
-            tree.update(idx, *nit);
+            tree.update(idx, *it);
         } else {
             tree.update(idx, n);
         }
 
+        it = s2.lower_bound(idx);
+
         if(it != s2.begin()) {
             auto pit = prev(it);
-            if(it != s2.end()) {
-                tree.update(*pit, idx);
-            } else {
-                tree.update(*pit, n);
-            }
+            tree.update(*pit, idx);
         }
     };
 

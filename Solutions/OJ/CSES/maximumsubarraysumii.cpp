@@ -1,12 +1,30 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+
+struct Info {
+    ll l, all;
+    Info(): l(0), all(0) {}
+    Info(ll l, ll all): l(l), all(all) {}
+};
+
+Info operator+(Info lhs, Info rhs) {
+    Info res;
+    res.l = max(lhs.l, lhs.all + rhs.l);
+    res.all = lhs.all + rhs.all;
+    return res;
+}
+
 template<typename T>
 struct Tree {
-    static constexpr T base = 0;
+    Info base;
     vector<T> v;
     int n, size;
     T f(T a, T b) { //change this when doing maximum vs minimum etc.
         return a + b;
     }
-    Tree(int n, T def = base) {
+    Tree(int n, T def) {
         this->n = n; //max number of elements
         size = 1;
         while(size < n) size *= 2;
@@ -42,3 +60,33 @@ struct Tree {
         );
     }
 };
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n, l, r; cin >> n >> l >> r;
+    vector<ll> a(n);
+    Tree<Info> tree(n, Info());
+
+    ll s = 0;
+
+    for(int i = 0; i < n; i++) {
+        ll x; cin >> x;
+        a[i] = x;
+        tree.update(i, Info(max(0LL, x), x));
+        if(i < l) s += x;
+    }
+
+    ll res = LLONG_MIN;
+
+    for(int i = l; i <= n; i++) {
+        res = max(res, s + tree.query(i, min(n, i + (r - l))).l);
+        s -= a[i-l];
+        if(i < n) s += a[i];
+    }
+
+    cout << res << '\n';
+
+    return 0;
+}

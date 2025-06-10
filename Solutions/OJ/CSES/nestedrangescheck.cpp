@@ -1,5 +1,5 @@
-#pragma GCC optimize("Ofast,fast-math,unroll-loops,no-stack-protector") 
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,avx,mmx,avx2,fma,tune=native") 
+// #pragma GCC optimize("Ofast,fast-math,unroll-loops,no-stack-protector") 
+// #pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,avx,mmx,avx2,fma,tune=native") 
 
 #include <bits/stdc++.h>
 typedef long long ll;
@@ -87,18 +87,19 @@ struct FT {
     }
 };
 
+pair<int,int> rngs[200000];
+
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     
     int n; cin >> n;
-    vector<pair<int,int>> ranges(n);
-    vector<pair<int,int>> uranges;
+    vector<pair<int,int>> urngs;
     vector<int> compress_coords;
-    unordered_map<int,int> ids;
+    pb_map<int,int> ids;
     for(int i = 0; i < n; i++) {
         int a, b; cin >> a >> b; 
-        ranges[i] = {a,b};
+        rngs[i] = {a,b};
         compress_coords.push_back(a);
         compress_coords.push_back(b);
     }
@@ -111,24 +112,25 @@ int main() {
 
     FT treec(compress_coords.size());
     FT treew(compress_coords.size());
-    for(pair<int,int> p : ranges) {
+    for(int i = 0; i < n; i++) {
+        auto p = rngs[i];
         p = {ids[p.first], ids[p.second]};
-        uranges.push_back({p.first, p.second});
+        urngs.push_back({p.first, p.second});
         treec.update(p.second, 1); //insert right endpoints
     }
 
-    sort(uranges.begin(), uranges.end());
+    sort(urngs.begin(), urngs.end());
 
     pb_map<ll, int> resc;
     pb_map<ll, int> resw;
-    vector<pair<int,int>>::iterator rit = uranges.begin();
-    vector<pair<int,int>>::iterator wit = uranges.begin();
-    for(auto p : uranges) {
-        while(rit != uranges.end() && (*rit).first < p.first) {
+    vector<pair<int,int>>::iterator rit = urngs.begin();
+    vector<pair<int,int>>::iterator wit = urngs.begin();
+    for(auto p : urngs) {
+        while(rit != urngs.end() && (*rit).first < p.first) {
             treec.update((*rit).second, -1);
             rit++;
         }
-        while(wit != uranges.end() && (*wit).first <= p.first) {
+        while(wit != urngs.end() && (*wit).first <= p.first) {
             treew.update((*wit).second, 1);
             wit++;
         }
@@ -139,13 +141,13 @@ int main() {
     }
 
     for(int i = 0; i < n; i++) {
-        pair<int,int> p = {ids[ranges[i].first], ids[ranges[i].second]};
-        cout << ((bool) resc[1000000001LL * p.first + p.second] - 1)  << " \n"[i == n - 1];
+        pair<int,int> p = {ids[rngs[i].first], ids[rngs[i].second]};
+        cout << (resc[1000000001LL * p.first + p.second] - 1 ? 1 : 0) << " \n"[i == n - 1];
     }
 
     for(int i = 0; i < n; i++) {
-        pair<int,int> p = {ids[ranges[i].first], ids[ranges[i].second]};
-        cout << ((bool) resw[1000000001LL * p.first + p.second] - 1) << " \n"[i == n - 1];
+        pair<int,int> p = {ids[rngs[i].first], ids[rngs[i].second]};
+        cout << (resw[1000000001LL * p.first + p.second] - 1 ? 1 : 0) << " \n"[i == n - 1];
     }
 
     return 0;
