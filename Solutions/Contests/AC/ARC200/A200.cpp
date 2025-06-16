@@ -15,8 +15,19 @@ There are no negatives, so all the ratios will be positive. In order to solve th
 and compare with a simple cross multiplication. Now that we know the lower and higher ratios, we should intuitively, put a negative value with the lower ratio
 and a positive value for the higher ratio, but how should we choose these?
 
+We are going to fix one of these 4 values by fixing one of the numbers, then finding the second number to be slightly better for the fixed #
+for example, if we fix lo A, then we will choose the lowest hi A such that A is positive and hope that the B works. 
+
+Not obvious on what we should fix here. intuitively, we should try find some way to find the magnitude of the ratio and fix the larger ratio and then it is easy to adjust the smaller ratio. 
+
+To do this ... 
+
 We should look to see which of the ratios is "larger" than the other, a ratio is larger if the smaller ratio has a larger a value or the larger ratio has a larger b value
 We use these values because 
+
+Then, we fix, do some maths and go. 
+
+Editorial has a nice, clean way of doing this. i don't quite follow the intuition. 
 
 */
 
