@@ -48,27 +48,52 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n; cin >> n;
-    
-    vector<unordered_map<int,ll>> g(n + 2);
-    int s = 0, t = n + 1;
+    int h, w; cin >> h >> w;
+
+    vector<vector<ll>> a(h, vector<ll>(w));
+    for(auto &x : a) for(auto &y : x) cin >> y;
+
+    vector<unordered_map<int,ll>> g(h + w + 2);
+    int s = h + w, t = h + w + 1;
 
     ll res = 0;
-    for(int i = 1; i <= n; i++) {
-        int a; cin >> a;
-        a *= -1;
-        int b = 0;
-        if(a < 0) {
-            res -= a;
-            b -= a;
-            a = 0;
+
+    for(int i = 0; i < h; i++) {
+        ll sum = 0;
+        for(int j = 0; j < w; j++) {
+            sum += a[i][j];
         }
-        g[s][i] = a;
-        g[i][t] = b;
-        for(int j = i * 2; j <= n; j += i) {
-            g[i][j] = 1e18;
+        ll A = -sum, B = 0;
+        ll lo = min(A, B);
+        A -= lo;
+        B -= lo;
+        res -= lo;
+        g[s][i] += A;
+        g[i][t] += B;
+    }
+
+    for(int j = 0; j < w; j++) {
+        ll sum = 0;
+        for(int i = 0; i < h; i++) {
+            sum += a[i][j];
+        }
+        ll A = 0, B = -sum;
+        ll lo = min(A, B);
+        A -= lo;
+        B -= lo;
+        res -= lo;
+        g[s][h + j] = A;
+        g[h + j][t] = B;
+    }
+
+    for(int i = 0; i < h; i++) {
+        for(int j = 0; j < w; j++) {
+            if(a[i][j] < 0) g[h + j][i] = 1e18;
+            if(a[i][j] > 0) g[h + j][i] = a[i][j];
         }
     }
+
+    // cout << "flow : " << edmondsKarp(g, s, t) << '\n';
 
     res -= edmondsKarp(g, s, t);
 
