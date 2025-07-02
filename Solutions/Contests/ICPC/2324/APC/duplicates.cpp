@@ -83,7 +83,7 @@ void solve() {
         a[r][c] = f;
         ops.push_back({r + 1, c + 1, f});
     }
- f
+ 
     cout << ops.size() << '\n';
     for(auto op : ops) {
         for(int i = 0; i < 3; i++) cout << op[i] << " \n"[i == 2];
