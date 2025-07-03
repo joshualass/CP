@@ -4,6 +4,8 @@ typedef long double ld;
 using namespace std;
 
 void solve() {
+
+ 
     
 }
 

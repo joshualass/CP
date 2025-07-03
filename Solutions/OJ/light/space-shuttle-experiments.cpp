@@ -4,11 +4,6 @@ typedef long double ld;
 using namespace std;
 const ll inf = 1e12;
 
-/*
-very direct application of the a, b, c costs for min-cut stuff.
-max-flow still pretty challenging. 
-*/
-
 struct FlowEdge {
     int v, u;
     long long cap, flow = 0;
@@ -92,43 +87,43 @@ struct Dinic {
 };
 
 void solve() {
-    
-    int n, m; cin >> n >> m;
 
-    vector<int> x(n), y(n);
-    for(int &z : x) cin >> z;
-    for(int &z : y) cin >> z;
+    //n instruments, m expts
+    int m, n; cin >> m >> n;
 
-    int s = n, t = n + 1;
+    ll res = 0;
+    int s = n + m, t = n + m + 1;
+    Dinic d(n + m + 2, s, t);
 
-    Dinic d(n + 2, s, t);
+    for(int i = 0; i < m; i++) {
+        ll p; cin >> p;
+        res += p;
+        d.add_edge(n + i, t, p);
+    }
+
     for(int i = 0; i < n; i++) {
-        ll a = x[i], b = y[i];
-        int p; cin >> p;
-        if(p == -1) {
-            a += inf;
-        }
-        if(p == 1) {
-            b += inf;
-        }
-        d.add_edge(s, i, a);
-        d.add_edge(i, t, b);
+        ll c; cin >> c;
+        d.add_edge(s, i, c);
     }
 
     for(int i = 0; i < m; i++) {
-        int p, q, r; cin >> p >> q >> r;
-        p--; q--;
-        d.add_edge(p, q, r);
-        d.add_edge(q, p, r);
+        int q; cin >> q;
+        for(int j = 0; j < q; j++) {
+            int req; cin >> req;
+            d.add_edge(req - 1, n + i, inf);
+        }
     }
 
-    cout << d.flow() << '\n';
+    cout << res - d.flow() << '\n';
 
 }
 
 int main() {
     ios_base::sync_with_stdio(false);cin.tie(NULL);
 
+    // freopen(".in","r",stdin);
+    // freopen(".out","w",stdout);
+    
     int casi; cin >> casi;
     for(int i = 1; i <= casi; i++) {
         cout << "Case " << i << ": ";
