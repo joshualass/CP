@@ -1,4 +1,4 @@
-# Competitive Programming Profiles, Practice, and Templates
+# Competitive Programming Practice + Templates
 
 ### Primary Platforms  
 - **AtCoder**: [iDucklingU](https://atcoder.jp/users/iDucklingU)  
