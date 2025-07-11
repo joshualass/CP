@@ -45,21 +45,39 @@ struct Tree {
         return idx >= size;
     }
     bool cond(T query_val, T tree_node) {
-        return tree_node >= query_val;
+        return !(tree_node[0] >= query_val[0] && tree_node[1] <= query_val[1]);
     }
     pair<int,T> find_first(int l, int r, T query_val) {
         return _find_first(1, 0, size, l, r, query_val);
     }
     pair<int,T> _find_first(int idx, int cl, int cr, int tl, int tr, T qv) {
-        if(cr <= tl || cl >= tr) return {-1, base};
+        // cout << "idx : " << idx << " cl : " << cl << " cr : " << cr << " tl : " << tl << " tr : " << tr << "\n";
+        if(cr <= tl || cl >= tr) return {n, base};
         if(cond(qv, v[idx])) {
             if(isLeaf(idx)) return {idx - size, v[idx]};
             int mid = (cl + cr) / 2;
             auto p = _find_first(idx * 2, cl, mid, tl, tr, qv);
-            if(p.first != -1){
+            if(p.first != n){
                 return p;
             }
             return _find_first(idx * 2 + 1, mid, cr, tl, tr, qv);
+        } else {
+            return {n, base};
+        }
+    }
+    pair<int,T> find_last(int l, int r, T query_val) {
+        return _find_last(1, 0, size, l, r, query_val);
+    }
+    pair<int,T> _find_last(int idx, int cl, int cr, int tl, int tr, T qv) {
+        if(cr <= tl || cl >= tr) return {-1, base};
+        if(cond(qv, v[idx])) {
+            if(isLeaf(idx)) return {idx - size, v[idx]};
+            int mid = (cl + cr) / 2;
+            auto p = _find_last(idx * 2 + 1, mid, cr, tl, tr, qv);
+            if(p.first != -1) {
+                return p;
+            }
+            return _find_last(idx * 2, cl, mid, tl, tr, qv);
         } else {
             return {-1, base};
         }

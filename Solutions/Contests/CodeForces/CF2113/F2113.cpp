@@ -3,73 +3,82 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-/*
-1
-3
-1 3 3 
-2 2 4
-*/
-
 void solve() {
     
     int n; cin >> n;
-    vector<map<int,set<int>>> adj(n * 2);
+
     vector<int> a(n), b(n);
-    for(auto &x : a) {
+    vector<set<array<int,2>>> adj(n * 2);
+
+    for(int &x : a) {
         cin >> x;
         x--;
     }
-    for(auto &x : b) {
+    for(int &x : b) {
         cin >> x;
-        x--;
+        x--;    
+    }
+    
+    for(int i = 0; i < n; i++) {
+        adj[a[i]].insert({b[i], i});
+        adj[b[i]].insert({a[i], i});
+    }
+
+    vector<int> fixed(n);
+    set<int> as, bs;
+
+    for(int i = 0; i < n * 2; i++) {
+
+        auto dfs = [&](auto self, int i, int first, int ttfang) -> void {
+            
+            if(adj[i].empty()) return;
+            auto [to, id] = *adj[i].begin();
+
+            if(ttfang) swap(i, to);
+
+            a[id] = i;
+            b[id] = to;
+            as.insert(i);
+            bs.insert(to);
+
+            if(ttfang) swap(i, to);
+
+            adj[i].erase({to, id});
+            adj[to].erase({i, id});
+
+            fixed[id] = 1;
+
+            if(!first) {
+                while(adj[i].size()) {
+                    auto [to_rem, id_rem] = *adj[i].begin();
+                    adj[i].erase({to_rem, id_rem});
+                    adj[to_rem].erase({i, id_rem});
+                }
+            }
+
+            self(self, to, 0, ttfang);
+        };
+
+        dfs(dfs, i, 1, 0);
+        dfs(dfs, i, 0, 1);
+
     }
 
     for(int i = 0; i < n; i++) {
-        adj[a[i]][b[i]].insert(i);
-        adj[b[i]][a[i]].insert(i);
+        if(fixed[i] == 0) {
+            int ta = ((int)(as.count(a[i]) == 0)) + ((int)(bs.count(b[i]) == 0));
+            int tb = ((int)(as.count(b[i]) == 0)) + ((int)(bs.count(a[i]) == 0));
+            if(tb > ta) {
+                swap(a[i], b[i]);
+            }
+            as.insert(a[i]);
+            bs.insert(b[i]);
+        }
     }
 
-    vector<int> vis(n * 2);
-
-    auto dfs = [&](auto self, int i, int t) -> void {
-
-        if(vis[i]) return;
-        vis[i] = 1;
-
-        while(adj[i].size()) {
-            int to = adj[i].begin()->first;
-            int edge_id = *adj[i][to].begin();
-
-            if(t == 0) {
-                a[edge_id] = i;
-                b[edge_id] = to;
-            } else {
-                a[edge_id] = to;
-                b[edge_id] = i;
-            }
-
-
-            adj[i][to].erase(edge_id);
-            adj[to][i].erase(edge_id);
-            if(adj[i][to].empty()) {
-                adj[i].erase(to);
-                adj[to].erase(i);
-            }
-
-            self(self, to, t);
-
-            t ^= 1;
-
-        }
-
-    };
-
-    for(int i = 0; i < n; i++) dfs(dfs, i, 0);
-    set<int> as(a.begin(), a.end()), bs(b.begin(), b.end());
     cout << as.size() + bs.size() << '\n';
     for(int i = 0; i < n; i++) cout << a[i] + 1 << " \n"[i == n - 1];
     for(int i = 0; i < n; i++) cout << b[i] + 1 << " \n"[i == n - 1];
-
 
 }
 
@@ -82,6 +91,91 @@ signed main() {
 
     return 0;
 }
+
+// #include <bits/stdc++.h>
+// typedef long long ll;
+// typedef long double ld;
+// using namespace std;
+
+// /*
+// 1
+// 3
+// 1 3 3 
+// 2 2 4
+// */
+
+// void solve() {
+    
+//     int n; cin >> n;
+//     vector<map<int,set<int>>> adj(n * 2);
+//     vector<int> a(n), b(n);
+//     for(auto &x : a) {
+//         cin >> x;
+//         x--;
+//     }
+//     for(auto &x : b) {
+//         cin >> x;
+//         x--;
+//     }
+
+//     for(int i = 0; i < n; i++) {
+//         adj[a[i]][b[i]].insert(i);
+//         adj[b[i]][a[i]].insert(i);
+//     }
+
+//     vector<int> vis(n * 2);
+
+//     auto dfs = [&](auto self, int i, int t) -> void {
+
+//         if(vis[i]) return;
+//         vis[i] = 1;
+
+//         while(adj[i].size()) {
+//             int to = adj[i].begin()->first;
+//             int edge_id = *adj[i][to].begin();
+
+//             if(t == 0) {
+//                 a[edge_id] = i;
+//                 b[edge_id] = to;
+//             } else {
+//                 a[edge_id] = to;
+//                 b[edge_id] = i;
+//             }
+
+
+//             adj[i][to].erase(edge_id);
+//             adj[to][i].erase(edge_id);
+//             if(adj[i][to].empty()) {
+//                 adj[i].erase(to);
+//                 adj[to].erase(i);
+//             }
+
+//             self(self, to, t);
+
+//             t ^= 1;
+
+//         }
+
+//     };
+
+//     for(int i = 0; i < n; i++) dfs(dfs, i, 0);
+//     set<int> as(a.begin(), a.end()), bs(b.begin(), b.end());
+//     cout << as.size() + bs.size() << '\n';
+//     for(int i = 0; i < n; i++) cout << a[i] + 1 << " \n"[i == n - 1];
+//     for(int i = 0; i < n; i++) cout << b[i] + 1 << " \n"[i == n - 1];
+
+
+// }
+
+// signed main() {
+//     ios_base::sync_with_stdio(false);
+//     cin.tie(NULL);
+
+//     int casi; cin >> casi;
+//     while(casi-->0) solve();
+
+//     return 0;
+// }
 
 // #include <bits/stdc++.h>
 // typedef long long ll;

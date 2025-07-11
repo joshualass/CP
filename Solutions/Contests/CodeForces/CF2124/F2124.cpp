@@ -1,3 +1,14 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -126,3 +137,61 @@ void init_fact(int n = MAXN) {
 /*
 init_fact()
 */
+
+void solve() {
+    
+    int n, m; cin >> n >> m;
+
+    vector bad(n, vector<int>(n));
+    for(int i = 0; i < m; i++) {
+        int idx, x; cin >> idx >> x;
+        bad[idx-1][x-1] = 1;
+    }
+
+    auto check_perm = [&](int idx, int len, int start) -> int {
+        for(int i = idx; i < idx + len; i++) {
+            if(bad[i][(start + i - idx) % len]) return i - idx;
+        }
+        return len;
+    };
+
+    vector dp(n + 1, vector<Z>(n + 2));
+
+    dp[0][n + 1] = 1;
+
+    for(int i = 0; i < n; i++) {
+
+        Z sum_here = accumulate(dp[i].begin(), dp[i].end(), Z(0));
+        int max_len = check_perm(i, n - i, 0);
+
+        for(int len = 1; i + len <= n; len++) {
+            for(int start = 0; start < len; start++) {
+                Z ways_start = sum_here - (dp[i][start]);
+                
+                if(check_perm(i, len, start) == len) {
+                    if(start) {
+                        dp[i+len][n+1] += ways_start;
+                    } else {
+                        dp[i + len][(len - start)] += ways_start;
+                    }
+
+                }
+            }
+        }
+        // cout << "i : " << i << " dp[i] : " << dp[i] << '\n';
+        // cout << "norest : " << no_rest[i] << '\n';
+    }
+
+    cout << accumulate(dp[n].begin(), dp[n].end(), Z(0)) << '\n';
+
+}
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int casi; cin >> casi;
+    while(casi-->0) solve();
+
+    return 0;
+}
