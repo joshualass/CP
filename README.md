@@ -6,7 +6,7 @@
 - **LeetCode**: [07dishwasherbob8](https://leetcode.com/u/07dishwasherbob8/)
 
 ### Other Online Judges  
-- **CSES**: [146178]([https://cses.fi/user/146178](https://cses.fi/problemset/user/146178/))  
+- **CSES**: [146178](https://cses.fi/problemset/user/146178/)  
 - **DMOJ**: [jtmaster1000](https://dmoj.ca/user/jtmaster1000)  
 - **Kattis**: [joshua-l](https://open.kattis.com/users/joshua-l)  
 - **LightOJ**: [user-3wapwiof](https://lightoj.com/user/user-3wapwiof)  
