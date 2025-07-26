@@ -3,20 +3,6 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-/*
-dp[j] is # of ways to fill all but j nodes in subtree
-for the current approach for horizontal merging, we take move iz nodes from i subtree and jz nodes from j subtree and count the # of ways to do this.
-
-Current approach runs in O(n^4). I think this could be optimized by having a better dp state or optimizing the merging somehow. 
-
-*/
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const vector<T> v) {
-    for(auto x : v) os << x << " ";
-    return os;
-}
-
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -146,65 +132,35 @@ void init_fact(int n = MAXN) {
 init_fact()
 */
 
-
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    init_fact();
+    int n, m; cin >> n >> m;
 
-    int n; cin >> n;
-    vector<vector<int>> adj(n);
-    for(int i = 1; i < n; i++) {
-        int p; cin >> p; 
-        p--;
-        adj[i].push_back(p);
-        adj[p].push_back(i);
+    vector<Z> dp(m + 1);
+    dp[0] = 1;
+    vector<Z> a(m + 1, 1);
+    vector<vector<pair<int,Z>>> b(m + 1);
+    for(int i = 0; i < n; i++) {
+        int l, r; cin >> l >> r;
+        Z p, q; cin >> p >> q;
+        Z pr = p / q;
+        a[r] *= (1 - pr);
+        b[r].push_back({l, pr});
     }
 
-    vector<vector<Z>> dp(n);
+    for(int i = 1; i <= m; i++) a[i] *= a[i-1];
 
-    auto merge = [&](vector<Z> &a, vector<Z> &b) -> vector<Z> {
-        vector<Z> res(a.size() + b.size() - 1);
-        for(int i = 0; i < a.size(); i++) {
-            for(int j = 0; j < b.size(); j++) {
-                // for(int z = 0; z <= min(i, j); z++) {
-                //     res[i - z + j - z] += a[i] * b[j] * choose(i, z) * choose(j, z) * fact[i] * inv_fact[i - z] * fact[j] * inv_fact[j - z];
-                // }
-                for(int iz = 0; iz <= min(i, j); iz++) {
-                    for(int jz = 0; jz <= min(i, j); jz++) {
-                        res[i - iz + j - jz] += a[i] * b[j] * choose(i, iz) * choose(j, jz) * fact[j] * inv_fact[j - iz] * fact[i] * inv_fact[i - jz];
-                    }
-                }
-            }
-        }
-        return res;
-    };
+    for(int i = 1; i <= m; i++) {
 
-    auto dfs = [&](auto self, int i, int p) -> void {
-        vector<Z> cur(1, 1);
-        for(int c : adj[i]) {
-            if(c != p) {
-                self(self, c, i);
-                cur = merge(cur, dp[c]);
-            }
+        for(auto [l, pr] : b[i]) {
+            dp[i] += a[i] / a[l - 1] * dp[l - 1] * pr / (1 - pr);
         }
 
-        dp[i].resize(cur.size() + 1);
-        for(int j = 0; j < cur.size(); j++) {
-            //fill
-            dp[i][j] += cur[j] * (j + 1);
-            //no fill
-            dp[i][j+1] += cur[j];
-        }
+    }
 
-        // cout << "i : " << i << " dp[i] : " << dp[i] << '\n';
-
-    };
-
-    dfs(dfs, 0, -1);
-
-    cout << dp[0][0] << '\n';
+    cout << dp[m] << '\n';
 
     return 0;
 }
