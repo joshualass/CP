@@ -5,23 +5,19 @@ using namespace std;
 
 void solve() {
     
-    ll n, m; cin >> n >> m;
-    vector<ll> a(n), b(n);
+    ll n; cin >> n;
+    vector<ll> a(n);
     for(ll &x : a) cin >> x;
-    for(ll &x : b) cin >> x;
 
-    sort(a.begin(), a.end());
-    sort(b.begin(), b.end());
-
-    int l = 0, r = n - 1;
     ll res = 0;
+
     for(int i = 0; i < n; i++) {
-        if(a[i] + b[r] >= m) {
-            res += (a[i] + b[r]) % m;
-            r--;
-        } else {
-            res += (a[i] + b[l]) % m;
-            l++;
+        //there are n - i paths that start at index i
+        res += n - i;
+        if(i) {
+            if(a[i] < a[i-1]) {
+                res += 1LL * (i - 1 + 1) * (n - i);
+            }
         }
     }
 
@@ -33,7 +29,7 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int casi; cin >> casi;
+    ll casi; cin >> casi;
     while(casi-->0) solve();
 
     return 0;

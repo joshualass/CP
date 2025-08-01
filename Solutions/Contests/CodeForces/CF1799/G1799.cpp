@@ -138,33 +138,45 @@ void init_fact(int n = MAXN) {
 init_fact()
 */
 
-/*
-Let's try to solve this problem with PIE. 
-
-Define e_i to be the bad condition where vertex i is reachable from Vertex a_i by traversing 1+ edges. i.e. the value at vertex i is one in its subtree. 
-Now, we try to do dp on the pie stuff. 
-
-Let dp[i][j] => when looking at node i's subtree, the sum of number of ways to fix a subset of j conditions to be bad and for this subset, the number of ways to do this. 
-
-lolll, once you know to apply pie and know the dp states, the transitions are extremely easy. nice practice ... ._.
-
-*/
-
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
     init_fact();
-
     int n; cin >> n;
-    vector<vector<int>> ch(n);
-    for(int i = 1; i < n; i++) {
-        int p; cin >> p;
-        p--;
-        ch[p].push_back(i);
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
+    map<int,vector<int>> m;
+    for(int i = 0; i < n; i++) {
+        int t; cin >> t;
+        m[t].push_back(a[i]);
     }
 
-    auto not_fft = [&](vector<Z> a, vector<Z> b) -> vector<Z> {
+    vector<Z> res(1, 1);
+
+    auto get_dp = [](vector<int> a) -> vector<Z> {
+        vector<Z> dp(1, 1);
+
+        for(int x : a) {
+            vector<Z> nx(dp.size() + x);
+            for(int start_bad_cnt = 0; start_bad_cnt < dp.size(); start_bad_cnt++) {
+                for(int add_bad_cnt = 0; add_bad_cnt <= x; add_bad_cnt++) {
+                    int left = x - add_bad_cnt;
+                    nx[start_bad_cnt + add_bad_cnt] += dp[start_bad_cnt] * inv_fact[add_bad_cnt] * inv_fact[left];
+                }
+            }
+            dp = nx;
+        }
+
+        int pc = a.size();
+        for(int i = 0; i < dp.size(); i++) {
+            dp[i] *= choose(pc, i) * fact[i];
+        }
+        // cout << "a : " << a << " dp : " << dp << '\n';
+        return dp;
+    };
+
+    auto merge = [](vector<Z> a, vector<Z> b) -> vector<Z> {
         vector<Z> res(a.size() + b.size() - 1);
         for(int i = 0; i < a.size(); i++) {
             for(int j = 0; j < b.size(); j++) {
@@ -174,33 +186,15 @@ signed main() {
         return res;
     };
 
-    auto dfs = [&](auto self, int i) -> vector<Z> {
-
-        vector<Z> dp(1, 1);
-        for(int c : ch[i]) {
-            dp = not_fft(dp, self(self, c));
-        }
-
-        vector<Z> res(dp.size() + 1);
-        int ss = dp.size() - 1;
-        for(int j = 0; j < dp.size(); j++) {
-            //case we opt to make node i a 'bad' node
-            int choices = ss - j;
-            if(choices > 0) {
-                res[j + 1] += dp[j] * choices;
-            }
-            //case we don't opt to make node i a 'bad' node
-            res[j] += dp[j];
-        }
-        return res;
-    };
-
-    vector<Z> res = dfs(dfs, 0);
-    Z ans = 0;
+    for(auto [team, v] : m) {
+        res = merge(res, get_dp(v));
+    }
 
     // cout << "res : " << res << '\n';
 
-    for(int i = 0; i <= n; i++) {
+    Z ans = 0;
+
+    for(int i = 0; i < res.size(); i++) {
         int left = n - i;
         if(i & 1) {
             ans -= res[i] * fact[left];
@@ -214,25 +208,10 @@ signed main() {
     return 0;
 }
 
-
 // #include <bits/stdc++.h>
 // typedef long long ll;
 // typedef long double ld;
 // using namespace std;
-
-// /*
-// dp[j] is # of ways to fill all but j nodes in subtree
-// for the current approach for horizontal merging, we take move iz nodes from i subtree and jz nodes from j subtree and count the # of ways to do this.
-
-// Current approach runs in O(n^4). I think this could be optimized by having a better dp state or optimizing the merging somehow. 
-
-// */
-
-// template<typename T>
-// std::ostream& operator<<(std::ostream& os, const vector<T> v) {
-//     for(auto x : v) os << x << " ";
-//     return os;
-// }
 
 // template<class T>
 // constexpr T power(T a, ll b) {
@@ -371,97 +350,52 @@ signed main() {
 //     init_fact();
 
 //     int n; cin >> n;
-//     vector<vector<int>> adj(n);
-//     for(int i = 1; i < n; i++) {
-//         int p; cin >> p; 
-//         p--;
-//         adj[i].push_back(p);
-//         adj[p].push_back(i);
+//     vector<int> c(n);
+//     Z im = 1;
+//     for(int &x : c) {
+//         cin >> x;
+//         im *= inv_fact[x];    
 //     }
 
-//     vector<vector<Z>> dp(n);
+//     // {team member count, votes needed in team}
+//     map<int,array<int,2>> m;
+//     for(int i = 0; i < n; i++) {
+//         int t; cin >> t;
+//         m[t][0]++;
+//         m[t][1] += c[i];
+//     }
 
-//     auto merge = [&](vector<Z> &a, vector<Z> &b) -> vector<Z> {
-//         vector<Z> res(a.size() + b.size() - 1);
-//         // for(int i = 0; i < a.size(); i++) {
-//         //     for(int j = 0; j < b.size(); j++) {
-//         //         // for(int z = 0; z <= min(i, j); z++) {
-//         //         //     res[i - z + j - z] += a[i] * b[j] * choose(i, z) * choose(j, z) * fact[i] * inv_fact[i - z] * fact[j] * inv_fact[j - z];
-//         //         // }
-//         //         for(int iz = 0; iz <= min(i, j); iz++) {
-//         //             for(int jz = 0; jz <= min(i, j); jz++) {
-//         //                 // res[i - iz + j - jz] += a[i] * b[j] * choose(i, iz) * choose(j, jz) * fact[j] * inv_fact[j - iz] * fact[i] * inv_fact[i - jz];
-//         //                 res[i - iz + j - jz] += a[i] * b[j] * fact[i] * inv_fact[iz] * inv_fact[i - iz] * fact[j] * inv_fact[jz] * inv_fact[j - jz] * fact[j] * inv_fact[j - iz] * fact[i] * inv_fact[i - jz];
-//         //             }
-//         //         }
-//         //     }
-//         // }
-//         for(int i = 0; i < a.size(); i++) {
-//             a[i] *= fact[i] * fact[i];
-//         }
-//         for(int i = 0; i < b.size(); i++) {
-//             b[i] *= fact[i] * fact[i];
-//         }
-//         for(int i = 0; i < a.size(); i++) {
-//             for(int j = 0; j < b.size(); j++) {
-//                 for(int iz = 0; iz <= min(i, j); iz++) {
-//                     for(int jz = 0; jz <= min(i, j); jz++) {
-//                         res[i - iz + j - jz] += a[i] * b[j] * inv_fact[iz] * inv_fact[i - iz] * inv_fact[jz] * inv_fact[j - jz] * inv_fact[j - iz] * inv_fact[i - jz];
+//     vector res(1, vector<Z>(1, 1));
+
+//     auto merge = [&](vector<vector<Z>> &a, int bvc, int bvn) -> vector<vector<Z>> {
+
+//         vector res(a.size() + bvc, vector<Z>(a[0].size() + bvn));
+        
+//         for(int avc = 0; avc < a.size(); avc++) {
+//             for(int avn = 0; avn < a[0].size(); avn++) {
+//                 for(int avoteb = 0; avoteb <= min(avc, bvn); avoteb++) {
+//                     for(int bvotea = 0; bvotea <= min(bvc, avn); bvotea++) {
+//                         res[avc + bvc - (avoteb + bvotea)][avn + bvn - (avoteb + bvotea)] += a[avc][avn] * fact[avc] * inv_fact[avc - avoteb] * fact[bvn] * inv_fact[bvn - avoteb] * inv_fact[avoteb] * fact[bvc] * inv_fact[bvc - bvotea] * fact[avn] * inv_fact[avn - bvotea] * inv_fact[bvotea];
 //                     }
 //                 }
 //             }
 //         }
-
-//         // vector dp(a.size(), vector<Z>(b.size()));
-//         // for(int i = 0; i < a.size(); i++) {
-//         //     for(int j = 0; j < b.size(); j++) {
-//         //         dp[i][j] = a[i] * b[j];
-//         //     }
-//         // }
-
-//         // for(int i = ((int) a.size()) - 1; i >= 0; i--) {
-//         //     for(int j = ((int) b.size()) - 1; j >= 0; j--) {
-//         //         if(i && j) {
-//         //             dp[i-1][j-1] += dp[i][j] * i * j * i * j;
-//         //         }
-
-//         //         res[i + j] += dp[i][j];
-//         //         for(int a = 1; a <= min(i, j); a++) {
-//         //             res[i - a + j] += dp[i][j] * choose(i, a) * choose(j, a) * fact[a];
-//         //         }
-//         //         for(int b = 1; b <= min(i, j); b++) {
-//         //             res[i + j - b] += dp[i][j] * choose(j, b) * choose(i, b) * fact[b];
-//         //         }
-//         //     }
-//         // }
-
 //         return res;
 //     };
 
-//     auto dfs = [&](auto self, int i, int p) -> void {
-//         vector<Z> cur(1, 1);
-//         for(int c : adj[i]) {
-//             if(c != p) {
-//                 self(self, c, i);
-//                 cur = merge(cur, dp[c]);
-//             }
-//         }
+//     int vcrem = n, vnrem = n;
 
-//         dp[i].resize(cur.size() + 1);
-//         for(int j = 0; j < cur.size(); j++) {
-//             //fill
-//             dp[i][j] += cur[j] * (j + 1);
-//             //no fill
-//             dp[i][j+1] += cur[j];
-//         }
+//     for(auto [k, v] : m) {
+//         auto [bvc, bvn] = v;
+//         res = merge(res, bvc, bvn);
+//         vcrem -= bvc;
+//         vnrem -= bvn;
+//         // cout << "k : " << k << " bvc : " << bvc << " bvn : " << bvn << " vcrem : " << vcrem << " vnrem : " << vnrem << '\n';
+//         while(res.size() > vnrem + 1) res.pop_back();
+//         for(auto &x : res) while(x.size() > vcrem + 1) x.pop_back();
+//     }
 
-//         // cout << "i : " << i << " dp[i] : " << dp[i] << '\n';
-
-//     };
-
-//     dfs(dfs, 0, -1);
-
-//     cout << dp[0][0] << '\n';
+//     cout << im * res[0][0] << '\n';
 
 //     return 0;
 // }
