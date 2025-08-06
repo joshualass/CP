@@ -211,26 +211,55 @@ Z choose_slow(ll n, ll k) {
 
 // }
 
+// void solve() {
+//     ll h, w, k; cin >> h >> w >> k;
+
+//     cout << "h : " << h << " w : " << w << " k : " << k << '\n';
+
+//     ll total_walls = 1LL * h * (w - 1) + 1LL * (h - 1) * w;
+//     ll total_walls_left = total_walls - ((h - 1) + (w - 1));
+
+//     Z path_combs = choose(h - 1 + w - 1, h - 1);
+
+//     Z double_path_combs = choose(h - 2 + w - 2 + 1, 1) * choose(h - 2 + w - 2, h - 2);
+
+//     cout << "tw : " << total_walls << " twl : " << total_walls_left << " pc : " << path_combs << " dc : " << double_path_combs << '\n';
+
+//     if(k == w + h - 2) {
+//         cout << path_combs << '\n';
+//     } else if(k == w + h - 1) {
+//         cout << path_combs * choose_slow(total_walls_left, 1) << '\n';
+//     } else if(k == w + h) {
+//         cout << path_combs * choose_slow(total_walls_left, 2) - double_path_combs << '\n';
+//     } else {
+//         cout << "0\n";
+//     }
+
+// }
+
 void solve() {
     ll h, w, k; cin >> h >> w >> k;
+    ll tl = h * (w - 1) + (h - 1) * w;
 
-    cout << "h : " << h << " w : " << w << " k : " << k << '\n';
+    if(k == h + w) {
 
-    ll total_walls = 1LL * h * (w - 1) + 1LL * (h - 1) * w;
-    ll total_walls_left = total_walls - ((h - 1) + (w - 1));
+        auto get_zig = [](ll h, ll w) -> Z {
+            if(w < 3) return 0;
+            Z total = choose(h + w - 3 + 1, h) * choose(w - 3 + 1, w - 3);
+            Z bad_cnt = choose(h + w - 3 + 1, h + 1) * 2;
+            return total - bad_cnt;
+        };
+        Z base = choose(h - 1 + w - 1, h - 1) * choose_slow(tl - (h - 1 + w - 1), 2);
+        Z dup = choose(h - 2 + w - 2 + 1, 1) * choose(h - 2 + w - 2, h - 2);
+        Z z1 = get_zig(h, w), z2 = get_zig(w, h);
 
-    Z path_combs = choose(h - 1 + w - 1, h - 1);
-
-    Z double_path_combs = choose(h - 2 + w - 2 + 1, 1) * choose(h - 2 + w - 2, h - 2);
-
-    cout << "tw : " << total_walls << " twl : " << total_walls_left << " pc : " << path_combs << " dc : " << double_path_combs << '\n';
-
-    if(k == w + h - 2) {
-        cout << path_combs << '\n';
-    } else if(k == w + h - 1) {
-        cout << path_combs * choose_slow(total_walls_left, 1) << '\n';
-    } else if(k == w + h) {
-        cout << path_combs * choose_slow(total_walls_left, 2) - double_path_combs << '\n';
+        // cout << "base : " << base << " dup : " << dup << " z1 : " << z1 << " z2 : " << z2 << '\n';
+        
+        cout << base - dup + z1 + z2 << '\n';
+    } else if(k == h + w - 1) {
+        cout << choose(h - 1 + w - 1, h - 1) * choose_slow(tl - (h - 1 + w - 1), 1) << '\n';
+    } else if(k == h + w - 2) {
+        cout << choose(h - 1 + w - 1, h - 1) << '\n';
     } else {
         cout << "0\n";
     }

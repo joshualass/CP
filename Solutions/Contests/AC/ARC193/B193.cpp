@@ -16,6 +16,24 @@ std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
     return os;
 }
 
+template<typename T>
+std::ostream& operator<<(std::ostream& os, set<T> s) {
+    for(auto &x: s) os << x << " ";
+    return os;
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, multiset<T> s) {
+    for(auto &x: s) os << x << " ";
+    return os;
+}
+
+template<typename T, typename D>
+std::ostream& operator<<(std::ostream& os, map<T,D> m) {
+    for(auto &x: m) os << x.first << " " << x.second << " | ";
+    return os;
+}
+
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -145,79 +163,114 @@ void init_fact(int n = MAXN) {
 init_fact()
 */
 
+int pc[2][16][4];
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
     int n; cin >> n;
+    // int n = 1000000;
     string s; cin >> s;
-    // array<Z,2> dp = {1, 0};
-    // for(int i = 0; i < n; i++) {
-    //     array<Z,2> nx = {0,0};
-    //     if(s[i] == '0') {
-    //         nx = {dp[0] * 2 + dp[1], dp[1]};
-    //     } else {
-    //         nx = {dp[0] * 3 + dp[1], dp[0] + dp[1]};
-    //     }
-    //     dp = nx;
-    // }
-    // array<Z,4> dp = {0, 0, 1, 0};
-    // for(int i = 0; i < n; i++) {
-    //     array<Z,4> nx;
-    //     if(s[i] == '0') {
-    //         nx = {dp[0] * 2 + dp[1] + dp[2] + dp[3], dp[1], dp[2], dp[3]};
-    //     } else {
-    //         nx = {dp[0] * 3 + dp[1] + dp[2] * 2 + dp[3], dp[0] + dp[1], dp[2], dp[2] + dp[3]};
-    //     }
-    //     dp = nx;
-    // }
-    array<Z,6> dp = {0, 0, 1, 0, 0, 0};
-    for(int i = 0; i < n; i++) {
-        array<Z,6> nx = {0, 0, 0, 0, 0, 0};
-        if(s[i] == '0') {
-            nx[0] += dp[0] * 2;
+    // string s(n, '1');
+    vector<Z> dp(16);
 
-            nx[0] += dp[1];
-            nx[1] += dp[1];
-
-            nx[0] += dp[2];
-            nx[2] += dp[2];
-
-            nx[0] += dp[3];
-            nx[3] += dp[3];
-
-            nx[0] += dp[4];
-            nx[4] += dp[4];
-
-            nx[0] += dp[5];
-            nx[5] += dp[5];
+    auto start_dp = [&]() -> void {
+        vector<int> m(4);
+        if(s[0] == '0') {
+            for(int i = 0; i < 2; i++) {
+                for(int j = 0; j < 2; j++) {
+                    int here = i + j;
+                    m[here] |= 1 << (i * 2 + j);
+                }
+            }
         } else {
-            nx[0] += dp[0] * 3;
-            nx[1] += dp[0];
+            for(int i = 0; i < 2; i++) {
+                for(int j = 0; j < 2; j++) {
+                    for(int k = 0; k < 2; k++) {
+                        int here = i + j + k;
+                        m[here] |= 1 << (i * 2 + j);
+                    }
+                }
+            }
+        }
+        for(int i = 0; i < 4; i++) {
+            if(m[i]) {
+                dp[m[i]] += 1;
+            }
+        }
+    };
 
-            nx[0] += dp[1];
-            nx[1] += dp[1];
+    for(int si = 0; si < 2; si++) {
+        for(int ways = 1; ways < 16; ways++) {
+            for(int bit = 0; bit < 4; bit++) {
+                if((ways >> bit) & 1) {
+                    int not_end = bit / 2, not_nx = bit & 1;
+                    if(si == 0) {
+                        for(int j = 0; j < 2; j++) {
+                            int here = ((int) (not_nx == 0)) + j;
+                            pc[si][ways][here] |= 1 << (not_end * 2 + j);
+                        }
+                    } else {
+                        for(int j = 0; j < 2; j++) {
+                            for(int k = 0; k < 2; k++) {
+                                int here = ((int) (not_nx == 0)) + j + k;
+                                pc[si][ways][here] |= 1 << (not_end * 2 + j);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-            nx[0] += dp[2] * 2;
-            nx[3] += dp[2];
-            nx[4] += dp[2];
+    auto mid_dp = [&](int ways, int idx, Z v, vector<Z> &nx) -> void {
+        int si = s[idx] == '1';
+        for(int i = 0; i < 4; i++) {
+            if(pc[si][ways][i]) {
+                nx[pc[si][ways][i]] += v;
+            }
+        }
+    };
 
-            nx[0] += dp[3];
-            nx[3] += dp[3];
+    Z res = 0;
 
-            nx[0] += dp[4] * 2;
-            nx[4] += dp[4];
-            nx[5] += dp[4];
+    auto end_dp = [&](int ways, Z v) -> void {
+        vector<int> m(4);
+        for(int bit = 0; bit < 4; bit++) {
+            if((ways >> bit) & 1) {
+                int not_end = bit / 2, not_nx = bit & 1;
+                if(s[n - 1] == '0') {
+                    int here = ((int) (not_end == 0)) + ((int) (not_nx == 0));
+                    m[here] = 1;
+                } else {
+                    for(int k = 0; k < 2; k++) {
+                        int here = ((int) (not_end == 0)) + ((int) (not_nx == 0)) + k;
+                        m[here] = 1;
+                    }
+                }
+            }
+        }
+        res += accumulate(m.begin(), m.end(), 0) * v;
+    };
 
-            nx[0] += dp[5];
-            nx[5] += dp[5];
+    start_dp();
+
+    // cout << "starting dp : " << dp << '\n';
+
+    for(int i = 1; i + 1 < n; i++) {
+        vector<Z> nx(16);
+        for(int j = 1; j < 16; j++) {
+            mid_dp(j, i, dp[j], nx);
         }
         dp = nx;
     }
 
-    cout << "dp : " << dp << '\n';
+    for(int j = 1; j < 16; j++) {
+        end_dp(j, dp[j]);
+    }
 
-    cout << dp[0] + dp[1] << '\n';
+    cout << res << '\n';
 
     return 0;
 }
