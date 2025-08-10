@@ -3,13 +3,57 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-
+ll dp[18][10][2][2];
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    ll lo, hi; cin >> lo >> hi;
+
+    vector<ll> mul(19);
+    mul[0] = 1;
+    for(int i = 1; i <= 18; i++) mul[i] = mul[i-1] * 10;
+
+    for(int d = 0; d < 18; d++) {
+        for(int i = 1; i <= 9; i++) {
+            ll num = i * mul[d];
+            int valid = i >= lo / mul[d] && i <= hi / mul[d];
+            int touch_down = i == lo / mul[d];
+            int touch_up = i == hi / mul[d];
+            if(valid) {
+                dp[d][i][touch_down][touch_up]++;
+            }
+        }
+    }
+
+    for(int d = 17; d > 0; d--) {
+        for(int i = 0; i < 10; i++) {
+            for(int j = 0; j < 10; j++) {
+                for(int k = 0; k < 2; k++) {
+                    for(int l = 0; l < 2; l++) {
+                        int valid = (i != j) && (k == 0 || j >= lo / mul[d - 1] % 10) && (l == 0 || j <= hi / mul[d - 1] % 10);
+                        int nk = k && j == lo / mul[d - 1] % 10;
+                        int nl = l && j == hi / mul[d - 1] % 10;
+                        if(valid) {
+                            dp[d-1][j][nk][nl] += dp[d][i][k][l];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    ll res = 0;
+    for(int i = 0; i < 10; i++) {
+        for(int j = 0; j < 2; j++) {
+            for(int k = 0; k < 2; k++) {
+                res += dp[0][i][j][k];
+            }
+        }
+    }
+
+    cout << res + (lo == 0) << '\n';
 
     return 0;
 }
