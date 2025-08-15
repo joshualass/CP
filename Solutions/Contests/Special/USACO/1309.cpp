@@ -3,6 +3,17 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+/*
+USACO 2023 February Contest, Platinum
+Problem 2. Problem Setting
+*/
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -105,7 +116,7 @@ struct Mint {
     }
 };
 
-constexpr int P = 998244353;
+constexpr int P = 1e9 + 7;
 using Z = Mint<P>;
 // using Z = double;
 const int MAXN = 1e6;
@@ -132,49 +143,86 @@ void init_fact(int n = MAXN) {
 init_fact()
 */
 
-void solve() {
-    
-    int n; cin >> n;
-    Z res = 1;
-    int oc = 0, pi = 0, ph = 0;
-    for(int i = 1; i <= n; i++) {
-        int a; cin >> a;
-        if(i == n) {
-            if(a != -1 && a != n) res = 0;
-            a = n;
-        }
-        if(a != -1) {
-            Z mul = 0;
-            int x = i - pi, y = a - ph;
-
-            for(int under = 0; under <= y && under <= x; under++) {
-                int over = y - under;
-                int left = oc + x - under;
-                if(x - under >= 0 && left - over >= 0) {
-                    mul += fact[x] * inv_fact[x - under] * choose(oc, under) * fact[left] * inv_fact[left - over] * choose(x, over);
-                }
-            }
-
-            res *= mul;
-
-            oc = i - a;
-            pi = i;
-            ph = a;
-        }
-    }
-
-    cout << res << '\n';
-
-}
-
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
     init_fact();
 
-    int casi; cin >> casi;
-    while(casi-->0) solve();
+    int n, m; cin >> n >> m;
+    vector<string> a(m);
+    for(auto &x : a) cin >> x;
+
+    vector<int> cnt(1 << m);
+    for(int i = 0; i < n; i++) {
+        int bm = 0;
+        for(int j = 0; j < m; j++) {
+            if(a[j][i] == 'H') bm += 1 << j;
+        }
+        cnt[bm]++;
+    }
+
+    vector<Z> ways_make(1 << m);
+
+    for(int i = 0; i < 1 << m; i++) {
+        for(int c = 1; c <= cnt[i]; c++) ways_make[i] = ways_make[i] * c + c;
+    }
+
+    // cout << "ways_make : " << ways_make << '\n';
+
+    //not sossed!
+    // Z res = 0;
+    // vector<Z> dp(1 << m);
+
+    // for(int i = 0; i < 1 << m; i++) {
+    //     if(i) {
+    //         for(int j = (i - 1) & i; j > 0; j = (j - 1) & i) {
+    //             dp[i] += dp[j];
+    //         }
+    //         dp[i] += dp[0];
+    //         dp[i] *= ways_make[i];
+    //     } else {
+    //         dp[i] = ways_make[i] + 1;
+    //     }
+    //     res += dp[i];
+    // }
+
+    // cout << res - 1 << '\n';
+
+    //sossed!
+
+    /*
+    let
+    dp[bm] => the number of subsets such that the latest problem has the subset bm of hard problems with the others being easy
+    sos[bm][i] => the sum of all dp states b, satisfying bm xor b < 2^i and not including dp[bm]. 
+
+    transitions for dp
+    dp[bm] = sos[bm][m] * mw[bm]
+
+    transitions for sos
+    if bit i - 1 is 0, sos[bm][i] = sos[bm][i-1]
+    if bit i - 1 is 1, sos[bm][i] = sos[bm][i-1] + sos[bm ^ (1 << (i - 1))][i - 1] + dp[bm ^ (1 << (i - 1))]
+    */
+
+    vector<vector<Z>> sos(1 << m, vector<Z>(m + 1));
+    vector<Z> dp(1 << m);
+
+    for(int i = 0; i < 1 << m; i++) {
+        for(int j = 1; j <= m; j++) {
+            if(((i >> (j - 1)) & 1) == 0) {
+                sos[i][j] = sos[i][j-1];
+            } else {
+                sos[i][j] = sos[i][j-1] + sos[i ^ (1 << (j - 1))][j-1] + dp[i ^ (1 << (j - 1))];
+            }
+        }
+        if(i) {
+            dp[i] = ways_make[i] * sos[i][m];
+        } else {
+            dp[i] = ways_make[i] + 1;
+        }
+    } 
+
+    cout << accumulate(dp.begin(), dp.end(), Z(0)) - 1 << '\n';
 
     return 0;
 }

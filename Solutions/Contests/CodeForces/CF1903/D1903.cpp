@@ -2,127 +2,208 @@
 typedef long long ll;
 typedef long double ld;
 using namespace std;
-const ll MOD = 1e9 + 7;
+const int k = 20;
+ll cost[1 << k], cnt[1 << k];
 
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
+/*
+good SoS practice. 
+still taking too much time to solve problems. 
+
++ bitmask intuition is better. 
+*/
+
+template<typename T, typename D>
+std::ostream& operator<<(std::ostream& os, map<T,D> m) {
+    for(auto &x: m) os << x.first << " " << x.second << " | ";
     return os;
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const vector<T> v) {
-    for(auto x : v) os << x << " ";
-    return os;
-}
-
-int depth = 20;
-int nextchild = 20000000;
-
-int a[20000000][2];
-ll m[20000000];
-
-void reset() {
-    for(int i = 0; i < nextchild; i++) {
-        a[i][0] = -1;
-        a[i][1] = -1;
-        m[i] = 0;
-    }
-    nextchild = 1;
-}
-
-void insert(int x) {
-    int cur = 0;
-    for(int d = depth - 1; d >= 0; d--) {
-        int bit = (x >> d) & 1;
-
-        if(a[cur][bit] == -1) {
-            a[cur][bit] = nextchild++;
-        }
-        cur = a[cur][bit];
-        m[cur] += x;
-    }
-}
-
-ll countless(int x) {
-
-    ll res = 0;
-    int cur = 0;
-
-    for(int d = depth - 1; d >= 0; d--) {
-        int bit = (x >> d) & 1;
-        if((x >> d) & 1) { //if bit is set for k, we have the option to check the offbit. Must not go in direction of bit
-            if(a[cur][0] != -1) {
-                res += m[a[cur][0]];
-            }
-        }
-        if(a[cur][bit] != -1) {
-            cur = a[cur][bit];
-        } else {
-            return res;
-        }
-    }
-    return res;
 }
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-    
+
     int n, q; cin >> n >> q;
-    vector<int> a(n);
-    for(int &x : a) cin >> x;
-
-    ll lsum = accumulate(a.begin(), a.end(), 0LL);
-    sort(a.begin(), a.end());
-
-    vector<array<ll,2>> pc;
-
-    reset();
-
-    for(int i = n - 1; i >= 0; i--) {
-
-        lsum -= a[i];
-        for(int bit = 0; bit < depth; bit++) {
-            if((a[i] >> bit) & 1) {
-                // cout << "a[i] : " << a[i] << " inserting : " << (a[i] & ((1 << (bit + 1)) - 1)) << '\n';
-                insert(a[i] & ((1 << (bit + 1)) - 1));
-            }
-        }
-        // int nextdepth = 32 - __builtin_popcount(a[i]);
-        // if(nextdepth != depth) {
-        //     reset();
-        //     depth = nextdepth;
-        //     for(int j = i + 1; j < n; j++) {
-        //         insert(a[j]);
-        //     }
-        // }
-        // insert(a[i]);
-        ll cost = a[i] * n - lsum - countless(a[i] + 1);
-        cout << "i : " << i << " a[i] : " << a[i] << " init cost : " << a[i] * n << " sub lefts : " << lsum << " subright less counts : " << countless(a[i] + 1) << '\n';
-        if(pc.empty() || cost < pc.back()[0]) {
-            pc.push_back({cost, a[i]});
-        }
-
+    for(int i = 0; i < n; i++) {
+        int x; cin >> x;
+        cnt[x]++;
     }
 
-    reverse(pc.begin(), pc.end());
+    //looking at all targets with this bit set, 
+    for(int bit = k - 1; bit >= 0; bit--) {
+        vector<ll> costs(1 << ((k - 1) - bit)), cnts(1 << ((k - 1) - bit));
+        for(int i = 0; i < 1 << k; i++) {
+            if(((i >> bit) & 1) == 0) {
+                costs[i >> (bit + 1)] += (((1 << bit) - 1) & i) * cnt[i];
+                cnts[i >> (bit + 1)] += cnt[i];
+            }
+        }
+        int len = (k - 1) - bit;
+        for(int i = 0; i < len; i++) {
+            for(int x = 0; x < (1 << len); x++) {
+                if(((x >> i) & 1) == 0) {
+                    costs[x] += costs[x ^ (1 << i)];
+                    cnts[x] += cnts[x ^ (1 << i)];
+                }
+            }
+        }
+        for(int i = 0; i < 1 << k; i++) {
+            if((i >> bit) & 1) {
+                int mask = i >> (bit + 1);
+                cost[i] += cnts[mask] * (((1 << (bit + 1)) - 1) & i);
+                cost[i] -= costs[mask];
+            }
+        }
+    }
 
-    cout << "pc : " << pc << '\n';
+    ll max_ops = LLONG_MAX;
+    map<ll,ll> ms;
 
-    for(int i = 0; i < q; i++) {
-        ll k; cin >> k;
+    for(int i = (1 << k) - 1; i >= 0; i--) {
+        if(cost[i] < max_ops) {
+            ms[cost[i]] = i;
+            max_ops = cost[i];
+        }
+        // cout << "i : " << i << " cost[i] : " << cost[i] << '\n';
+    }
+
+    // cout << "ms : " << ms << '\n';
+
+    for(int qq = 0; qq < q; qq++) {
+        ll ops; cin >> ops;
+        auto [op_use, val] = *--ms.upper_bound(ops);
+        // cout << "op_use : " << op_use << " val : " << val << '\n';
+        cout << val + (ops - op_use) / n << '\n';
     }
 
     return 0;
 }
+
+
+// #include <bits/stdc++.h>
+// typedef long long ll;
+// typedef long double ld;
+// using namespace std;
+// const ll MOD = 1e9 + 7;
+
+// template <typename T, std::size_t N>
+// std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
+//     os << "[";
+//     for (std::size_t i = 0; i < N; ++i) {
+//         os << arr[i];
+//         if (i < N - 1) {
+//             os << ", ";
+//         }
+//     }
+//     os << "]";
+//     return os;
+// }
+
+// template<typename T>
+// std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+//     for(auto x : v) os << x << " ";
+//     return os;
+// }
+
+// int depth = 20;
+// int nextchild = 20000000;
+
+// int a[20000000][2];
+// ll m[20000000];
+
+// void reset() {
+//     for(int i = 0; i < nextchild; i++) {
+//         a[i][0] = -1;
+//         a[i][1] = -1;
+//         m[i] = 0;
+//     }
+//     nextchild = 1;
+// }
+
+// void insert(int x) {
+//     int cur = 0;
+//     for(int d = depth - 1; d >= 0; d--) {
+//         int bit = (x >> d) & 1;
+
+//         if(a[cur][bit] == -1) {
+//             a[cur][bit] = nextchild++;
+//         }
+//         cur = a[cur][bit];
+//         m[cur] += x;
+//     }
+// }
+
+// ll countless(int x) {
+
+//     ll res = 0;
+//     int cur = 0;
+
+//     for(int d = depth - 1; d >= 0; d--) {
+//         int bit = (x >> d) & 1;
+//         if((x >> d) & 1) { //if bit is set for k, we have the option to check the offbit. Must not go in direction of bit
+//             if(a[cur][0] != -1) {
+//                 res += m[a[cur][0]];
+//             }
+//         }
+//         if(a[cur][bit] != -1) {
+//             cur = a[cur][bit];
+//         } else {
+//             return res;
+//         }
+//     }
+//     return res;
+// }
+
+// signed main() {
+//     ios_base::sync_with_stdio(false);
+//     cin.tie(NULL);
+    
+//     int n, q; cin >> n >> q;
+//     vector<int> a(n);
+//     for(int &x : a) cin >> x;
+
+//     ll lsum = accumulate(a.begin(), a.end(), 0LL);
+//     sort(a.begin(), a.end());
+
+//     vector<array<ll,2>> pc;
+
+//     reset();
+
+//     for(int i = n - 1; i >= 0; i--) {
+
+//         lsum -= a[i];
+//         for(int bit = 0; bit < depth; bit++) {
+//             if((a[i] >> bit) & 1) {
+//                 // cout << "a[i] : " << a[i] << " inserting : " << (a[i] & ((1 << (bit + 1)) - 1)) << '\n';
+//                 insert(a[i] & ((1 << (bit + 1)) - 1));
+//             }
+//         }
+//         // int nextdepth = 32 - __builtin_popcount(a[i]);
+//         // if(nextdepth != depth) {
+//         //     reset();
+//         //     depth = nextdepth;
+//         //     for(int j = i + 1; j < n; j++) {
+//         //         insert(a[j]);
+//         //     }
+//         // }
+//         // insert(a[i]);
+//         ll cost = a[i] * n - lsum - countless(a[i] + 1);
+//         cout << "i : " << i << " a[i] : " << a[i] << " init cost : " << a[i] * n << " sub lefts : " << lsum << " subright less counts : " << countless(a[i] + 1) << '\n';
+//         if(pc.empty() || cost < pc.back()[0]) {
+//             pc.push_back({cost, a[i]});
+//         }
+
+//     }
+
+//     reverse(pc.begin(), pc.end());
+
+//     cout << "pc : " << pc << '\n';
+
+//     for(int i = 0; i < q; i++) {
+//         ll k; cin >> k;
+//     }
+
+//     return 0;
+// }
 
 // solution for D1
 // #include <bits/stdc++.h>

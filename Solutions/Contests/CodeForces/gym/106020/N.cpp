@@ -7,9 +7,11 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, a, b; cin >> n >> a >> b;
-    string s; cin >> s;
-    cout << s.substr(a, n - b - a) << '\n';
+    int n; cin >> n;
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
+    int mx = *max_element(a.begin(), a.end());
+    cout << (mx + 2) / 3 << '\n';
 
     return 0;
 }

@@ -3,6 +3,12 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -134,44 +140,54 @@ init_fact()
 
 void solve() {
     
-    int n; cin >> n;
-    Z res = 1;
-    int oc = 0, pi = 0, ph = 0;
-    for(int i = 1; i <= n; i++) {
-        int a; cin >> a;
-        if(i == n) {
-            if(a != -1 && a != n) res = 0;
-            a = n;
-        }
-        if(a != -1) {
-            Z mul = 0;
-            int x = i - pi, y = a - ph;
+    int n, m; cin >> n >> m;
 
-            for(int under = 0; under <= y && under <= x; under++) {
-                int over = y - under;
-                int left = oc + x - under;
-                if(x - under >= 0 && left - over >= 0) {
-                    mul += fact[x] * inv_fact[x - under] * choose(oc, under) * fact[left] * inv_fact[left - over] * choose(x, over);
-                }
-            }
-
-            res *= mul;
-
-            oc = i - a;
-            pi = i;
-            ph = a;
-        }
+    vector bad(n, vector<int>(n));
+    for(int i = 0; i < m; i++) {
+        int idx, x; cin >> idx >> x;
+        bad[idx-1][x-1] = 1;
     }
 
-    cout << res << '\n';
+    auto check_perm = [&](int idx, int len, int start) -> int {
+        for(int i = idx; i < idx + len; i++) {
+            if(bad[i][(start + i - idx) % len]) return i - idx;
+        }
+        return len;
+    };
+
+    vector dp(n + 1, vector<Z>(n + 2));
+
+    dp[0][n + 1] = 1;
+
+    for(int i = 0; i < n; i++) {
+
+        Z sum_here = accumulate(dp[i].begin(), dp[i].end(), Z(0));
+
+        for(int len = 1; i + len <= n; len++) {
+            for(int start = 0; start < len; start++) {
+                Z ways_start = sum_here - (dp[i][start]);
+                
+                if(check_perm(i, len, start) == len) {
+                    if(start) {
+                        dp[i+len][n+1] += ways_start;
+                    } else {
+                        dp[i + len][(len - start)] += ways_start;
+                    }
+
+                }
+            }
+        }
+        // cout << "i : " << i << " dp[i] : " << dp[i] << '\n';
+        // cout << "norest : " << no_rest[i] << '\n';
+    }
+
+    cout << accumulate(dp[n].begin(), dp[n].end(), Z(0)) << '\n';
 
 }
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-
-    init_fact();
 
     int casi; cin >> casi;
     while(casi-->0) solve();
