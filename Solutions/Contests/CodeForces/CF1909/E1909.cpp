@@ -2,8 +2,8 @@
 typedef long long ll;
 typedef long double ld;
 using namespace std;
-// const int MAXN = 2e5;
-// int test[MAXN + 1];
+const int MAXN = 2e5;
+int test[MAXN + 1];
 
 /*
 guess 1 - we try each of the button dependencies by themselves. 
@@ -24,18 +24,18 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    // for(int i = 1; i <= MAXN; i++) {
-    //     for(int j = i; j <= MAXN; j += i) {
-    //         test[i] ^= 1;
-    //     }
-    // }
+    for(int i = 1; i <= MAXN; i++) {
+        for(int j = i; j <= MAXN; j += i) {
+            test[j] ^= 1;
+        }
+    }
 
-    // int cnt = 0;
+    int cnt = 0;
 
-    // for(int i = 1; i <= MAXN; i++) {
-    //     cnt += test[i];
-    //     cout << ((double) cnt) / i << " \n"[i == MAXN];
-    // }
+    for(int i = 1; i <= MAXN; i++) {
+        cnt += test[i];
+        cout << ((double) cnt) / i << " \n"[i == MAXN];
+    }
 
     int casi; cin >> casi;
     while(casi-->0) solve();
