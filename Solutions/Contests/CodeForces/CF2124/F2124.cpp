@@ -280,12 +280,22 @@ void solve2() {
     vector<vector<int>> nr_ur(n, vector<int>(n, n));
     vector<vector<int>> rs(n);
 
+    // cout << "start nr_ur\n";
+    // for(int i = 0; i < n; i++) {
+    //     cout << "i : " << i << " nr_ur[i] : " << nr_ur[i] << '\n';
+    // }
+
     for(int i = 0; i < m; i++) {
         int idx, x; cin >> idx >> x;
         idx--; x--;
         nr_ur[idx][x] = idx;
         rs[idx].push_back(x);
     }
+
+    // cout << "middle nr_ur\n";
+    // for(int i = 0; i < n; i++) {
+    //     cout << "i : " << i << " nr_ur[i] : " << nr_ur[i] << '\n';
+    // }
 
     for(int i = n - 2; i >= 0; i--) {
         for(int j = n - 2; j >= 0; j--) {
@@ -312,28 +322,66 @@ void solve2() {
             upd(i, len, 1, cnts, cnt);
         }
         for(int l = 0; l + len <= n; l++) {
-            upd(l + len - 1, 1, 1, cnts, cnt);
-            int good_cnt = cnt;
-            if(cnts[l % len] == 0) good_cnt--;
-            cg[l][l + len] = good_cnt;
-            upd(l, len, 0, cnts, cnt);
+            upd(l + len - 1, len, 1, cnts, cnt);
+            int bad_cnt = cnt;
+            if(cnts[l % len] == 0) bad_cnt++;
+            cg[l][l + len] = len - bad_cnt;
+            upd(l, len, -1, cnts, cnt);
         }
     }
 
+    // for(int i = 0; i < n; i++) {
+    //     cout << "i : " << i << " cg[i] : " << cg[i] << '\n';
+    // }
+
+    // cout << "end nr_ur\n";
+    // for(int i = 0; i < n; i++) {
+    //     cout << "i : " << i << " nr_ur[i] : " << nr_ur[i] << '\n';
+    // }
+
     vector<vector<Z>> dp(n + 1, vector<Z>(n + 1));
+    vector<Z> cur(n + 1);
+    vector<vector<Z>> cur_p(n + 1, vector<Z>(n + 1));
     dp[0][1] = 1;
     for(int i = 0; i < n; i++) {
         Z fc = 0;
-        for(int j = 1; j <= n; j++) {
-            fc += dp[i][j];
-            dp[i][j] += dp[i][j-1];
-            if(i + j <= n) {
-
+        for(int j = 1; j <= i; j++) {
+            cur[j] += cur_p[i][j];
+            if(nr_ur[i-j][0] >= i) {
+                dp[i][1] -= cur[j];
+                dp[i][j] += cur[j];
+            } else if(i == 5 && j == 2) {
+                // cout << "not procced\n";
             }
         }
+        // cout << "i : " << i << " cur : " << cur << '\n';
+        // cout << "i : " << i << " dp[i] : " << dp[i] << '\n';
+        for(int j = 1; j <= n; j++) {
+            fc += dp[i][j];
 
+            int start = i + j + 1;
+            int stop = j + nr_ur[i][j] + 1;
 
+            // if(i == 2 && j == 2) {
+            //     cout << "start : " << start << " stop : " << stop << '\n';
+            // }
+
+            if(start <= stop) {
+                if(start <= n) cur_p[start][j] += dp[i][j];
+                if(stop <= n) cur_p[stop][j] -= dp[i][j];
+            }
+
+            dp[i][j] += dp[i][j-1];
+            if(i + j <= n && nr_ur[i][0] >= i + j) {
+                dp[i+j][j] += dp[i][j];
+            }
+        }
+        for(int j = 1; i + j <= n; j++) {
+            dp[i+j][1] += fc * cg[i][i + j];
+        }
     }
+
+    cout << accumulate(dp[n].begin(), dp[n].end(), Z(0)) << '\n';
 
 }
 
@@ -342,8 +390,8 @@ signed main() {
     cin.tie(NULL);
 
     int casi; cin >> casi;
-    while(casi-->0) solve();
-    // while(casi-->0) solve2();
+    // while(casi-->0) solve();
+    while(casi-->0) solve2();
 
     return 0;
 }

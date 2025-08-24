@@ -3,212 +3,15 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-struct Info {
-    int lg, rg, all, res;
-    Info(): lg(0), rg(0), all(0), res(0) {}
-    Info(int n): lg(0), rg(0), all(-n), res(0) {}
-    Info(int lg, int rg, int all, int res): lg(lg), rg(rg), all(all), res(res) {}
-};
+/*
+supposedly chad (n + q) logn solution exists with O(n) memory. 
 
-Info operator+(Info lhs, Info rhs) {
-    Info res;
-    res.lg = max(lhs.lg, lhs.all + rhs.lg);
-    res.rg = max(rhs.rg, rhs.all + lhs.rg);
-    res.all = lhs.all + rhs.all;
-    res.res = max({lhs.res, rhs.res, lhs.rg + rhs.lg});
-    return res;
-}
 
-std::ostream& operator<<(std::ostream &os, const Info info) {
-    os << "(" << info.lg << ", " << info.rg << ", " << info.all << ", " << info.res << ")";
-    return os;
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const vector<T> v) {
-    for(auto x : v) os << x << " ";
-    return os;
-}
-
-struct Node {
-    pair<Node *, Info> left, right;
-    int l, r;
-    Info info;
-    Node(pair<Node *, Info> left, pair<Node *, Info> right, int l, int r): left(left), right(right), l(l), r(r) {
-        info = Info(r - l);
-    }
-    Node(pair<Node *, Info> left, pair<Node *, Info> right, int l, int r, Info info): left(left), right(right), l(l), r(r), info(info) {}
-};
-
-struct SparsestSegtree {
-
-    int n, nc;
-    Node *root;
-
-    SparsestSegtree(int n) {
-        //n = 1 is scary
-        n++;
-        this->n = n;
-        this->nc = 1;
-        int mid = n / 2;
-        root = new Node({nullptr, Info(mid)}, {nullptr, Info{n - mid}}, 0, n);
-    }
-
-    void update(int idx, Info info) {
-        // cout << "update called with idx : " << idx << " info : " << info << '\n';
-        // cout << "start res info : " << root->info << '\n';
-        // int mid = n / 2;
-        // auto go_left = _update(root, root->left.first, 0, mid, idx, info);
-        // auto go_right = _update(root, root->right.first, mid, n, idx, info);
-        // cout << "done left info : " << go_left.second << " right info : " << go_right.second << '\n';
-        // root->info = go_left.second + go_right.second;
-        // cout << "is root nullptr ? " << (root == nullptr) << '\n';
-        // cout << "root l : " << root->l << " root r : " << root->r << '\n';
-        // cout << "before children\n";
-        // if(root->left.first != nullptr) {
-        //     cout << "root left child info : " << root->left.first->info << '\n';
-        // } else {
-        //     cout << "root has no left child\n";
-        // }
-        // if(root->right.first != nullptr) {
-        //     cout << "root right child info : " << root->right.first->info << '\n';
-        // } else {
-        //     cout << "root has no right child\n";
-        // }
-        int curl = 0;
-        _update(root, root, curl, n, idx, info);
-        // cout << "root info : " << root->info << '\n';
-
-        // cout << "after children\n";
-        // if(root->left.first != nullptr) {
-        //     cout << "root left child info : " << root->left.first->info << '\n';
-        // } else {
-        //     cout << "root has no left child\n";
-        // }
-        // if(root->right.first != nullptr) {
-        //     cout << "root right child info : " << root->right.first->info << '\n';
-        // } else {
-        //     cout << "root has no right child\n";
-        // }
-    }
-
-    pair<Node *, Info> _update(Node *anc, Node *cur_child, int &curl, int &curr, int &idx, Info &info) {
-        // cout << "curl : " << curl << " curr : " << curr << " idx : " << idx << '\n';
-        //case stop
-        if(idx < curl || idx >= curr) {
-            // cout << "case stop\n";
-            Info res;
-            //consider this child
-            if(cur_child != nullptr && curl <= cur_child->l && cur_child->r <= curr) {
-                // cout << " cur child info : " << cur_child->info << '\n';
-                res = Info(cur_child->l - curl) + cur_child->info + Info(curr - cur_child->r);
-            } else {
-                res = Info(curr - curl);
-                cur_child = nullptr;
-            }
-            return {cur_child, res};
-        }
-        //case leaf
-        if(curl + 1 == curr) {
-            // cout << "case leaf\n";
-            // cout << "info from leaf : " << info << '\n';
-            return {new Node({nullptr, Info()}, {nullptr, Info()}, idx, idx + 1, info), info};
-        }
-        int mid = (curl + curr) / 2;
-        //case update parent node
-        if(cur_child != nullptr && cur_child->l == curl && cur_child->r == curr) {
-            // cout << "case update parent node\n";
-            anc = cur_child;
-            anc->left = _update(anc, anc->left.first, curl, mid, idx, info);
-            anc->right = _update(anc, anc->right.first, mid, curr, idx, info);
-            anc->info = anc->left.second + anc->right.second;
-            // cout << "curl : " << curl << " curr : " << curr << " idx : " << idx << " default done \n";
-            // cout << "linfo : " << anc->left.second << " rinfo : " << anc->right.second << '\n';
-            return {anc, anc->info};
-        }
-        //case create new node
-        int left_impt = idx < mid || cur_child != nullptr && cur_child->r <= mid;
-        int right_impt = idx >= mid || cur_child != nullptr && cur_child->l >= mid;
-        if(left_impt && right_impt) {
-            // cout << "case create node\n";
-            nc++;
-            Node *lca = new Node(
-                _update(anc, cur_child, curl, mid, idx, info), 
-                _update(anc, cur_child, mid, curr, idx, info), 
-                curl, curr
-            );
-            lca->info = lca->left.second + lca->right.second;
-            return {lca, lca->info};
-        }
-        //default case - exactly one of the subtrees is important
-        // cout << "case default\n";
-        auto go_left = _update(anc, cur_child, curl, mid, idx, info);
-        auto go_right = _update(anc, cur_child, mid, curr, idx, info);
-
-        // cout << "curl : " << curl << " curr : " << curr << " idx : " << idx << '\n';
-        // cout << "linfo : " << go_left.second << " rinfo : " << go_right.second << '\n';
-
-        // if(go_left.first != nullptr) {
-        //     cout << "left child info : " << go_left.first->info << '\n';
-        // } else {
-        //     cout << "no left child\n";
-        // }
-        // if(go_right.first != nullptr) {
-        //     cout << "right child info : " << go_right.first->info << '\n';
-        // } else {
-        //     cout << "no right child\n";
-        // }
-
-        return {go_left.first != nullptr ? go_left.first : go_right.first, go_left.second + go_right.second};
-    }
-
-    Info query() {
-        return root->info;
-    }
-};
+*/
 
 void solve() {
     
-    int n, q; cin >> n >> q;
-    vector<int> a(n), b(n);
-    // vector<SparsestSegtree> trees(n, SparsestSegtree(n));
-    vector<SparsestSegtree> trees;
-    for(int i = 0; i < n; i++) trees.push_back(SparsestSegtree(n));
-    priority_queue<array<int,2>> pq;
-
-    for(int i = 0; i < n; i++) {
-        int x; cin >> x;
-        x--;
-        // cout << "i : " << i << " x :  " << x << '\n';
-        a[i] = x;
-        trees[x].update(i, Info(1, 1, 1, 1));
-        int val = trees[x].query().res;
-        b[x] = val;
-        // cout << "i : " << i << " b[i] : " << b[i] << '\n';
-        pq.push({val, x}); 
-    }
-
-    // cout << "b : " << b << '\n';
-
-    for(int qq = 0; qq < q; qq++) {
-        int i, x; cin >> i >> x;
-        i--; x--;
-        trees[a[i]].update(i, Info(0, 0, -1, 0));
-        b[a[i]] = trees[a[i]].query().res;
-        pq.push({b[a[i]], a[i]});
-        a[i] = x;
-        trees[x].update(i, Info(1, 1, 1, 1));
-        int val = trees[x].query().res;
-        b[x] = val;
-        // cout << "i : " << i << " x : " << x << " val : " << val << '\n';
-        pq.push({val, x});
-        while(b[pq.top()[1]] != pq.top()[0]) {
-            pq.pop();
-        }
-        cout << pq.top()[0] / 2 << " \n"[qq == q - 1];
-        // cout << "pq.top x : " << pq.top()[1] << " val : " << pq.top()[0] << '\n';
-        // cout << "qq : " << qq << " b : " << b << '\n';
-    }
+    
 
 }
 
@@ -221,6 +24,230 @@ signed main() {
 
     return 0;
 }
+
+// #include <bits/stdc++.h>
+// typedef long long ll;
+// typedef long double ld;
+// using namespace std;
+
+// struct Info {
+//     int lg, rg, all, res;
+//     Info(): lg(0), rg(0), all(0), res(0) {}
+//     Info(int n): lg(0), rg(0), all(-n), res(0) {}
+//     Info(int lg, int rg, int all, int res): lg(lg), rg(rg), all(all), res(res) {}
+// };
+
+// Info operator+(Info lhs, Info rhs) {
+//     Info res;
+//     res.lg = max(lhs.lg, lhs.all + rhs.lg);
+//     res.rg = max(rhs.rg, rhs.all + lhs.rg);
+//     res.all = lhs.all + rhs.all;
+//     res.res = max({lhs.res, rhs.res, lhs.rg + rhs.lg});
+//     return res;
+// }
+
+// std::ostream& operator<<(std::ostream &os, const Info info) {
+//     os << "(" << info.lg << ", " << info.rg << ", " << info.all << ", " << info.res << ")";
+//     return os;
+// }
+
+// template<typename T>
+// std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+//     for(auto x : v) os << x << " ";
+//     return os;
+// }
+
+// struct Node {
+//     pair<Node *, Info> left, right;
+//     int l, r;
+//     Info info;
+//     Node(pair<Node *, Info> left, pair<Node *, Info> right, int l, int r): left(left), right(right), l(l), r(r) {
+//         info = Info(r - l);
+//     }
+//     Node(pair<Node *, Info> left, pair<Node *, Info> right, int l, int r, Info info): left(left), right(right), l(l), r(r), info(info) {}
+// };
+
+// struct SparsestSegtree {
+
+//     int n, nc;
+//     Node *root;
+
+//     SparsestSegtree(int n) {
+//         //n = 1 is scary
+//         n++;
+//         this->n = n;
+//         this->nc = 1;
+//         int mid = n / 2;
+//         root = new Node({nullptr, Info(mid)}, {nullptr, Info{n - mid}}, 0, n);
+//     }
+
+//     void update(int idx, Info info) {
+//         // cout << "update called with idx : " << idx << " info : " << info << '\n';
+//         // cout << "start res info : " << root->info << '\n';
+//         // int mid = n / 2;
+//         // auto go_left = _update(root, root->left.first, 0, mid, idx, info);
+//         // auto go_right = _update(root, root->right.first, mid, n, idx, info);
+//         // cout << "done left info : " << go_left.second << " right info : " << go_right.second << '\n';
+//         // root->info = go_left.second + go_right.second;
+//         // cout << "is root nullptr ? " << (root == nullptr) << '\n';
+//         // cout << "root l : " << root->l << " root r : " << root->r << '\n';
+//         // cout << "before children\n";
+//         // if(root->left.first != nullptr) {
+//         //     cout << "root left child info : " << root->left.first->info << '\n';
+//         // } else {
+//         //     cout << "root has no left child\n";
+//         // }
+//         // if(root->right.first != nullptr) {
+//         //     cout << "root right child info : " << root->right.first->info << '\n';
+//         // } else {
+//         //     cout << "root has no right child\n";
+//         // }
+//         int curl = 0;
+//         _update(root, root, curl, n, idx, info);
+//         // cout << "root info : " << root->info << '\n';
+
+//         // cout << "after children\n";
+//         // if(root->left.first != nullptr) {
+//         //     cout << "root left child info : " << root->left.first->info << '\n';
+//         // } else {
+//         //     cout << "root has no left child\n";
+//         // }
+//         // if(root->right.first != nullptr) {
+//         //     cout << "root right child info : " << root->right.first->info << '\n';
+//         // } else {
+//         //     cout << "root has no right child\n";
+//         // }
+//     }
+
+//     pair<Node *, Info> _update(Node *anc, Node *cur_child, int &curl, int &curr, int &idx, Info &info) {
+//         // cout << "curl : " << curl << " curr : " << curr << " idx : " << idx << '\n';
+//         //case stop
+//         if(idx < curl || idx >= curr) {
+//             // cout << "case stop\n";
+//             Info res;
+//             //consider this child
+//             if(cur_child != nullptr && curl <= cur_child->l && cur_child->r <= curr) {
+//                 // cout << " cur child info : " << cur_child->info << '\n';
+//                 res = Info(cur_child->l - curl) + cur_child->info + Info(curr - cur_child->r);
+//             } else {
+//                 res = Info(curr - curl);
+//                 cur_child = nullptr;
+//             }
+//             return {cur_child, res};
+//         }
+//         //case leaf
+//         if(curl + 1 == curr) {
+//             // cout << "case leaf\n";
+//             // cout << "info from leaf : " << info << '\n';
+//             return {new Node({nullptr, Info()}, {nullptr, Info()}, idx, idx + 1, info), info};
+//         }
+//         int mid = (curl + curr) / 2;
+//         //case update parent node
+//         if(cur_child != nullptr && cur_child->l == curl && cur_child->r == curr) {
+//             // cout << "case update parent node\n";
+//             anc = cur_child;
+//             anc->left = _update(anc, anc->left.first, curl, mid, idx, info);
+//             anc->right = _update(anc, anc->right.first, mid, curr, idx, info);
+//             anc->info = anc->left.second + anc->right.second;
+//             // cout << "curl : " << curl << " curr : " << curr << " idx : " << idx << " default done \n";
+//             // cout << "linfo : " << anc->left.second << " rinfo : " << anc->right.second << '\n';
+//             return {anc, anc->info};
+//         }
+//         //case create new node
+//         int left_impt = idx < mid || cur_child != nullptr && cur_child->r <= mid;
+//         int right_impt = idx >= mid || cur_child != nullptr && cur_child->l >= mid;
+//         if(left_impt && right_impt) {
+//             // cout << "case create node\n";
+//             nc++;
+//             Node *lca = new Node(
+//                 _update(anc, cur_child, curl, mid, idx, info), 
+//                 _update(anc, cur_child, mid, curr, idx, info), 
+//                 curl, curr
+//             );
+//             lca->info = lca->left.second + lca->right.second;
+//             return {lca, lca->info};
+//         }
+//         //default case - exactly one of the subtrees is important
+//         // cout << "case default\n";
+//         auto go_left = _update(anc, cur_child, curl, mid, idx, info);
+//         auto go_right = _update(anc, cur_child, mid, curr, idx, info);
+
+//         // cout << "curl : " << curl << " curr : " << curr << " idx : " << idx << '\n';
+//         // cout << "linfo : " << go_left.second << " rinfo : " << go_right.second << '\n';
+
+//         // if(go_left.first != nullptr) {
+//         //     cout << "left child info : " << go_left.first->info << '\n';
+//         // } else {
+//         //     cout << "no left child\n";
+//         // }
+//         // if(go_right.first != nullptr) {
+//         //     cout << "right child info : " << go_right.first->info << '\n';
+//         // } else {
+//         //     cout << "no right child\n";
+//         // }
+
+//         return {go_left.first != nullptr ? go_left.first : go_right.first, go_left.second + go_right.second};
+//     }
+
+//     Info query() {
+//         return root->info;
+//     }
+// };
+
+// void solve() {
+    
+//     int n, q; cin >> n >> q;
+//     vector<int> a(n), b(n);
+//     // vector<SparsestSegtree> trees(n, SparsestSegtree(n));
+//     vector<SparsestSegtree> trees;
+//     for(int i = 0; i < n; i++) trees.push_back(SparsestSegtree(n));
+//     priority_queue<array<int,2>> pq;
+
+//     for(int i = 0; i < n; i++) {
+//         int x; cin >> x;
+//         x--;
+//         // cout << "i : " << i << " x :  " << x << '\n';
+//         a[i] = x;
+//         trees[x].update(i, Info(1, 1, 1, 1));
+//         int val = trees[x].query().res;
+//         b[x] = val;
+//         // cout << "i : " << i << " b[i] : " << b[i] << '\n';
+//         pq.push({val, x}); 
+//     }
+
+//     // cout << "b : " << b << '\n';
+
+//     for(int qq = 0; qq < q; qq++) {
+//         int i, x; cin >> i >> x;
+//         i--; x--;
+//         trees[a[i]].update(i, Info(0, 0, -1, 0));
+//         b[a[i]] = trees[a[i]].query().res;
+//         pq.push({b[a[i]], a[i]});
+//         a[i] = x;
+//         trees[x].update(i, Info(1, 1, 1, 1));
+//         int val = trees[x].query().res;
+//         b[x] = val;
+//         // cout << "i : " << i << " x : " << x << " val : " << val << '\n';
+//         pq.push({val, x});
+//         while(b[pq.top()[1]] != pq.top()[0]) {
+//             pq.pop();
+//         }
+//         cout << pq.top()[0] / 2 << " \n"[qq == q - 1];
+//         // cout << "pq.top x : " << pq.top()[1] << " val : " << pq.top()[0] << '\n';
+//         // cout << "qq : " << qq << " b : " << b << '\n';
+//     }
+
+// }
+
+// signed main() {
+//     ios_base::sync_with_stdio(false);
+//     cin.tie(NULL);
+
+//     int casi; cin >> casi;
+//     while(casi-->0) solve();
+
+//     return 0;
+// }
 
 // #include <bits/stdc++.h>
 // typedef long long ll;
