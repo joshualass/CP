@@ -49,16 +49,25 @@
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
-#include <cassert>
 typedef long long ll;
 typedef long double ld;
 using namespace std;
+
+void solve() {
+    
+    int n, a, b; cin >> n >> a >> b;
+    int ok = 1;
+    if(b % 2 != n % 2) ok = 0;
+    if(a > b && a % 2 != n % 2) ok = 0;
+    cout << (ok ? "YES" : "NO") << '\n';
+}
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }

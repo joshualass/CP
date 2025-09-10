@@ -58,7 +58,13 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    string s; cin >> s;
+    int x = s[0] - '0', y = s[2] - '0';
+    if(y == 8) {
+        cout << x + 1 << '-' << 1 << '\n';
+    } else {
+        cout << x << '-' << y + 1 << '\n';
+    }
 
     return 0;
 }

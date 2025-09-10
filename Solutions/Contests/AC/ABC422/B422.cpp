@@ -58,7 +58,25 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int h, w; cin >> h >> w;
+    vector<string> a(h);
+    for(auto &x : a) cin >> x;
+    int ok = 1;
+    vector<int> dx = {1, -1, 0, 0}, dy = {0, 0, 1, -1};
+    for(int i = 0; i < h; i++) {
+        for(int j = 0; j < w; j++) {
+            if(a[i][j] == '#') {
+                int c = 0;
+                for(int k = 0; k < 4; k++) {
+                    int nx = i + dx[k], ny = j + dy[k];
+                    if(nx >= 0 && nx < h && ny >= 0 && ny < w && a[nx][ny] == '#') c++; 
+                }
+                if(c != 2 && c != 4) ok = 0;
+            }
+        }
+    }
+
+    cout << (ok ? "Yes" : "No") << '\n';
 
     return 0;
 }

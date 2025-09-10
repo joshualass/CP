@@ -49,16 +49,25 @@
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
-#include <cassert>
 typedef long long ll;
 typedef long double ld;
 using namespace std;
+
+void solve() {
+    
+    ll a, b, c; cin >> a >> b >> c;
+    ll c1 = min({a, b, c});
+    a -= c1, b -= c1, c -= c1;
+    cout << c1 + min({a, c, (a + c) / 3}) << '\n';
+
+}
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }

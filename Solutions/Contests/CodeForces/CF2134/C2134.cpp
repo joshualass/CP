@@ -49,16 +49,38 @@
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
-#include <cassert>
 typedef long long ll;
 typedef long double ld;
 using namespace std;
+
+void solve() {
+    
+    int n; cin >> n;
+    vector<ll> a(n);
+    for(ll &x : a) cin >> x;
+
+    a.push_back(0);
+    ll cost = 0;
+
+    for(int i = 1; i < n; i += 2) {
+        ll front_sub = max(0LL, min(a[i+1], a[i-1] + a[i+1] - a[i]));
+        ll back_sub = max(0LL, min(a[i-1], a[i-1] + a[i+1] - (a[i] + front_sub)));
+        a[i+1] -= front_sub;
+        a[i-1] -= back_sub;
+        // cout << "i : " << i << " fs : " << front_sub << " bs : " << back_sub << '\n';
+        cost += front_sub + back_sub;
+    }
+
+    cout << cost << '\n';
+
+}
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }

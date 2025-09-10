@@ -49,16 +49,41 @@
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
-#include <cassert>
 typedef long long ll;
 typedef long double ld;
 using namespace std;
+
+void solve() {
+    
+    ll k, x; cin >> k >> x;
+    ll l = x, r = (1LL << (k + 1)) - x;
+
+    vector<ll> ops;
+    while(l != r) {
+        if(l < r) {
+            ops.push_back(1);
+            r -= l;
+            l *= 2;
+        } else {
+            ops.push_back(2);
+            l -= r;
+            r *= 2;
+        }
+    }
+
+    reverse(ops.begin(), ops.end());
+    cout << ops.size() << '\n';
+    for(int op : ops) cout << op << " ";
+    cout << '\n';
+
+}
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }
