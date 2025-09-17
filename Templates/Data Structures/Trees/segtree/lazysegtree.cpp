@@ -1,6 +1,7 @@
+// T - query val, D - lazy change
 template<typename T, typename D>
 struct Lazy {
-    static constexpr T qn = 0; // query neutral, when we query, doing the operation with this value won't change our query
+    static constexpr T qn = {inf, 0}; // query neutral, when we query, doing the operation with this value won't change our query
     static constexpr D ln = 0; //lazy neutral, applying this value to its node will not change its value
     vector<T> v;      //stores values at each index we are querying for
     vector<D> lazy;   //stores lazy update values
@@ -10,19 +11,40 @@ struct Lazy {
         this->n = n;
         this->size = 1;
         while(size < n) size *= 2;
-        v.assign(size * 2, def);
+        v.resize(size * 2);
         lazy.assign(size * 2, ln);
+        build(vector<T>(n, def));
+    }
+    Lazy(int n, vector<T> a) {
+        this->n = n;
+        this->size = 1;
+        while(size < n) size *= 2;
+        v.resize(size * 2);
+        lazy.assign(size * 2, ln);
+        build(a);
+    }   
+    void build(vector<T> a) {
+        for(int i = 0; i < a.size(); i++) v[i + size] = a[i];
+        for(int i = size - 1; i >= 1; i--) {
+            v[i] = query_comb(v[i * 2], v[i * 2 + 1]);
+        }
     }
     bool isLeaf(int node) {return node >= size;}
     T query_comb(T val1, T val2) {//update this depending on query type
-        return val1 + val2;
+        if(val1[0] < val2[0]) {
+            return val1;
+        } else if(val2[0] < val1[0]) {
+            return val2;
+        } else {
+            return {val1[0], val1[1] + val2[1]};
+        }
     }
     //how we combine lazy updates to lazy
     void lazy_comb(int node, D val) {//update this depending on update type. how do we merge the lazy changes?
         lazy[node] += val;
     }
     void main_comb(int node, int size) {//update this depending on query type, how does the lazy value affect value at v for the query?
-        v[node] += lazy[node];
+        v[node][0] += lazy[node];
     }
     void push_lazy(int node, int size) {
         main_comb(node, size); //push lazy change to current node

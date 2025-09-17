@@ -1,4 +1,55 @@
-#include <bits/stdc++.h>
+#include <algorithm>
+#include <bitset>
+#include <complex>
+#include <deque>
+#include <exception>
+#include <fstream>
+#include <functional>
+#include <iomanip>
+#include <ios>
+#include <iosfwd>
+#include <iostream>
+#include <istream>
+#include <iterator>
+#include <limits>
+#include <list>
+#include <locale>
+#include <map>
+#include <memory>
+#include <new>
+#include <numeric>
+#include <ostream>
+#include <queue>
+#include <set>
+#include <sstream>
+#include <stack>
+#include <stdexcept>
+#include <streambuf>
+#include <string>
+#include <typeinfo>
+#include <utility>
+#include <valarray>
+#include <vector>
+#include <array>
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <forward_list>
+#include <future>
+#include <initializer_list>
+#include <mutex>
+#include <random>
+#include <ratio>
+#include <regex>
+#include <scoped_allocator>
+#include <system_error>
+#include <thread>
+#include <tuple>
+#include <typeindex>
+#include <type_traits>
+#include <unordered_map>
+#include <unordered_set>
+#include <cassert>
 typedef long long ll;
 typedef long double ld;
 using namespace std;
@@ -6,18 +57,195 @@ using namespace std;
 /*
 supposedly chad (n + q) logn solution exists with O(n) memory. 
 
+We are going to do a nice, virtual segment tree
+
+Clean implementation of a virtual segment tree
+the next time i implement this, it would be done faster. 
+
+the problem could be solved with a nice observation. 
 
 */
 
+struct Info {
+    int l_range, r_range, l, r, all, res;
+    Info(): l_range(0), r_range(0), l(0), r(0), all(0), res(0) {}
+    Info(int l_range, int r_range): l_range(l_range), r_range(r_range), l(0), r(0), all(-(r_range - l_range)), res(0) {}
+    Info(int l_range, int r_range, int l, int r, int all, int res): l_range(l_range), r_range(r_range), l(l), r(r), all(all), res(res) {}
+};
+
+ostream& operator<<(ostream& os, const Info info) {
+    os << "l range : " << info.l_range << " r range : " << info.r_range << " l : " << info.l << " r : " << info.r << " all : " << info.all << " res : " << info.res << '\n';
+    return os;
+}
+
+Info operator+(Info &lhs, Info &rhs) {
+    Info res;
+    int gap = (rhs.l_range - lhs.r_range);
+    res.l_range = lhs.l_range;
+    res.r_range = rhs.r_range;
+    res.l = max(lhs.l, lhs.all - gap + rhs.l);
+    res.r = max(rhs.r, rhs.all - gap + lhs.r);
+    res.all = lhs.all + rhs.all - gap;
+    res.res = max({lhs.res, rhs.res, lhs.r - gap + rhs.l});
+    return res;
+}
+
+struct Node {
+    Node *lc, *rc;
+    Info info;
+    Node(): lc(nullptr), rc(nullptr) {}
+    Node(Node *lc, Node *rc, Info info): lc(lc), rc(rc), info(info) {}
+};
+
+struct VTree {
+    Node *root;
+    int n;
+    VTree(int n) {
+        this->n = n;
+        this->root = nullptr;
+    }
+    void update(int idx, Info val) {
+        this->root = _update(idx, 0, n, root, val);
+    }
+    Node* _update(int idx, int curl, int curr, Node *cur_child, Info &val) {
+        //no overlap, we are always done
+        if(idx < curl || idx >= curr) return cur_child;
+        //case null cur_child, we can stop early. 
+        if(cur_child == nullptr) {
+            return new Node(nullptr, nullptr, val);
+        }
+        //case leaf
+        if(curl + 1 == curr) {
+            cur_child->info = val;
+            return cur_child;
+        }
+        //look at children ranges
+        int cl_range = cur_child->info.l_range, cr_range = cur_child->info.r_range;
+        int mid = (curl + curr) / 2;
+        //child is same
+        if(cl_range < mid && mid < cr_range) {
+            cur_child->lc = _update(idx, curl, mid, cur_child->lc, val);
+            cur_child->rc = _update(idx, mid, curr, cur_child->rc, val);
+            cur_child->info = cur_child->lc->info + cur_child->rc->info;
+            return cur_child;
+        }
+        int idx_is_right = idx >= mid;
+        int cur_child_is_right = cl_range >= mid;
+        if(idx_is_right) {
+            if(cur_child_is_right) {
+                return _update(idx, mid, curr, cur_child, val);
+            } else {
+                //lc is cur_child
+                Node *rc = new Node(nullptr, nullptr, val);
+                return new Node(cur_child, rc, cur_child->info + rc->info);
+            }
+        } else {
+            if(cur_child_is_right) {
+                Node *lc = new Node(nullptr, nullptr, val);
+                //rc is cur_child
+                return new Node(lc, cur_child, lc->info + cur_child->info);
+            } else {
+                return _update(idx, curl, mid, cur_child, val);
+            }
+        }
+    }
+    int query() {
+        return root->info.res;
+    }
+
+    void in_order(Node *cur) {
+        if(cur->lc) {
+            in_order(cur->lc);
+        }
+        cout << cur->info << '\n';
+        if(cur->rc) {
+            in_order(cur->rc);
+        }
+    }
+
+    void dfs(Node *cur) {
+        cout << "cur : " << cur->info << '\n';
+        if(cur->lc) cout << "with lc : " << cur->lc->info << '\n';
+        if(cur->rc) cout << "with rc : " << cur->rc->info << '\n';
+        if(cur->lc) dfs(cur->lc);
+        if(cur->rc) dfs(cur->rc);
+    }
+};
+
 void solve() {
     
-    
+    int n, q; cin >> n >> q;
+    vector<int> a(n, -1), cur(n);
+    vector<VTree> vtrees;
+    for(int i = 0; i < n; i++) vtrees.push_back(VTree(n));
+    priority_queue<array<int,2>> pq;
+
+    auto update = [&](int idx, int val) -> void {
+        if(a[idx] != -1) {
+            vtrees[a[idx]].update(idx, Info(idx, idx + 1, 0, 0, -1, 0));
+            cur[a[idx]] = vtrees[a[idx]].query();
+            pq.push({cur[a[idx]], a[idx]});
+        }
+        a[idx] = val;
+        vtrees[a[idx]].update(idx, Info(idx, idx + 1, 1, 1, 1, 1));
+        cur[a[idx]] = vtrees[a[idx]].query();
+        pq.push({cur[a[idx]], a[idx]});
+    };
+
+    for(int i = 0; i < n; i++) {
+        int x; cin >> x;
+        x--;
+        update(i, x);
+    }
+
+    for(int qq = 0; qq < q; qq++) {
+        int i, x; cin >> i >> x;
+        i--; x--;
+        update(i, x);
+        while(pq.top()[0] != cur[pq.top()[1]]) pq.pop();
+        cout << pq.top()[0] / 2 << " \n"[qq == q - 1];
+    }
 
 }
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
+
+    // VTree tree(7);
+    // tree.update(0, Info(0, 1, 1, 1, 1, 1));
+    // cout << tree.query() << '\n';
+
+    // cout << "DFS\n";
+    // tree.dfs(tree.root);
+
+    // tree.update(2, Info(2, 3, 1, 1, 1, 1));
+    // cout << tree.query() << '\n';
+
+    // cout << "DFS\n";
+    // tree.dfs(tree.root);
+
+    // tree.update(3, Info(3, 4, 1, 1, 1, 1));
+    // cout << tree.query() << '\n';
+
+    // cout << "DFS\n";
+    // tree.dfs(tree.root);
+
+    // tree.update(2, Info(2, 3, 0, 0, -1, 0));
+    // cout << tree.query() << '\n';
+
+    // cout << "DFS\n";
+    // tree.dfs(tree.root);
+
+    // tree.update(0, Info(0, 1, 1, 1, 1, 1));
+    // cout << tree.query() << '\n';
+
+    // tree.update(1, Info(1, 2, 1, 1, 1, 1));
+    // cout << tree.query() << '\n';
+
+    // tree.update(0, Info(0, 1, 0, 0, -1, 0));
+    // cout << tree.query() << '\n';
+
 
     int casi; cin >> casi;
     while(casi-->0) solve();
