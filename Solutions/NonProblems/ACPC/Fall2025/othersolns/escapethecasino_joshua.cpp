@@ -59,6 +59,48 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
+    int n, m; cin >> n >> m;
+    vector<vector<array<int,2>>> adj(n);
+    for(int i = 0; i < m; i++) {
+        int u, v; cin >> u >> v;
+        u--; v--;
+        adj[u].push_back({v, 0});
+        adj[v].push_back({u, 1});
+    }
+
+    vector<int> dist(n, -1);
+    int d = 0;
+    queue<int> q1;
+
+    q1.push(0);
+
+    while(q1.size()) {
+        queue<int> nx;
+        while(q1.size()) {
+            int x = q1.front();
+            q1.pop();
+            nx.push(x);
+            for(auto [to, w] : adj[x]) {
+                if(w == 0 && dist[to] == -1) {
+                    dist[to] = d;
+                    q1.push(to);
+                }
+            }
+        }
+        d++;
+        while(nx.size()) {
+            int x = nx.front();
+            nx.pop();
+            for(auto [to, w] : adj[x]) {
+                if(dist[to] == -1) {
+                    dist[to] = d;
+                    q1.push(to);
+                }
+            }
+        }
+    }
+
+    cout << dist[n - 1] << '\n';
     
 
     return 0;

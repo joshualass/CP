@@ -55,11 +55,28 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    set<array<int,3>> tests;
+
+    for(int n = 2; ; n *= 3) {
+        for(int ub = 10; ub <= 100000; ub *= 10000) {
+            for(int times = 0; times < 3; times++) {
+                int fuzzy_n = min(100000, max(2, n + ((int) (rng() % n) - (n / 2))));
+                int k = (fuzzy_n == 2 ? 0 : rng() % (fuzzy_n - 2));
+                array<int,3> test = {fuzzy_n, k, ub};
+                if(tests.count(test) == 0) {
+                    cout << "gen " << fuzzy_n << " " << k << " " << ub << " > $\n";
+                    tests.insert(test);
+                }
+            }
+        }
+        if(n >= 100000) break;
+    }
 
     return 0;
 }

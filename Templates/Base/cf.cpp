@@ -50,6 +50,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <cassert>
+#include <cstring>
 typedef long long ll;
 typedef long double ld;
 using namespace std;

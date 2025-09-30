@@ -54,6 +54,13 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+/*
+had to optimize memory, it seems like randomization could help a lot here like fishy did. 
+i did a segtree - style where i chop the interval into segs and a element can be a third majority if it is 
+a majority in one of the segs, then, we consider logn * k elements per query, building O(n logn * k) on the segs
+but need to optimize for memory. 
+*/
+
 struct Info {
     map<int,int> m;
     set<int> s;

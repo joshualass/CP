@@ -55,7 +55,8 @@ typedef long double ld;
 using namespace std;
 
 /*
-does not pass all the time, but it is close. I feel like i've thought my idea thoroughly through and should step back and try another approach. 
+does not pass all the time, but it is close. I feel like i've thought my idea thoroughly through and should step back and try another approach. still thinking about this problem. 
+
 */
 
 template<typename T>

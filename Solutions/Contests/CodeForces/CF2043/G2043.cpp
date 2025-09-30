@@ -50,17 +50,287 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <cassert>
+#include <cstring>
 typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+/*
+looked at editorial and observed the existence of O(q sqrt(n)) solution. 
+otherwise, generated the solution. maybe not a clean kill, but spent a while thinking. 
 
+very many pitfalls when implementing square root decomp and some pitfalls with overcounting some things that were only able to be discovered
+by getting some WAs. 
+
+The idea is you support an add/remove operation. Then, we consider the elements of the same value in blocks to its left and right. 
+We use the p and s blocks and do some lazy range stuff
+making sure not to overcount the count and do the sqrt decomp stuff correctly. 
+
+*/
+
+mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+
+// const int B = 3;
+// const int N = 9;
+const int B = 317;
+const int N = 100000;
+int cnts[N][B]; // the current count of elements of value i in blocks with index <= j
+int a[N]; //the current array
+int p[B][B]; //prefix sum updates, fix r, propagate l down
+int s[B][B]; //suffix sum updates, fix l, propagate r up
+int pie[B][B]; //PIE updates
+int query_id[N], query_cnt[N];
+int debug = 0;
+int scramble = 1;
+
+void clear() {
+    memset(cnts,     0, sizeof(cnts));
+    memset(a,        0, sizeof(a));
+    memset(p,        0, sizeof(p));
+    memset(s,        0, sizeof(s));
+    memset(pie,      0, sizeof(pie));
+    memset(query_id, 0, sizeof(query_id));
+    memset(query_cnt,0, sizeof(query_cnt));
+}
+
+vector<ll> solve(int n, vector<int> arr, int q, vector<array<int,3>> queries) {
+    auto get_cnt = [&](int val, int block_id) -> int {
+        return cnts[val][block_id] - (block_id ? cnts[val][block_id - 1] : 0);
+    };
+
+    auto _update = [&](int idx, int val, int delta) -> void {
+        if(debug) cout << "_update called idx : " << idx << " val : " << val << " delta : " << delta << endl;
+        
+        int block = idx / B;
+        int pcnt = 0, scnt = 0;
+        
+        if(delta == -1) {
+            for(int i = block; i < B; i++) {
+                cnts[val][i] += delta;
+            }
+        }
+
+        for(int i = block; i < B; i++) {
+            pcnt += get_cnt(val, i);
+            p[block][i] += pcnt * delta;
+        }
+
+        for(int i = block - 1; i >= 0; i--) {
+            scnt += get_cnt(val, i);
+            s[i][block] += scnt * delta;
+        }
+
+        // pie[block][block] -= get_cnt(val, block) * delta;
+
+        if(delta == 1) {
+            for(int i = block; i < B; i++) {
+                cnts[val][i] += delta;
+            }
+        }
+    };
+
+    for(int i = 0; i < n; i++) {
+        int x = arr[i];
+        a[i] = x;
+        _update(i, x, 1);
+    }
+
+    auto print_stuff = [&]() {
+        cout << "cnts\n";
+        for(int i = 0; i < N; i++) {
+            cout << "i : " << i << " cnts[i] : ";
+            for(int j = 0; j < B; j++) cout << cnts[i][j] << " \n"[j == B - 1];
+        }
+        cout << "a : ";
+        for(int i = 0; i < n; i++) cout << a[i] << " \n"[i == n - 1];
+        cout << "p\n";
+        for(int i = 0; i < B; i++) {
+            cout << "i : " << i << " p[i] : ";
+            for(int j = 0; j < B; j++) cout << p[i][j] << " \n"[j == B - 1];
+        }
+        cout << "s\n";
+        for(int i = 0; i < B; i++) {
+            cout << "i : " << i << " s[i] : ";
+            for(int j = 0; j < B; j++) cout << s[i][j] << " \n"[j == B - 1];
+        }
+        cout << "pie\n";
+        for(int i = 0; i < B; i++) {
+            cout << "i : " << i << " pie[i] : ";
+            for(int j = 0; j < B; j++) cout << pie[i][j] << " \n"[j == B - 1];
+        }
+        cout << "query_id : ";
+        for(int i = 0; i < n; i++) cout << query_id[i] << " \n"[i == n - 1];
+        cout << "query_cnt : ";
+        for(int i = 0; i < n; i++) cout << query_cnt[i] << " \n"[i == n - 1];
+    };
+
+    if(debug) cout << "INIT PRINT\n";
+    if(debug) print_stuff();
+
+    ll last = 0;
+    vector<ll> soln;
+
+    for(int qq = 1; qq <= q; qq++) {
+        int type = queries[qq - 1][0];
+        assert(last >= 0);
+        if(type == 1) {
+            int pp = queries[qq - 1][1], xp = queries[qq - 1][2];
+            int p = (scramble ? (pp + last) % n : pp);
+            int x = (scramble ? (xp + last) % n : xp);
+            if(debug) cout << "t1 query p : " << p << " x : " << x << endl;
+            _update(p, a[p], -1);
+            a[p] = x;
+            _update(p, a[p], 1);
+        } else {
+            int lp = queries[qq - 1][1], rp = queries[qq - 1][2];
+            int l = (scramble ? (lp + last) % n : lp);
+            int r = (scramble ? (rp + last) % n : rp);
+            if(l > r) swap(l, r);
+            r++; 
+            //[l, r)
+            int len = r - l;
+
+            if(debug) cout << "t2 query l : " << l << " r : " << r << endl;
+
+            int lblock = (l + B - 1) / B; //inclusive
+            int rblock = max(lblock, r / B); //exclusive
+
+            if(debug) cout << "lblock : " << lblock << " rblock : " << rblock << endl;
+
+            
+            ll res_small = 0, res_big = 0;
+            auto add_val = [&](int val) -> void {
+                int add = (rblock ? cnts[val][rblock - 1] : 0);
+                int sub = (lblock ? cnts[val][lblock - 1] : 0);
+                int cnt = add - sub;
+                if(query_id[val] == qq) {
+                    cnt += query_cnt[val];
+                } else {
+                    query_id[val] = qq;
+                    query_cnt[val] = 0;
+                }
+
+                if(debug) cout << "add val called with val : " << val << " cnt contrib : " << cnt << '\n';
+
+                res_small += cnt;
+                query_cnt[val]++;
+            };
+
+            while(l < r && l % B) add_val(a[l++]);
+            while(r > l && r % B) add_val(a[--r]);
+
+            rblock--; //now rblock is inclusive. 
+            if(debug) cout << "small blocks l : " << lblock << " r : " << rblock << '\n';
+            if(debug) cout << "big0 : " << res_big << endl;
+            for(int i = lblock; i <= rblock; i++) {
+                res_big += p[i][rblock];
+            }
+            if(debug) cout << "big1 : " << res_big << endl;
+            for(int i = rblock; i >= lblock; i--) {
+                res_big += s[lblock][i];
+            }
+            if(debug) cout << "big2 : " << res_big << endl;
+            // if(lblock <= rblock) res_big += pie[lblock][rblock];
+            if(debug) cout << "res small : " << res_small << " res big : " << res_big << endl;
+            ll res = res_small + res_big;
+            res = 1LL * len * (len - 1) / 2 - res;
+            // cout << res << '\n';
+            soln.push_back(res);
+            last = res;
+        }
+        if(debug) cout << "info after query qq : " << qq << '\n';
+        if(debug) print_stuff();
+    }
+    
+    return soln;
+}
+
+vector<ll> solve_slow(int n, vector<int> arr, int q, vector<array<int,3>> queries) {
+    vector<ll> soln;
+    ll last = 0;
+    for(int qq = 1; qq <= q; qq++) {
+        int type = queries[qq - 1][0];
+        if(type == 1) {
+            int pp = queries[qq - 1][1], xp = queries[qq - 1][2];
+            int p = (scramble ? (pp + last) % n : pp);
+            int x = (scramble ? (xp + last) % n : xp);
+            arr[p] = x;
+        } else {
+            int lp = queries[qq - 1][1], rp = queries[qq - 1][2];
+            int l = (scramble ? (lp + last) % n : lp);
+            int r = (scramble ? (rp + last) % n : rp);
+            if(l > r) swap(l, r);
+            r++; 
+            int res = 0;
+            for(int i = l; i < r; i++) {
+                for(int j = i + 1; j < r; j++) {
+                    if(arr[i] != arr[j]) res++;
+                }
+            }
+            soln.push_back(res);
+            last = res;
+        }
+    }
+    return soln;
+}
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
+    int n; cin >> n;
+    if(n) {
+        vector<int> arr(n);
+        for(int &x : arr) {
+            cin >> x;
+            x--;
+        }
+        int q; cin >> q;
+        vector<array<int,3>> queries(q);
+        for(auto &x : queries) for(auto &y : x) cin >> y;
+        auto res = solve(n, arr, q, queries);
+        for(auto x : res) cout << x << '\n';
+    } else {
+        cout << "running tests\n";
+        scramble = 0;
+
+        for(int tc = 0; tc < 1000; tc++) {
+            int n = 9;
+            vector<int> arr(n);
+            for(int i = 0; i < 9; i++) {
+                arr[i] = rng() % n;
+            }
+            int q = 10;
+            vector<array<int,3>> queries;
+            for(int i = 0; i < q; i++) {
+                queries.push_back(array<int,3>{(int) (rng() % 2 + 1), (int) (rng() % n), (int) (rng() % n)});
+            }
+            clear();
+            vector<ll> fast_soln = solve(n, arr, q, queries);
+            vector<ll> slow_soln = solve_slow(n, arr, q, queries);
     
+            if(fast_soln != slow_soln) {
+                cout << "tc : " << tc << " BAD\n";
+                cout << n << '\n';
+                for(int i = 0; i < n; i++) cout << arr[i] + 1 << " \n"[i == n - 1];
+                cout << q << '\n';
+                for(int i = 0; i < q; i++) {
+                    for(int j = 0; j < 3; j++) cout << queries[i][j] << " \n"[j == 2];
+                }
+                cout << "solve fast : " << fast_soln << '\n';
+                cout << "solve slow : " << slow_soln << '\n';
+                return 0;
+            }
+        }
+        cout << "ALL CLEAR" << endl;
+    }
+
 
     return 0;
 }

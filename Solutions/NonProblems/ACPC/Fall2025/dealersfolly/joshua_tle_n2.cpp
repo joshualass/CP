@@ -59,7 +59,22 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int n, k; cin >> n >> k;
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
+
+    int left = (n - k);
+    int lhs = left / 2, rhs = (left + 1) / 2;
+    a.erase(a.begin() + lhs, a.begin() + lhs + k);
+
+    ll res = 0;
+    for(int i = 0; i < a.size(); i++) {
+        for(int j = i + 1; j < a.size(); j++) {
+            res += abs(a[i] - a[j]);
+        }
+    }
+
+    cout << ((ld) res) / ((a.size() * (a.size() - 1)) / 2) << '\n';
 
     return 0;
 }

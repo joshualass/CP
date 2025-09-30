@@ -59,7 +59,40 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
+    int n, k; cin >> n >> k;
     
+    array<int,3> nt = {-1,-1,-1};
+
+    //queries [l, r] and returns how many 1's there are + handling nt. 
+    auto ask = [&](int l, int r) -> int {
+        int ql, qr;
+        int sub = 0;
+        if(nt[0] == -1) {
+            if(nt[1] == l) {
+                ql = nt[0], qr = r;
+            } else if(nt[0] == r) {
+                ql = l, qr = nt[1];
+            } else {
+                assert(0);
+            }
+            sub = (r - l) - nt[2];
+        } else {
+            ql = l, qr = r;
+        }
+        nt = {-1,-1,-1};
+        cout << "? " << ql + 1 << " " << qr << endl;
+        int res; cin >> res;
+        return res - sub;
+    };
+
+    //we maintain that after our operations, the current array is the original array and we are able to discern where the 1 is. 
+    int l = 0, r = n - 1;
+    while(l != r) {
+
+        int m = (l + r) / 2;
+        int less = 
+
+    }
 
     return 0;
 }
