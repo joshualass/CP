@@ -59,23 +59,49 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, k; cin >> n >> k;
-    vector<int> a(n);
-    for(int &x : a) cin >> x;
-    sort(a.begin(), a.end());
+    int n, m; cin >> n >> m;
+    vector<vector<int>> adj(n);
+    for(int i = 0; i < m; i++) {
+        int u, v; cin >> u >> v;
+        u--; v--;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
 
-    int left = (n - k);
-    int lhs = left / 2, rhs = (left + 1) / 2;
-    a.erase(a.begin() + lhs, a.begin() + lhs + k);
+    vector<int> vis(n);
+    vector<array<int,2>> res;
 
-    ll res = 0;
-    for(int i = 0; i < a.size(); i++) {
-        for(int j = i + 1; j < a.size(); j++) {
-            res += abs(a[i] - a[j]);
+    auto dfs = [&](auto self, int i) -> void {
+        vis[i] = 1;
+        for(int c : adj[i]) {
+            if(vis[c] == 0) {
+                res.push_back({i, c});
+                self(self, c);
+            }
+        }
+    };
+
+    dfs(dfs, 0);
+
+    queue<int> q;
+    vis.assign(n, 0);
+    q.push(0);
+    vis[0] = 1;
+    while(q.size()) {
+        int x = q.front();
+        q.pop();
+        for(int c : adj[x]) {
+            if(vis[c] == 0) {
+                q.push(c);
+                vis[c] = 1;
+                res.push_back({x, c});
+            }
         }
     }
 
-    cout << fixed << setprecision(10) << ((ld) res) / ((a.size() * (a.size() - 1)) / 2) << '\n';
+    for(auto x : res) {
+        cout << x[0] + 1 << " " << x[1] + 1 << '\n';
+    }
 
     return 0;
 }
