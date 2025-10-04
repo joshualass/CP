@@ -52,30 +52,51 @@
 #include <cassert>
 #include <cstring>
 typedef long long ll;
+typedef __int128_t lll;
 typedef long double ld;
 using namespace std;
+
+ll euclid(ll a, ll b, ll &x, ll &y) {
+    if(!b) return x = 1, y = 0, a;
+    ll d = euclid(b, a % b, y, x);
+    return y -= a/b * x, d;
+}
+
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, l; cin >> n >> l;
-    vector<string> a(n);
-    for(auto &x : a) cin >> x;
+    auto _solve = [&](ll b, ll rem, ll mod) -> ll {
+        if(rem % gcd(b, mod)) return -1;
+        ll g = gcd(b, gcd(rem, mod));
+        b /= g;
+        rem /= g;
+        mod /= g;
+        assert(gcd(b, mod) == 1);
+        ll x, y;
+        euclid(b, mod, x, y);
+        ll inv = abs(x);
+        ll res = ((lll) rem) % mod * ((lll) inv) % mod;
+        return res;
+    };
 
-    vector pc(n, vector(11, vector<array<int,2>>(26, {-1,-1})));
+    auto solve = [&](ll a, ll b, ll ca, ll cb, ll n) -> ll {
+        ll rem = n % a;
+        ll x = _solve(b, rem, a);
+        if(x == -1) return LLONG_MAX;
+        ll start = x * b;
+        if(start > n) return LLONG_MAX;
 
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j <= a[i].size(); j++) {
-            for(int k = 0; k < 26; k++) {
-                string s = a[i].substr(0, j);
-                s.push_back(k + 'a');
+        n -= start;
+        return n / a * ca + x * cb;
+    };
 
-                
+    ll a, b, n; cin >> a >> b >> n;
 
-            }
-        }
-    }
+    ll res = min(solve(a, b, 1, 3, n), solve(b, a, 3, 1, n));
+
+    cout << (res == LLONG_MAX ? -1 : res) << '\n';
 
     return 0;
 }

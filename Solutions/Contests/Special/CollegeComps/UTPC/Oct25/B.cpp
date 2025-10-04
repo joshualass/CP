@@ -55,27 +55,49 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+/*
+try to not guess here
+
+at each index i, we need to find the minimum of sum 1 - a[j] for j = i + 1 to k for all i + 1 <= k <= n. 
+
+
+
+
+*/
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, l; cin >> n >> l;
-    vector<string> a(n);
-    for(auto &x : a) cin >> x;
+    ll t, e, g; cin >> t >> e >> g;
+    vector<ll> a(t);
+    for(ll &x : a) cin >> x;
+    vector<ll> b(t);
 
-    vector pc(n, vector(11, vector<array<int,2>>(26, {-1,-1})));
-
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j <= a[i].size(); j++) {
-            for(int k = 0; k < 26; k++) {
-                string s = a[i].substr(0, j);
-                s.push_back(k + 'a');
-
-                
-
-            }
-        }
+    ll cur = 0, maxs = 0;
+    for(int i = t - 1; i >= 0; i--) {
+        b[i] = cur - maxs;
+        cur = cur + 1 - a[i];
+        maxs = max(maxs, cur);
     }
+
+    // cout << "b : " << b << '\n';
+
+    int ok = 0;
+    cur = e;
+    for(int i = 0; i < t; i++) {
+        cur -= a[i];
+        if(cur - g + b[i] >= 0) ok = 1;
+        cur = min(cur + 1, e);
+    }
+
+    cout << (ok ? "YES" : "NO") << '\n';
 
     return 0;
 }

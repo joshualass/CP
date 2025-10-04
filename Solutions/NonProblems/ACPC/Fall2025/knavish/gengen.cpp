@@ -55,25 +55,33 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, l; cin >> n >> l;
-    vector<string> a(n);
-    for(auto &x : a) cin >> x;
+    set<array<int,5>> tests;
 
-    vector pc(n, vector(11, vector<array<int,2>>(26, {-1,-1})));
+    auto add_test = [&](int n, int m, int k, int strat, int op_moves) -> void {
+        array<int,5> cand = {n, m, k, strat, op_moves};
+        if(tests.count(cand) == 0) {
+            tests.insert(cand);
+            cout << "gen " << n << " " << m << " " << k << " " << strat << " " << op_moves << " > $\n";
+        }
+    };
 
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j <= a[i].size(); j++) {
-            for(int k = 0; k < 26; k++) {
-                string s = a[i].substr(0, j);
-                s.push_back(k + 'a');
-
-                
-
-            }
+    for(int n = 1; n <= 100000; n *= 10) {
+        int fuzz = rng() % 10 - 5;
+        int fuzzy_n = max(1, min(100000, n + fuzz));
+        int m = 100000 / fuzzy_n;
+        for(int k = 1; k <= 100000; k *= 10) {
+            int fuzz_k = rng() % 10 - 5;
+            int fuzzy_k = max(1, min(fuzzy_n * m, k + fuzz_k));
+            add_test(fuzzy_n, m, fuzzy_k, 0, fuzzy_n * m / (rng() % 10 + 1));
+            add_test(fuzzy_n, m, fuzzy_k, 0, fuzzy_n * m / (rng() % 10 + 1));
+            add_test(fuzzy_n, m, fuzzy_k, 0, fuzzy_n * m / (rng() % 10 + 1));
+            add_test(fuzzy_n, m, fuzzy_k, 1, -1);            
         }
     }
 

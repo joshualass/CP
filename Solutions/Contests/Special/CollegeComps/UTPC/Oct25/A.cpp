@@ -59,23 +59,21 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, l; cin >> n >> l;
-    vector<string> a(n);
-    for(auto &x : a) cin >> x;
-
-    vector pc(n, vector(11, vector<array<int,2>>(26, {-1,-1})));
-
+    int n, m; cin >> n >> m;
+    vector a(n, vector<int>(m));
+    for(auto &x : a) for(auto &y : x) cin >> y;
+    int res = 0;
+    vector<int> dx = {1, 0, -1, 0, 0}, dy = {0, -1, 0, 1, 0};
     for(int i = 0; i < n; i++) {
-        for(int j = 0; j <= a[i].size(); j++) {
-            for(int k = 0; k < 26; k++) {
-                string s = a[i].substr(0, j);
-                s.push_back(k + 'a');
-
-                
-
+        for(int j = 0; j < m; j++) {
+            int cur = 0;
+            for(int k = 0; k < 5; k++) {
+                int ni = i + dx[k], nj = j + dy[k];
+                if(ni >= 0 && ni < n && nj >= 0 && nj < m) cur += a[ni][nj];
             }
+            res = max(res, cur);
         }
     }
-
+    cout << res << '\n';
     return 0;
 }

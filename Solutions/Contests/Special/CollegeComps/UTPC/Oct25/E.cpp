@@ -59,23 +59,27 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, l; cin >> n >> l;
-    vector<string> a(n);
-    for(auto &x : a) cin >> x;
+    ll a1, h1, a2, h2; cin >> a1 >> h1 >> a2 >> h2;
 
-    vector pc(n, vector(11, vector<array<int,2>>(26, {-1,-1})));
+    ll ttk = h2;
+    ll best = LLONG_MAX;
+    while(1) {
 
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j <= a[i].size(); j++) {
-            for(int k = 0; k < 26; k++) {
-                string s = a[i].substr(0, j);
-                s.push_back(k + 'a');
+        // cout << "try ttk : " << ttk << '\n';
 
-                
+        ll health = a2 * ttk + 1;
+        ll attack = (h2 + ttk - 1) / ttk;
 
-            }
-        }
+        ll ops = max(0LL, health - h1) + max(0LL, attack - a1);
+        best = min(best, ops);
+
+        if(ttk == 1) break;
+        ttk--;
+        ll new_attack = (h2 + ttk - 1) / ttk;
+        ttk = (h2 + new_attack - 1) / new_attack;
     }
+
+    cout << best << '\n';
 
     return 0;
 }

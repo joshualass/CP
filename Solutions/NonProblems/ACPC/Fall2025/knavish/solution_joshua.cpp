@@ -59,23 +59,36 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, l; cin >> n >> l;
-    vector<string> a(n);
-    for(auto &x : a) cin >> x;
+    ll n, m, k; cin >> n >> m >> k;
+    vector<vector<ll>> a(n, vector<ll>(m));
+    for(auto &x : a) for(auto &y : x) cin >> y;
 
-    vector pc(n, vector(11, vector<array<int,2>>(26, {-1,-1})));
-
+    vector<vector<int>> vis(n, vector<int>(m));
+    vector<ll> best;
     for(int i = 0; i < n; i++) {
-        for(int j = 0; j <= a[i].size(); j++) {
-            for(int k = 0; k < 26; k++) {
-                string s = a[i].substr(0, j);
-                s.push_back(k + 'a');
-
-                
-
+        for(int j = 0; j < m; j++) {
+            if(a[i][j] == -1) break;
+            if(vis[i][j] == 0) {
+                best.push_back(a[i][j]);
+                vis[i][j] = 1;
             }
         }
     }
+
+    for(int j = 0; j < m; j++) {
+        for(int i = 0; i < n; i++) {
+            if(a[i][j] == -1) break;
+            if(vis[i][j] == 0) {
+                best.push_back(a[i][j]);
+                vis[i][j] = 1;
+            }
+        }
+    }    
+
+    sort(best.rbegin(), best.rend());
+    ll res = 0;
+    for(int i = 0; i < min(k, (ll) best.size()); i++) res += best[i];
+    cout << res << '\n';
 
     return 0;
 }

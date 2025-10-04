@@ -55,27 +55,26 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+void solve() {
+    
+    int n, rk, ck, rd, cd; cin >> n >> rk >> ck >> rd >> cd;
+
+    int res = 0;
+    if(rk < rd) res = max(res, rd);
+    if(rk > rd) res = max(res, n - rd);
+    if(ck < cd) res = max(res, cd);
+    if(ck > cd) res = max(res, n - cd);
+
+    cout << res << '\n';
+
+}
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, l; cin >> n >> l;
-    vector<string> a(n);
-    for(auto &x : a) cin >> x;
-
-    vector pc(n, vector(11, vector<array<int,2>>(26, {-1,-1})));
-
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j <= a[i].size(); j++) {
-            for(int k = 0; k < 26; k++) {
-                string s = a[i].substr(0, j);
-                s.push_back(k + 'a');
-
-                
-
-            }
-        }
-    }
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }

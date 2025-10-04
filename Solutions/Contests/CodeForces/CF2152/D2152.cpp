@@ -55,27 +55,47 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+
+void solve() {
+    
+    int n, q; cin >> n >> q;
+    vector<ll> a(n);
+    for(ll &x : a) cin >> x;
+
+    vector<ll> p1(n + 1), p2(n + 1);
+    for(int i = 1; i <= n; i++) {
+        p1[i] += (32 - __builtin_clz(a[i - 1] - 1)) + p1[i - 1];
+        p2[i] += p2[i - 1];
+        if(__builtin_popcount(a[i-1]) == 2 && __builtin_popcount(a[i - 1] - 1) == 1) {
+            p2[i]++;
+        }
+    }
+
+    // cout << "a : " << a << '\n';
+    // cout << "p1 : " << p1 << '\n';
+    // cout << "p2 : " << p2 << '\n';
+
+    for(int i = 0; i < q; i++) {
+        int l, r; cin >> l >> r;
+        l--;
+        ll ops = p1[r] - p1[l];
+        ll extra = p2[r] - p2[l];
+        cout << ops - (extra + 1) / 2 << '\n';
+    }
+
+}
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, l; cin >> n >> l;
-    vector<string> a(n);
-    for(auto &x : a) cin >> x;
-
-    vector pc(n, vector(11, vector<array<int,2>>(26, {-1,-1})));
-
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j <= a[i].size(); j++) {
-            for(int k = 0; k < 26; k++) {
-                string s = a[i].substr(0, j);
-                s.push_back(k + 'a');
-
-                
-
-            }
-        }
-    }
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }
