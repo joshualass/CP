@@ -54,53 +54,27 @@
 typedef long long ll;
 typedef long double ld;
 using namespace std;
-const int MAXN = 100000;
-const int MAXK = 20;
-const int SZ = 1 << MAXK;
-const ll inf = 1e18;
-
-ll cnts[MAXK];
-ll pc[MAXK][MAXK];
-ll pcss[SZ][MAXK];
-ll dp[SZ];
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
     int n, k; cin >> n >> k;
-    string s; cin >> s;
+    vector<ll> a(n);
+    for(ll &x : a) cin >> x;
+    sort(a.begin(), a.end());
 
-    //first count alphabet pairwise inversions. 
-    //cnts[i][j] => the number of pairs l < r such that a_l = i and a_r = j
-    for(int i = n - 1; i >= 0; i--) {
-        int val = s[i] - 'a';
-        for(int j = 0; j < k; j++) {
-            if(j != val) pc[val][j] += cnts[j];
-        }
-        cnts[val]++;
+    //erase median k elements
+    a.erase(a.begin() + (n - k) / 2, a.begin() + (n - k) / 2 + k);
+
+    ll total = 0;
+    n = a.size();
+    for(int i = 0; i < a.size(); i++) {
+        total += a[i] * (2 * i - (n - 1));
     }
 
-    for(int bm = (1 << k) - 2; bm >= 0; bm--) {
-        int first = __builtin_ctz(~bm);
-        for(int j = 0; j < k; j++) {
-            pcss[bm][j] = pcss[bm ^ (1 << first)][j] + pc[first][j];
-        }
-    }
-
-    fill(dp, dp + (1 << k), inf);
-
-    dp[0] = 0;
-
-    for(int i = 1; i < 1 << k; i++) {
-        for(int j = 0; j < k; j++) {
-            if((i >> j) & 1) {
-                dp[i] = min(dp[i], dp[i - (1 << j)] + pcss[i - (1 << j)][j]);
-            }
-        }
-    }
-
-    cout << dp[(1 << k) - 1] << '\n';
+    //print to several decimal places
+    cout << fixed << setprecision(10) << ((ld) total) / (1LL * n * (n - 1) / 2) << '\n';
 
     return 0;
 }

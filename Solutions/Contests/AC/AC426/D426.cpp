@@ -54,53 +54,59 @@
 typedef long long ll;
 typedef long double ld;
 using namespace std;
-const int MAXN = 100000;
-const int MAXK = 20;
-const int SZ = 1 << MAXK;
-const ll inf = 1e18;
 
-ll cnts[MAXK];
-ll pc[MAXK][MAXK];
-ll pcss[SZ][MAXK];
-ll dp[SZ];
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+
+void solve() {
+    
+    int n; cin >> n;
+    string s; cin >> s;
+    int res = INT_MAX;
+
+    auto _solve = [&](char targ) -> void {
+
+        vector<int> p(n + 1);
+        for(int i = 1; i <= n; i++) {
+            if(s[i - 1] == targ) {
+                p[i] += 2;
+            } else {
+                p[i] += 1;
+            }
+            p[i] += p[i-1];
+        }
+
+        // cout << "targ : " << targ << " p : " << p << "\n";
+
+        int lo = 0;
+        for(int i = 0; i < n; i++) {
+            if(s[i] != targ) {
+                int hi = i;
+                res = min(res, p[lo] + p[n] - p[hi]);
+                lo = i + 1;
+            }
+        }
+
+        res = min(res, p[lo]);
+
+    };
+
+    _solve('0');
+    _solve('1');
+
+    cout << res << '\n';
+
+}
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, k; cin >> n >> k;
-    string s; cin >> s;
-
-    //first count alphabet pairwise inversions. 
-    //cnts[i][j] => the number of pairs l < r such that a_l = i and a_r = j
-    for(int i = n - 1; i >= 0; i--) {
-        int val = s[i] - 'a';
-        for(int j = 0; j < k; j++) {
-            if(j != val) pc[val][j] += cnts[j];
-        }
-        cnts[val]++;
-    }
-
-    for(int bm = (1 << k) - 2; bm >= 0; bm--) {
-        int first = __builtin_ctz(~bm);
-        for(int j = 0; j < k; j++) {
-            pcss[bm][j] = pcss[bm ^ (1 << first)][j] + pc[first][j];
-        }
-    }
-
-    fill(dp, dp + (1 << k), inf);
-
-    dp[0] = 0;
-
-    for(int i = 1; i < 1 << k; i++) {
-        for(int j = 0; j < k; j++) {
-            if((i >> j) & 1) {
-                dp[i] = min(dp[i], dp[i - (1 << j)] + pcss[i - (1 << j)][j]);
-            }
-        }
-    }
-
-    cout << dp[(1 << k) - 1] << '\n';
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }

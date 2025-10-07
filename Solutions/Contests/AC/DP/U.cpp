@@ -54,53 +54,45 @@
 typedef long long ll;
 typedef long double ld;
 using namespace std;
-const int MAXN = 100000;
-const int MAXK = 20;
-const int SZ = 1 << MAXK;
-const ll inf = 1e18;
 
-ll cnts[MAXK];
-ll pc[MAXK][MAXK];
-ll pcss[SZ][MAXK];
-ll dp[SZ];
+int a[16][16];
+ll pc[1 << 16];
+ll dp[1 << 16];
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, k; cin >> n >> k;
-    string s; cin >> s;
+    int n; cin >> n;
 
-    //first count alphabet pairwise inversions. 
-    //cnts[i][j] => the number of pairs l < r such that a_l = i and a_r = j
-    for(int i = n - 1; i >= 0; i--) {
-        int val = s[i] - 'a';
-        for(int j = 0; j < k; j++) {
-            if(j != val) pc[val][j] += cnts[j];
-        }
-        cnts[val]++;
-    }
-
-    for(int bm = (1 << k) - 2; bm >= 0; bm--) {
-        int first = __builtin_ctz(~bm);
-        for(int j = 0; j < k; j++) {
-            pcss[bm][j] = pcss[bm ^ (1 << first)][j] + pc[first][j];
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < n; j++) {
+            cin >> a[i][j];
         }
     }
 
-    fill(dp, dp + (1 << k), inf);
-
-    dp[0] = 0;
-
-    for(int i = 1; i < 1 << k; i++) {
-        for(int j = 0; j < k; j++) {
-            if((i >> j) & 1) {
-                dp[i] = min(dp[i], dp[i - (1 << j)] + pcss[i - (1 << j)][j]);
+    for(int i = 1; i < 1 << n; i++) {
+        ll cost = 0;
+        for(int j = 0; j < n; j++) {
+            for(int k = j + 1; k < n; k++) {
+                if(((i >> j) & 1) && ((i >> k) & 1)) {
+                    cost += a[j][k];
+                }
             }
         }
+        pc[i] = cost;
     }
 
-    cout << dp[(1 << k) - 1] << '\n';
+    fill(begin(dp), end(dp), -1e18);
+    dp[0] = 0;
+
+    for(int i = 1; i < 1 << n; i++) {
+        for(int j = i; j; j = (j - 1) & i) {
+            dp[i] = max(dp[i], dp[i ^ j] + pc[j]);
+        }
+    }
+
+    cout << dp[(1 << n) - 1] << '\n';
 
     return 0;
 }
