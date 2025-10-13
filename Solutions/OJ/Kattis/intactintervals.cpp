@@ -55,6 +55,9 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+const int inf = 1e9;
+
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -157,7 +160,7 @@ struct Mint {
     }
 };
 
-constexpr int P = 998244353;
+constexpr int P = 1e9 + 7;
 using Z = Mint<P>;
 // using Z = double;
 const int MAXN = 1e6;
@@ -184,66 +187,48 @@ void init_fact(int n = MAXN) {
 init_fact()
 */
 
-
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, L; cin >> n >> L;
-    vector<string> a(n);
-    for(auto &x : a) cin >> x;
+    int n; cin >> n;
+    vector<int> a(n), b(n);
+    for(int &x : a) cin >> x;
+    for(int &x : b) cin >> x;
 
-    //given that we are at state with longest matching prefix index i, length match prefix of j and appending character k. stores the {next longest prefix, length, bitmask contribution}
-    vector pc(n, vector(11, vector<array<int,3>>(26, {-1,-1,-1})));
+    set<int> s(a.begin(), a.end());
+    s.insert(b.begin(), b.end());
+    map<int,int> m;
+    int p = 0;
+    for(int x : s) m[x] = p++;
 
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j <= a[i].size(); j++) {
-            for(int k = 0; k < 26; k++) {
-                string s = a[i].substr(0, j);
-                s.push_back(k + 'a');
-                int to = 0, len = 0;
-                for(int l = 0; l < n; l++) {
-                    for(int m = 1; m <= min(s.size(), a[l].size()); m++) {
-                        if(s.substr(s.size() - m) == a[l].substr(0, m) && m > len) {
-                            to = l;
-                            len = m;
-                        }
-                    }
-                }
-                int bm = 0;
-                for(int l = 0; l < n; l++) {
-                    if(s.find(a[l]) != string::npos) {
-                        bm += 1 << l;
-                    }
-                }
-                pc[i][j][k] = {to, len, bm};
-            }
+    vector<vector<int>> h(5, vector<int>(n * 2));
+    for(int &x : a) {
+        x = m[x];
+    }
+    for(int &x : b) {
+        x = m[x];
+    }
+
+    for(int i = 0; i < 5; i++) {
+        for(int j = 0; j < n * 2; j++) {
+            h[i][j] = rng() % inf;
         }
     }
 
-    vector dp(L + 1, vector(n, vector(11, vector<Z>(1 << n))));
-    dp[0][0][0][0] = 1;
-
-    for(int i = 0; i < L; i++) {
-        for(int j = 0; j < n; j++) {
-            for(int k = 0; k < 11; k++) {
-                for(int bm = 0; bm < 1 << n; bm++) {
-                    if(dp[i][j][k][bm].x) {
-                        for(int l = 0; l < 26; l++) {
-                            auto [nxj, nxk, bmcontrib] = pc[j][k][l];
-                            dp[i + 1][nxj][nxk][bm | bmcontrib] += dp[i][j][k][bm];
-                        }
-                    }
-                }
-            }
-        }
-    }
-
+    array<ll,5> curr_hash = {};
+    map<array<ll,5>, Z> dp, first_time;
     Z res = 0;
+
     for(int i = 0; i < n; i++) {
-        for(int j = 0; j < 11; j++) {
-            res += dp[L][i][j][(1 << n) - 1];
+        for(int j = 0; j < 5; j++) {
+            curr_hash[j] += h[j][a[i]];
+            curr_hash[j] -= h[j][b[i]];
         }
+        Z add = first_time[curr_hash] + dp[curr_hash];
+        dp[curr_hash] += add;
+        res += add;
+        first_time[curr_hash] += 1;
     }
 
     cout << res << '\n';
