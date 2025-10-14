@@ -1,7 +1,7 @@
 // T - query val, D - lazy change
 template<typename T, typename D>
 struct Lazy {
-    static constexpr T qn = {inf, 0}; // query neutral, when we query, doing the operation with this value won't change our query
+    static constexpr T qn = 0; // query neutral, when we query, doing the operation with this value won't change our query
     static constexpr D ln = 0; //lazy neutral, applying this value to its node will not change its value
     vector<T> v;      //stores values at each index we are querying for
     vector<D> lazy;   //stores lazy update values
@@ -31,20 +31,14 @@ struct Lazy {
     }
     bool isLeaf(int node) {return node >= size;}
     T query_comb(T val1, T val2) {//update this depending on query type
-        if(val1[0] < val2[0]) {
-            return val1;
-        } else if(val2[0] < val1[0]) {
-            return val2;
-        } else {
-            return {val1[0], val1[1] + val2[1]};
-        }
+        return max(val1, val2);
     }
     //how we combine lazy updates to lazy
     void lazy_comb(int node, D val) {//update this depending on update type. how do we merge the lazy changes?
         lazy[node] += val;
     }
     void main_comb(int node, int size) {//update this depending on query type, how does the lazy value affect value at v for the query?
-        v[node][0] += lazy[node];
+        v[node] += lazy[node];
     }
     void push_lazy(int node, int size) {
         main_comb(node, size); //push lazy change to current node
