@@ -54,29 +54,28 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+/*
+struggled a bit on this
+
+it helps a lot to draw it out, maybe write down some observations + Winning and Losing states
+
+else write a program to solve >.<
+*/
+
 void solve() {
 
     int n; cin >> n;
     string s; cin >> s;
-    char p = 'A';
-    vector<pair<char,int>> a;
-    a.push_back({'A', 0});
+    int cur = 0;
     for(char c : s) {
-        if(c != p) {
-            a.push_back({c, 0});
+        if(c == 'A') {
+            cur++;
+        } else {
+            cur = max(cur - 1, 0);
         }
-        a.back().second++;
-        p = c;
-    }
-    if(a.back().first != 'B') a.push_back({'B', 0});
-
-    int f = 0;
-    assert(a.size() % 2 == 0);
-    for(int i = 0; i < a.size(); i += 2) {
-        if(a[i].second > a[i + 1].second) f = 1;
     }
 
-    cout << (f ? "Alice" : "Bob") << '\n';
+    cout << (cur ? "Alice" : "Bob") << '\n';
     
 }
 

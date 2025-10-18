@@ -92,27 +92,88 @@ signed main() {
         attime.push_back(i);
     };
 
-    int sz = 0, l = 0;
-    vector<array<int,2>> buckets;
+    dfs(dfs, 0, -1);
+
+    //atbucket[i] stores the bucket each index is in
     vector<int> atbucket;
+    int cur_bucket = 0, sz = 0;
 
     for(int i = 0; i < attime.size(); i++) {
         if(sz + 1 > SQN) {
-            buckets.push_back({l, i - 1});
-            l = i;
+            cur_bucket++;
             sz = 1;
         }
-        atbucket.push_back(buckets.size());
+        atbucket.push_back(cur_bucket);
     }
 
-    buckets.push_back({l, n - 1});
+    int bc = cur_bucket + 1;
 
-    vector<vector<array<int,3>>> queries(buckets.size(), vector<array<int,3>>(buckets.size()));
+    //[l][r] => vector of tuples of the form {true l, true r, query id}
+    vector<vector<vector<array<int,3>>>> queries(bc, vector<vector<array<int,3>>>(bc));
     for(int i = 0; i < m; i++) {
         int l, r; cin >> l >> r;
         l--; r--;
-        //push to start times, 
+        //ensure we visit node l first
+        if(in[l] > in[r]) swap(l, r);
+        int lidx = in[l], ridx = out[r] - 1;
+        int lb = atbucket[lidx], rb = atbucket[ridx];
+        queries[lb][rb].push_back({lidx, ridx, i});
     }
+
+    vector<int> cnts_value(p), cnts_node(n);
+    int cur = 0;
+
+    auto toggle = [&](int idx) -> void {
+        int node = attime[idx];
+        int val = a[node];
+
+        cur -= cnts_value[val] > 0;
+        if(cnts_node[node] == 0) {
+            cnts_value[val]++;
+        } else {
+            cnts_value[val]--;
+        }
+        cnts_node[node] ^= 1;
+
+        cur += cnts_value[val] > 0;
+    };
+
+
+    vector<int> res(m);
+    int curl = 0, curr = -1;
+
+    auto handle_queries = [&](int i, int j) -> void {
+        for(auto [l, r, id] : queries[i][j]) {
+            while(curl > l) {
+                toggle(--curl);
+            }
+            while(curr < r) {
+                toggle(++curr);
+            }
+            while(curl < l) {
+                toggle(curl++);
+            }
+            while(curr > r) {
+                toggle(curr--);
+            }
+            res[id] = curr;
+        }
+    };
+
+
+    for(int i = 0; i < bc; i++) {
+        if(i % 2 == 0) {
+            for(int j = i; j < bc; j++) {
+                handle_queries(i, j);
+            }
+        } else {
+            for(int j = bc - 1; j >= i; j--) {
+                handle_queries(i, j);
+            }
+        }
+    }
+
+    for(int i = 0; i < m; i++) cout << res[i] << "\n";
 
     return 0;
 }
