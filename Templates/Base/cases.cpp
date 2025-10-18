@@ -60,11 +60,11 @@ void solve() {
     
 }
 
-int main() {
+signed main() {
     ios_base::sync_with_stdio(false);cin.tie(NULL);
 
-    freopen(".in","r",stdin);
-    freopen(".out","w",stdout);
+    freopen(".txt","r",stdin);
+    freopen(".txt","w",stdout);
     
     int casi; cin >> casi;
     for(int i = 1; i <= casi; i++) {
