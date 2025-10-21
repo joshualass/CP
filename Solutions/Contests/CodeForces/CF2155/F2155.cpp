@@ -224,30 +224,51 @@ void solve() {
 
     int ex = -1;
 
-    for(auto [l, r, lbid, rbid, anc, id] : queries) {
+    // cout << "in\n";
+    // for(int i = 0; i < n; i++) cout << in[i] << " \n"[i == n - 1];
+    // cout << "out\n";
+    // for(int i = 0; i < n; i++) cout << out[i] << " \n"[i == n - 1];
 
-        int path_length = lca.dist(l, r) + 1;
+    // cout << "attime\n";
+    // for(int i = 0; i < n * 2; i++) cout << attime[i] << " \n"[i == n * 2 - 1];
+
+    for(auto [l, r, lbid, rbid, imp_anc, id] : queries) {
+
+        // cout << "l : " << l << " r : " << r << " lbid  " << lbid << " rbid : " << rbid << " anc : " << imp_anc << " id : " << id << '\n';
+        int path_length = lca.dist(attime[l], attime[r]) + 1;
+        // cout << "pl : " << path_length << '\n';
 
         while(cl > l) toggle(--cl);
         while(cr < r) toggle(++cr);
         while(cl < l) toggle(cl++);
         while(cr > r) toggle(cr--);
 
-        if(ex != -1 && ex != anc) {
+        //erase previous important anc
+        if(ex != -1 && ex != imp_anc) {
             toggle(ex);
             ex = -1;
         }
+        //ex will be -1 except for the case where anc is the same as previous. 
 
-        if(anc == -1) {
+        int anc = lca.lca(attime[l], attime[r]);
+        // cout << "anc : " << anc << '\n';
+
+        if(anc == attime[l] || anc == attime[r]) {
             //no more toggles are needed
             res[id] = vc[path_length];
+            // cout << "nc states1\n";
+            // for(int i = 0; i < n; i++) cout << nc[i] << " \n"[i == n - 1];
         } else {
             if(ex != anc) {
                 ex = anc;
                 toggle(anc);
             }
+            // cout << "nc states2\n";
+            // for(int i = 0; i < n; i++) cout << nc[i] << " \n"[i == n - 1];
             res[id] = vc[path_length];
         }
+        // cout << "ex : " << ex << '\n';
+        // cout << "res val : " << res[id] << '\n';
     }
 
     for(int i = 0; i < q; i++) cout << res[i] << " \n"[i == q - 1];
