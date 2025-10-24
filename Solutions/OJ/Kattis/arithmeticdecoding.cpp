@@ -59,17 +59,33 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, c; cin >> n >> c;
-    int res = 1, p; cin >> p;
-    for(int i = 1; i < n; i++) {
-        int x; cin >> x;
-        if(x - p >= c) {
-            res++;
-            p = x;
+    ll n, d;
+    cin >> n >> d;
+    string s;
+    getline(cin, s);
+    getline(cin, s);
+    ll low = 0, high = (1ll << (ll) (n * 3));
+    ll val = 0;
+    for(int i = 2; i < s.size(); i++) {
+        if(s[i] == '0') continue;
+        val += 1ll << (ll) (n * 3 - i + 1);
+    }
+    // cout << "LOW HIGH VAL : " << low << " " << val << " " << high << "\n";
+    string ans = "";
+    for(int i = 0; i < n; i++) {
+        ll range = high - low;
+        assert(range % 8 == 0);
+        ll mid = low + (range / 8) * d;
+        if(val < mid) {
+            ans.push_back('A');
+            high = mid;
+        }
+        else {
+            ans.push_back('B');
+            low = mid;
         }
     }
-
-    cout << res << '\n';
+    cout << ans << "\n";
 
     return 0;
 }

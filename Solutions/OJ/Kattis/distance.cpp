@@ -59,17 +59,23 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, c; cin >> n >> c;
-    int res = 1, p; cin >> p;
-    for(int i = 1; i < n; i++) {
-        int x; cin >> x;
-        if(x - p >= c) {
-            res++;
-            p = x;
-        }
+    int n; cin >> n;
+    vector<ll> a(n), b(n);
+    ll tota = 0, totb = 0;
+    for (int i = 0; i < n; i++) {
+        cin >> a[i] >> b[i];
     }
 
-    cout << res << '\n';
+    ll ans = 0;
+    sort(a.begin(), a.end());
+    sort(b.begin(), b.end());
+    for (int i = 0; i < n; i++) {
+        ans +=(a[i] + b[i]) * (i) - tota - totb;
+        tota += a[i];
+        totb += b[i];
+    }
+
+    cout << ans << '\n';
 
     return 0;
 }

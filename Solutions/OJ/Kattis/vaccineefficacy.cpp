@@ -55,38 +55,59 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+template <typename T, std::size_t N>
+std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
+    os << "[";
+    for (std::size_t i = 0; i < N; ++i) {
+        os << arr[i];
+        if (i < N - 1) {
+            os << ", ";
+        }
+    }
+    os << "]";
+    return os;
+}
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
     int n; cin >> n;
-    vector<int> a(n), b(n - 1);
-    for(int &x : a) cin >> x;
-    for(int &x : b) cin >> x;
-    int l = 1, r = 1'000'000'001;
-    while(l != r) {
-        int m = (l + r) / 2;
-        sort(a.begin(), a.end());
-        b.push_back(m);
-        sort(b.begin(), b.end());
-        int ok = 1;
-        for(int i = 0; i < n; i++) {
-            if(a[i] > b[i]) ok = 0;
-        }
-        if(ok) {
-            r = m;
+    array<int,3> ct = {}, ci = {}, it = {}, ii = {};
+    for(int i = 0; i < n; i++) {
+        string s; cin >> s;
+        if(s[0] == 'N') {
+            for(int j = 1; j < 4; j++) {
+                ct[j - 1]++;
+                if(s[j] == 'Y') {
+                    ci[j - 1]++;
+                }
+            }
         } else {
-            l = m + 1;
-        }
-        for(int i = 0; i < n; i++) {
-            if(b[i] == m) {
-                b.erase(b.begin() + i);
-                break;
+            for(int j = 1; j < 4; j++) {
+                it[j - 1]++;
+                if(s[j] == 'Y') {
+                    ii[j - 1]++;
+                }
             }
         }
     }
 
-    cout << (l == 1'000'000'001 ? -1 : l) << '\n';
+    // cout << "ci : " << ci << '\n';
+    // cout << "ct : " << ct << '\n';
+    // cout << "ii : " << ii << '\n';
+    // cout << "it : " << it << "\n";
+
+    for(int i = 0; i < 3; i++) {
+        ld c_rate = ((ld) ci[i]) / ct[i];
+        ld i_rate = ((ld) ii[i]) / it[i];
+        ld delta = c_rate - i_rate;
+        if(delta <= 0) {
+            cout << "Not Effective\n";
+        } else {
+            cout << fixed << setprecision(10) << (1 - i_rate / c_rate) * 100 << '\n';
+        }
+    }
 
     return 0;
 }

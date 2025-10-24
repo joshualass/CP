@@ -115,7 +115,7 @@ struct LCA {
 
 const int MAXN = 300000;
 vector<int> ch[MAXN]; //colors here, stores vector of the colors at this node. 
-int in[MAXN], out[MAXN], attime[MAXN], bid[MAXN * 2], nc[MAXN], cc[MAXN], vc[MAXN + 1], res[MAXN];
+int in[MAXN], out[MAXN], attime[MAXN * 2], bid[MAXN * 4], nc[MAXN], cc[MAXN], vc[MAXN + 1], res[MAXN];
 vector<vector<int>> adj;
 
 void dfs(int i, int p, int &time) {

@@ -55,21 +55,44 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+
+void solve() {
+    
+    int n; cin >> n;
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
+
+    // cout << "n : " << n << " a : " << a << '\n';
+
+    int mx = 0;
+    for(int i = 0; i < n; i++) {
+        mx = max(mx, a[i]);
+        if(i & 1) a[i] = mx;
+    }
+
+    // cout << "upd a : " << a << '\n';
+
+    ll res = 0;
+    for(int i = 0; i < n; i += 2) {
+        int lo = min(i ? a[i - 1] : 1'000'000'000, i + 1 < n ? a[i + 1] : 1'000'000'000);
+        res += max(0, a[i] - lo + 1);
+    }
+
+    cout << res << '\n';
+
+}
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, c; cin >> n >> c;
-    int res = 1, p; cin >> p;
-    for(int i = 1; i < n; i++) {
-        int x; cin >> x;
-        if(x - p >= c) {
-            res++;
-            p = x;
-        }
-    }
-
-    cout << res << '\n';
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }

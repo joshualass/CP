@@ -55,21 +55,37 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+void solve() {
+    
+    int n, k; cin >> n >> k;
+
+    vector<ll> a(n);
+    for(ll &x : a) cin >> x;
+
+    sort(a.begin(), a.end());
+    ll res = 0;
+
+    vector<ll> p(n + 1);
+    for(int i = 1; i <= n; i++) {
+        p[i] = p[i - 1] + a[i - 1];
+    }
+
+    //given x, what is our score, 
+    auto _solve = [&](ll x) -> void {
+
+    };
+
+    for(int x = 1; x <= a; x += 2) _
+
+
+}
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, c; cin >> n >> c;
-    int res = 1, p; cin >> p;
-    for(int i = 1; i < n; i++) {
-        int x; cin >> x;
-        if(x - p >= c) {
-            res++;
-            p = x;
-        }
-    }
-
-    cout << res << '\n';
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }

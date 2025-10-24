@@ -59,16 +59,11 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, c; cin >> n >> c;
-    int res = 1, p; cin >> p;
-    for(int i = 1; i < n; i++) {
-        int x; cin >> x;
-        if(x - p >= c) {
-            res++;
-            p = x;
-        }
+    ll n; cin >> n;
+    ll res = 0;
+    for(ll i = 1; i <= n; i += 2) {
+        res += i * i;
     }
-
     cout << res << '\n';
 
     return 0;

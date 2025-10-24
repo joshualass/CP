@@ -59,17 +59,19 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, c; cin >> n >> c;
-    int res = 1, p; cin >> p;
-    for(int i = 1; i < n; i++) {
-        int x; cin >> x;
-        if(x - p >= c) {
-            res++;
-            p = x;
+    int n, p, s;
+    cin >> n >> p >> s;
+    for(int i = 0; i < s; i++) {
+        int m;
+        cin >> m;
+        bool keep = false;
+        for(int j = 0; j < m; j++) {
+            int x;
+            cin >> x;
+            if(x == p) keep = true;
         }
+        cout << (keep ? "KEEP" : "REMOVE") << "\n";
     }
-
-    cout << res << '\n';
 
     return 0;
 }

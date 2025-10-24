@@ -55,21 +55,29 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+void solve() {
+    
+    int n, k; cin >> n >> k;
+    string s; cin >> s;
+    int res = 0;
+    int prev = -1e9;
+    for(int i = 0; i < n; i++) {
+        if(s[i] == '1') {
+            if(i - prev >= k) {
+                res++;
+            }
+            prev = i;
+        }
+    }
+    cout << res << '\n';
+}
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, c; cin >> n >> c;
-    int res = 1, p; cin >> p;
-    for(int i = 1; i < n; i++) {
-        int x; cin >> x;
-        if(x - p >= c) {
-            res++;
-            p = x;
-        }
-    }
-
-    cout << res << '\n';
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }

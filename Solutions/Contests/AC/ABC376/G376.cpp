@@ -56,7 +56,7 @@ typedef long double ld;
 using namespace std;
 
 /*
-main observation is that no matter when we choose some node, we will have to choose the nodes above it and have to 
+a lot of the following uses the observation that no matter when we choose some node, we will have to choose the nodes above it and have to 
 
 solve slow(node)
 returns the maximum subtree average and the sequence of chops used to achieve this average
@@ -97,6 +97,7 @@ amortized runtime. We use small to large merging to find the largest chop option
 
 Now, with cost[i] computed for all i, we can greedily visit nodes with the highest cost[i] that are visitable. 
 I'm going to read editorial, but there was a little bit of guessing to reach this conclusion, but it's pretty cool that it works. 
+Seems like this problem was inspired by a similar problem, but first time for me. 
 
 */
 

@@ -59,35 +59,47 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int t; cin >> t;
-    while(t-->0) {
-        int n, k; cin >> n >> k;
-        vector<array<int,2>> a(n);
-        for(auto &x : a) cin >> x[0];
-        for(auto &x : a) cin >> x[1];
-        sort(a.begin(), a.end());
-    
-        ll res = LLONG_MAX;
-        ll sum = 0;
-        priority_queue<ll> pq;
-    
-        for(int i = 0; i < k - 1; i++) {
-            pq.push(a[i][1]);
-            sum += a[i][1];
+    int n;
+    cin >> n;
+    vector<int> a(n);
+    for(int i = 0; i < n; i++) cin >> a[i];
+    vector<vector<int>> ans;
+    vector<int> pv(n, -1), nx(n, -1);
+    vector<int> to_rem(0);
+    vector<bool> v(n, false);
+    for(int i = 0; i < n; i++) {
+        if((i != 0 && a[i] < a[i - 1]) || (i != n - 1 && a[i] < a[i + 1])) {
+            to_rem.push_back(i);
+            v[i] = true;
         }
-        for(int i = k - 1; i < n; i++) {
-            pq.push(a[i][1]);
-            sum += a[i][1];
-            if(i != k - 1) {
-                sum -= pq.top();
-                pq.pop();
-            }
-            // cout << "i : " << i << " sum : " << sum << " a[i] : " << a[i][0] << '\n';
-            res = min(res, a[i][0] * sum);
-        }
-    
-        cout << res << '\n';
+        pv[i] = i - 1;
+        nx[i] = i + 1; 
     }
+    while(to_rem.size() != 0) {
+        ans.push_back(to_rem);
+        set<int> nto_rem;
+        for(int x : to_rem) {
+            int l = pv[x], r = nx[x];
+            if(r != n) pv[r] = pv[x];
+            if(l != -1) nx[l] = nx[x];
+            if(l == -1 || r == n) continue;
+            if(v[l] || v[r]) continue;
+            if(a[l] < a[r]) nto_rem.insert(l);
+            if(a[r] < a[l]) nto_rem.insert(r);
+        }
+        to_rem.clear();
+        for(int x : nto_rem) {
+            to_rem.push_back(x);
+            v[x] = true;
+        }
+    }
+    cout << ans.size() << "\n";
+    for(int i = 0; i < ans.size(); i++) {
+        for(int x : ans[i]) cout << a[x] << " ";
+        cout << "\n";
+    }
+    for(int i = 0; i < n; i++) if(!v[i]) cout << a[i] << " ";
+    cout << "\n";
 
     return 0;
 }
