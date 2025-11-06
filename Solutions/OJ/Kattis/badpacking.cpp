@@ -54,42 +54,51 @@
 typedef long long ll;
 typedef long double ld;
 using namespace std;
-
-mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-
-struct Node {
-    Node *l, *r;
-    int idx;
-    ll y;
-    int size;
-    int rev;
-    Node(Node *l, Node *r, int idx): l(l), r(r), idx(idx), size(1), rev(0), y(rng()) {}
-};
-
-void push(Node *cur) {
-    if(cur->rev) {
-        swap(cur->l, cur->r);
-        if(cur->l) {
-            cur->l->rev ^= 1;
-        }
-        if(cur->r) {
-            cur->r->rev ^= 1;
-        }
-        cur->rev = 0;
-    }
-}
-
-Node *split(Node *cur, int ls, int rs) {
-    push(cur);
-    int cls = (cur->l ? cur->l->size : 0);
-    
-}
+typedef vector<int> vi;
+typedef vector<ll> vl;
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int n, c;
+    cin >> n >> c;
+    vi a(n);
+    for(int i = 0; i < n; i++) cin >> a[i];
+    sort(a.begin(), a.end());
+    reverse(a.begin(), a.end());
+    int S = 0;
+    for(int i = 0; i < n; i++) S += a[i];
+    set<int> s;
+    s.insert(0);
+    vector<bool> dp(c + 1, 0);
+    int ans = c;
+    dp[0] = 1;
+    int aptr = 0;
+    for(int x = c; x >= 0; x--) {
+        while(aptr != n && a[aptr] > x) {
+            int val = a[aptr ++];
+            S -= val;
+            for(int i = c; i >= 0; i--) {
+                if(i + val > c) continue;
+                if(!dp[i]) continue;
+                if(!dp[i + val]) {
+                    s.insert(i + val);
+                    dp[i + val] = 1;
+                }
+            }
+        }
+        // cout << "S : " << x << " " << S << "\n";
+        if(S > c) continue;
+        int req = (c - x) - S;
+        // cout << "REQ : " << x << " " << req << "\n";
+        auto sptr = s.lower_bound(req);
+        if(sptr != s.end()) {
+            // cout << "SPTR : " << *sptr << " " << S + *sptr << "\n";
+            ans = min(ans, S + (*sptr));
+        } 
+    }
+    cout << ans << "\n";
 
     return 0;
 }

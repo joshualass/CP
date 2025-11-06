@@ -55,41 +55,37 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-
-struct Node {
-    Node *l, *r;
-    int idx;
-    ll y;
-    int size;
-    int rev;
-    Node(Node *l, Node *r, int idx): l(l), r(r), idx(idx), size(1), rev(0), y(rng()) {}
-};
-
-void push(Node *cur) {
-    if(cur->rev) {
-        swap(cur->l, cur->r);
-        if(cur->l) {
-            cur->l->rev ^= 1;
-        }
-        if(cur->r) {
-            cur->r->rev ^= 1;
-        }
-        cur->rev = 0;
-    }
-}
-
-Node *split(Node *cur, int ls, int rs) {
-    push(cur);
-    int cls = (cur->l ? cur->l->size : 0);
-    
-}
-
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    string type; cin >> type;
+    if(type == "first") {
+        int n; cin >> n;
+        string res = "";
+        for(int i = 0; i < n; i++) {
+            ll num; cin >> num;
+            for(int j = 0; j < 7; j++) {
+                res.push_back('a' + num % 26);
+                num /= 26;
+            }
+        }
+        cout << res << '\n';
+    } else {
+        string res; cin >> res;
+        cout << res.size() / 7 << '\n';
+        
+        for(int i = 0; i * 7 < res.size(); i++) {
+            ll num = 0;
+            ll mul = 1;
+            for(int j = 0; j < 7; j++) {
+                num += (res[i * 7 + j] - 'a') * mul;
+                mul *= 26;
+            }
+            cout << num << " ";
+        }
+        cout << '\n';
+    }
 
     return 0;
 }

@@ -55,41 +55,41 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-
-struct Node {
-    Node *l, *r;
-    int idx;
-    ll y;
-    int size;
-    int rev;
-    Node(Node *l, Node *r, int idx): l(l), r(r), idx(idx), size(1), rev(0), y(rng()) {}
-};
-
-void push(Node *cur) {
-    if(cur->rev) {
-        swap(cur->l, cur->r);
-        if(cur->l) {
-            cur->l->rev ^= 1;
-        }
-        if(cur->r) {
-            cur->r->rev ^= 1;
-        }
-        cur->rev = 0;
-    }
-}
-
-Node *split(Node *cur, int ls, int rs) {
-    push(cur);
-    int cls = (cur->l ? cur->l->size : 0);
+void solve() {
     
+    int n; cin >> n;
+    string s; cin >> s;
+    n++;
+    s.push_back('1');
+    vector<int> a(n);
+    int ok = 1;
+    int p = -1;
+    for(int i = 0; i < n; i++) {
+        if(s[i] == '1') {
+            a[i] = i;
+            for(int j = p + 1; j < i; j++) {
+                a[i - (j - p)] = j;
+            }
+            if(p == i - 2) ok = 0;
+            p = i;
+        }
+    }
+
+    if(ok) {
+        cout << "YES\n";
+        for(int i = 0; i < n - 1; i++) cout << a[i] + 1 << " \n"[i == n - 2];
+    } else {
+        cout << "NO\n";
+    }
+
 }
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }

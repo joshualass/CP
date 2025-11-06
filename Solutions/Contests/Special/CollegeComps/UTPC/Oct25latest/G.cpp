@@ -55,41 +55,36 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-
-struct Node {
-    Node *l, *r;
-    int idx;
-    ll y;
-    int size;
-    int rev;
-    Node(Node *l, Node *r, int idx): l(l), r(r), idx(idx), size(1), rev(0), y(rng()) {}
-};
-
-void push(Node *cur) {
-    if(cur->rev) {
-        swap(cur->l, cur->r);
-        if(cur->l) {
-            cur->l->rev ^= 1;
-        }
-        if(cur->r) {
-            cur->r->rev ^= 1;
-        }
-        cur->rev = 0;
-    }
-}
-
-Node *split(Node *cur, int ls, int rs) {
-    push(cur);
-    int cls = (cur->l ? cur->l->size : 0);
-    
-}
-
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int n; cin >> n;
+    vector<vector<int>> a(2, vector<int>(n));
+    for(auto &b : a) {
+        for(auto &x : b) cin >> x;
+    }
+
+    vector<array<array<int,2>, 2>> dp(n + 1);
+
+    for(int i = 1; i <= n; i++) {
+        for(int j = 0; j < 2; j++) {
+            array<int,2> best = {INT_MIN, INT_MIN};
+            int cur = 0;
+            for(int take = 1; i - take >= 0 && take <= 4; take++) {
+                cur += a[j][i - take];
+                array<int,2> option = dp[i - take][j ^ 1];
+                option[j] += cur;
+                if(option[j] > best[j] || option[j] == best[j] && option[j ^ 1] < best[j ^ 1]) {
+                    best = option;
+                }
+            }
+            dp[i][j] = best;
+        }
+    }
+
+    auto [near, mello] = dp[n][0];
+    cout << near << " " << mello << '\n';
 
     return 0;
 }

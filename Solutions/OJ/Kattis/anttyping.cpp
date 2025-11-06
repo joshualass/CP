@@ -54,42 +54,45 @@
 typedef long long ll;
 typedef long double ld;
 using namespace std;
-
-mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-
-struct Node {
-    Node *l, *r;
-    int idx;
-    ll y;
-    int size;
-    int rev;
-    Node(Node *l, Node *r, int idx): l(l), r(r), idx(idx), size(1), rev(0), y(rng()) {}
-};
-
-void push(Node *cur) {
-    if(cur->rev) {
-        swap(cur->l, cur->r);
-        if(cur->l) {
-            cur->l->rev ^= 1;
-        }
-        if(cur->r) {
-            cur->r->rev ^= 1;
-        }
-        cur->rev = 0;
-    }
-}
-
-Node *split(Node *cur, int ls, int rs) {
-    push(cur);
-    int cls = (cur->l ? cur->l->size : 0);
-    
-}
+typedef vector<int> vi;
+typedef vector<vi> vvi;
+typedef vector<ll> vl;
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-
     
+    string s;
+    cin >> s;
+    int n = s.size();
+    vvi c(9, vi(9, 0));
+    for(int i = 1; i < n; i++) {
+        int u = s[i - 1] - '1';
+        int v = s[i] - '1';
+        c[u][v] ++;
+        c[v][u] ++;
+    }
+    vi p(9);
+    for(int i = 0; i < 9; i++) p[i] = i;
+    int ans = 1e9;
+    do {
+        int cans = 0;
+        for(int i = 0; i < 9; i++) {
+            for(int j = 0; j < 9; j++) {
+                cans += abs(p[i] - p[j]) * c[i][j];
+            }
+        }
+        assert((cans % 2) == 0);
+        cans /= 2;
+        cans += n;
+        cans += p[s[0] - '1'];
+        // if(cans < ans) {
+        //     cout << "CANS : " << cans << " ";
+        //     for(int i = 0; i < 9; i++) cout << p[i] << " ";
+        //     cout << "\n";
+        // }
+        ans = min(ans, cans);
+    }  while(next_permutation(p.begin(), p.end()));
+    cout << ans << "\n";
 
-    return 0;
 }

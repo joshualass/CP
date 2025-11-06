@@ -55,41 +55,43 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-
-struct Node {
-    Node *l, *r;
-    int idx;
-    ll y;
-    int size;
-    int rev;
-    Node(Node *l, Node *r, int idx): l(l), r(r), idx(idx), size(1), rev(0), y(rng()) {}
-};
-
-void push(Node *cur) {
-    if(cur->rev) {
-        swap(cur->l, cur->r);
-        if(cur->l) {
-            cur->l->rev ^= 1;
-        }
-        if(cur->r) {
-            cur->r->rev ^= 1;
-        }
-        cur->rev = 0;
-    }
-}
-
-Node *split(Node *cur, int ls, int rs) {
-    push(cur);
-    int cls = (cur->l ? cur->l->size : 0);
-    
-}
-
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int n; cin >> n;
+    vector<int> a(n);
+    for(int i = 0; i < n; i++) {
+        int x; cin >> x;
+        x--;
+        a[x] = i;
+    }
+    // for(int &x : a) cin >> x;
+
+    int cur = 0;
+    for(int i = 1; i < n; i++) {
+        cur += abs(a[i] - a[i - 1]);
+    }
+
+    int res = cur;
+    for(int i = 0; i < n; i++) {
+        for(int j = i + 1; j < n; j++) {
+            int t = cur;
+            if(i) t -= abs(a[i] - a[i - 1]);
+            t -= abs(a[i + 1] - a[i]);
+            if(j > i + 1) t -= abs(a[j] - a[j - 1]);
+            if(j + 1 < n) t -= abs(a[j + 1] - a[j]);
+            swap(a[i], a[j]);
+            if(i) t += abs(a[i] - a[i - 1]);
+            t += abs(a[i + 1] - a[i]);
+            if(j > i + 1) t += abs(a[j] - a[j - 1]);
+            if(j + 1 < n) t += abs(a[j + 1] - a[j]);
+            res = min(res, t);
+            swap(a[i], a[j]);
+        }
+    }
+
+    cout << res << '\n';
 
     return 0;
 }

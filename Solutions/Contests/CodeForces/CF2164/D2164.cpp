@@ -55,41 +55,62 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-
-struct Node {
-    Node *l, *r;
-    int idx;
-    ll y;
-    int size;
-    int rev;
-    Node(Node *l, Node *r, int idx): l(l), r(r), idx(idx), size(1), rev(0), y(rng()) {}
-};
-
-void push(Node *cur) {
-    if(cur->rev) {
-        swap(cur->l, cur->r);
-        if(cur->l) {
-            cur->l->rev ^= 1;
-        }
-        if(cur->r) {
-            cur->r->rev ^= 1;
-        }
-        cur->rev = 0;
-    }
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
 }
 
-Node *split(Node *cur, int ls, int rs) {
-    push(cur);
-    int cls = (cur->l ? cur->l->size : 0);
+void solve() {
     
+    int n, k; cin >> n >> k;
+    string a, b; cin >> a >> b;
+    vector<int> c(n);
+    iota(c.begin(), c.end(), 0);
+
+    int p = n - 1;
+    int mx_dist = 0;
+    int ok = 1;
+
+    for(int i = n - 1; i >= 0; i--) {
+        p = min(p, i);
+        while(p >= 0 && a[p] != b[i]) {
+            p--;
+        }
+        if(p < 0) {
+            ok = 0;
+            break;
+        }
+        c[p] = max(c[p], i);
+        mx_dist = max(mx_dist, i - p);
+    }
+
+    if(!ok || mx_dist > k) {
+        cout << "-1\n";
+        return;
+    }
+
+    // cout << c << '\n';
+
+    cout << mx_dist << '\n';
+    for(int i = 0; i < mx_dist; i++) {
+        for(int j = n - 1; j >= 0; j--) {
+            if(j > 0 && c[j-1] >= j) {
+                a[j] = a[j-1];
+                c[j] = c[j-1];
+            }
+        }
+        cout << a << '\n';
+    }
+
 }
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }

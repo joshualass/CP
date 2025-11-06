@@ -55,41 +55,31 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-
-struct Node {
-    Node *l, *r;
-    int idx;
-    ll y;
-    int size;
-    int rev;
-    Node(Node *l, Node *r, int idx): l(l), r(r), idx(idx), size(1), rev(0), y(rng()) {}
-};
-
-void push(Node *cur) {
-    if(cur->rev) {
-        swap(cur->l, cur->r);
-        if(cur->l) {
-            cur->l->rev ^= 1;
-        }
-        if(cur->r) {
-            cur->r->rev ^= 1;
-        }
-        cur->rev = 0;
-    }
-}
-
-Node *split(Node *cur, int ls, int rs) {
-    push(cur);
-    int cls = (cur->l ? cur->l->size : 0);
-    
-}
-
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
+    int n, m; cin >> n >> m;
+    vector<string> v(n);
+    for (int i = 0; i < n; i++) cin >> v[i];
+    vector<int> masks(n);
+    for (int i = 0; i < n; i++) {
+        int mask = 0;
+        for (int j = 0; j < m; j++) {
+            if (v[i][j] == 'T') mask += (1 << j);
+        }
+        masks[i] = mask;
+    }
 
-    
+    int ans = 0;
 
-    return 0;
+    for (int mask = 0; mask < (1 << m); mask++) {
+        int lowest = 1e9;
+        for (int i = 0; i < n; i++) {
+            lowest = min(lowest, m - __builtin_popcount(mask ^ masks[i]));
+        }
+
+        ans = max(ans, lowest);
+    }
+
+    cout << ans << '\n';
 }

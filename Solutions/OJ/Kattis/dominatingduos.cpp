@@ -55,41 +55,33 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-
-struct Node {
-    Node *l, *r;
-    int idx;
-    ll y;
-    int size;
-    int rev;
-    Node(Node *l, Node *r, int idx): l(l), r(r), idx(idx), size(1), rev(0), y(rng()) {}
-};
-
-void push(Node *cur) {
-    if(cur->rev) {
-        swap(cur->l, cur->r);
-        if(cur->l) {
-            cur->l->rev ^= 1;
-        }
-        if(cur->r) {
-            cur->r->rev ^= 1;
-        }
-        cur->rev = 0;
-    }
-}
-
-Node *split(Node *cur, int ls, int rs) {
-    push(cur);
-    int cls = (cur->l ? cur->l->size : 0);
-    
-}
-
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int n;
+    cin >> n;
+    vector<int> a(n);
+    for(int i = 0; i < n; i++) cin >> a[i];
+    stack<int> s;
+    int ans = 0;
+    for(int i = 0; i < n; i++) {
+        while(s.size() != 0 && s.top() < a[i]) {
+            ans ++;
+            s.pop();
+        }
+        s.push(a[i]);
+    }
+    s = stack<int>();
+    assert(s.size() == 0);
+    for(int i = n - 1; i >= 0; i--) {
+        while(s.size() != 0 && s.top() < a[i]) {
+            ans ++;
+            s.pop();
+        }
+        s.push(a[i]);
+    }
+    cout << ans << "\n";
 
     return 0;
 }

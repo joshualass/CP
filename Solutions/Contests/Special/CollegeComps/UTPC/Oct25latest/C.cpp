@@ -55,41 +55,36 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-
-struct Node {
-    Node *l, *r;
-    int idx;
-    ll y;
-    int size;
-    int rev;
-    Node(Node *l, Node *r, int idx): l(l), r(r), idx(idx), size(1), rev(0), y(rng()) {}
-};
-
-void push(Node *cur) {
-    if(cur->rev) {
-        swap(cur->l, cur->r);
-        if(cur->l) {
-            cur->l->rev ^= 1;
-        }
-        if(cur->r) {
-            cur->r->rev ^= 1;
-        }
-        cur->rev = 0;
-    }
-}
-
-Node *split(Node *cur, int ls, int rs) {
-    push(cur);
-    int cls = (cur->l ? cur->l->size : 0);
-    
-}
-
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int n, k; cin >> n >> k;
+
+    vector<vector<int>> dis(n * 2 + 1, vector<int>(2, -1));
+    queue<array<int,3>> q;
+
+    auto add_q = [&](int p, int t, int phase) -> void {
+        if(dis[p][phase] != -1) return;
+        dis[p][phase] = t;
+        q.push({p, t, phase});
+    };
+
+    add_q(1, 0, 0);
+    while(q.size()) {
+        auto [pumps, time, phase] = q.front();
+        q.pop();
+        // cout << "pumps : " << pumps << " time : " << time << " phase : " << phase << '\n';
+        if(phase == 0) {
+            add_q(pumps, time + 1, 1);
+        }
+        for(int smash = 0; smash <= k && smash < pumps; smash++) {
+            int nx = pumps - smash + (pumps - smash) * (phase == 0);
+            if(nx <= n * 2) add_q(nx, time + 1, phase);
+        }
+    }
+
+    cout << dis[n][1] << '\n';
 
     return 0;
 }

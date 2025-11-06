@@ -55,41 +55,57 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-
-struct Node {
-    Node *l, *r;
-    int idx;
-    ll y;
-    int size;
-    int rev;
-    Node(Node *l, Node *r, int idx): l(l), r(r), idx(idx), size(1), rev(0), y(rng()) {}
-};
-
-void push(Node *cur) {
-    if(cur->rev) {
-        swap(cur->l, cur->r);
-        if(cur->l) {
-            cur->l->rev ^= 1;
-        }
-        if(cur->r) {
-            cur->r->rev ^= 1;
-        }
-        cur->rev = 0;
-    }
-}
-
-Node *split(Node *cur, int ls, int rs) {
-    push(cur);
-    int cls = (cur->l ? cur->l->size : 0);
+void solve() {
     
+    int n, m; cin >> n >> m;
+    multiset<int> ms;
+    for(int i = 0; i < n; i++) {
+        int x; cin >> x;
+        ms.insert(x);
+    }
+
+    vector<array<int,2>> big, small, zero;  
+    vector<int> b(m);
+    for(int &x : b) cin >> x;
+    for(int i = 0; i < m; i++) {
+        int x; cin >> x;
+        if(x == 0) zero.push_back({b[i], 0});
+        else if(x <= b[i]) {
+            small.push_back({b[i], x});
+        } else {
+            big.push_back({b[i], x});
+        }
+    }
+
+    sort(big.begin(), big.end());
+    int res = 0;
+    for(auto [hp, c] : big) {
+        if(ms.lower_bound(hp) != ms.end()) {
+            int x = *ms.lower_bound(hp);
+            ms.erase(ms.lower_bound(hp));
+            ms.insert(max(x, c));
+            res++;
+        }
+    }
+    int mx = *--ms.end();
+    for(auto [hp, c] : small) {
+        if(hp <= mx) res++;
+    }
+    for(auto [hp, c] : zero) {
+        if(ms.lower_bound(hp) != ms.end()) {
+            ms.erase(ms.lower_bound(hp));
+            res++;
+        }
+    }
+    cout << res << '\n';
 }
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }

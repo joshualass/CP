@@ -55,41 +55,53 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-
-struct Node {
-    Node *l, *r;
-    int idx;
-    ll y;
-    int size;
-    int rev;
-    Node(Node *l, Node *r, int idx): l(l), r(r), idx(idx), size(1), rev(0), y(rng()) {}
-};
-
-void push(Node *cur) {
-    if(cur->rev) {
-        swap(cur->l, cur->r);
-        if(cur->l) {
-            cur->l->rev ^= 1;
-        }
-        if(cur->r) {
-            cur->r->rev ^= 1;
-        }
-        cur->rev = 0;
-    }
-}
-
-Node *split(Node *cur, int ls, int rs) {
-    push(cur);
-    int cls = (cur->l ? cur->l->size : 0);
-    
-}
-
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int n; cin >> n;
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
+    vector<int> pm(n), sm(n);
+    for(int i = 0; i < n; i++) {
+        if(i == 0) {
+            pm[i] = a[i];
+        } else {
+            pm[i] = max(pm[i-1], a[i]);
+        }
+    }
+
+    for(int i = n - 1; i >= 0; i--) {
+        if(i == n - 1) {
+            sm[i] = a[i];
+        } else {
+            sm[i] = min(sm[i + 1], a[i]);
+        }
+    }
+
+    // cout << "a : ";
+    // for(int x : a) cout << x << " ";
+    // cout << '\n';
+
+    // cout << "pm : ";
+    // for(int x : pm) cout << x << " ";
+    // cout << '\n';
+
+    // cout << "sm : ";
+    // for(int x : sm) cout << x << " ";
+    // cout << '\n';
+
+    vector<int> res;
+    for(int i = 0; i < n; i++) {
+        int ok = 1;
+        if(i && pm[i - 1] > a[i]) ok = 0;
+        if(i != n - 1 && sm[i + 1] < a[i]) ok = 0;
+        if(ok) res.push_back(i);
+    }
+
+    cout << res.size();
+    for(int i = 0; i < min(100, (int) res.size()); i++) cout << " " << a[res[i]];
+    cout << '\n';
 
     return 0;
 }

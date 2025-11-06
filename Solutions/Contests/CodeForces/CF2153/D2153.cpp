@@ -55,41 +55,53 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+/*
+observe that between every 3 pairs of cells, there must be a chop
+*/
 
-struct Node {
-    Node *l, *r;
-    int idx;
-    ll y;
-    int size;
-    int rev;
-    Node(Node *l, Node *r, int idx): l(l), r(r), idx(idx), size(1), rev(0), y(rng()) {}
-};
+void solve() {
 
-void push(Node *cur) {
-    if(cur->rev) {
-        swap(cur->l, cur->r);
-        if(cur->l) {
-            cur->l->rev ^= 1;
+    int n; cin >> n;
+    vector<int> a(n);    
+    for(int &x : a) cin >> x;
+
+    ll res = LLONG_MAX;
+    auto _solve = [&]() {
+        auto get_ops = [&](int l, int r) -> ll { // get # ops to make [l, r] equal
+            vector<int> b;
+            for(int i = l; i <= r; i++) b.push_back(a[i]);
+            sort(b.begin(), b.end());
+            ll ops = 0;
+            int mid = b[b.size() / 2];
+            for(int x : b) ops += abs(mid - x);
+            return ops;
+        };
+        vector<ll> dp(n + 1, 1e18);
+        dp[0] = 0;
+        for(int i = 2; i <= n; i++) {
+            dp[i] = dp[i - 2] + get_ops(i - 2, i - 1);
+            if(i >= 3) {
+                dp[i] = min(dp[i], dp[i - 3] + get_ops(i - 3, i - 1));
+            }
         }
-        if(cur->r) {
-            cur->r->rev ^= 1;
-        }
-        cur->rev = 0;
+        res = min(res, dp[n]);
+    };
+
+    for(int i = 0; i < 3; i++) {
+        _solve();
+        rotate(a.begin(), a.begin() + 1, a.end());
     }
-}
 
-Node *split(Node *cur, int ls, int rs) {
-    push(cur);
-    int cls = (cur->l ? cur->l->size : 0);
-    
+    cout << res << '\n';
+
 }
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }
