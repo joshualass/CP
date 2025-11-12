@@ -57,25 +57,16 @@ using namespace std;
 
 void solve() {
     
-    int n; cin >> n;
-    vector<int> res(n, -1);
-    for(int i = 0; i < n; i++) {
-        string s; cin >> s;
-        int pos = 0;
-        for(int j = i + 1; j < n; j++) {
-            if(s[j] == '0') pos++;
-        }
-        // cout << "i : " << i << " pos : " << pos << '\n';
-        for(int j = 0; j < n; j++) {
-            if(res[j] == -1) {
-                if(pos == 0) res[j] = i;
-                pos--;
-            }
-        }
+    ll a, b, c, d; cin >> a >> b >> c >> d;
+    a *= d;
+    b *= c;
+    if(a == b) {
+        cout << "0\n";
+    } else if(a == 0 || b == 0 || a % b == 0 || b % a == 0) {
+        cout << "1\n";
+    } else {
+        cout << "2\n";
     }
-
-    for(int i = 0; i < n; i++) cout << res[i] + 1 << " \n"[i == n - 1];
-
 }
 
 signed main() {

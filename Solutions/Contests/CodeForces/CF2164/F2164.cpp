@@ -190,6 +190,134 @@ std::ostream& operator<<(std::ostream& os, const vector<T> v) {
     return os;
 }
 
+mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+
+struct Node {
+    Node *l, *r;
+    int idx, cnt, size, os;
+    ll y;
+    Node(int idx, int cnt): l(nullptr), r(nullptr), idx(idx), cnt(cnt), size(1), os(0), y(rng()) {}
+};
+
+void push(Node *cur) {
+    assert(cur);
+    cur->idx += cur->os;
+    if(cur->l) cur->l->os += cur->os;
+    if(cur->r) cur->r->os += cur->os;
+    cur->os = 0;
+}
+
+void update(Node *cur) {
+    assert(cur);
+    cur->size = 1 + (cur->l ? cur->l->size : 0) + (cur->r ? cur->r->size : 0);
+}
+
+int sz(Node *cur) {
+    return cur ? cur->size : 0;
+}
+
+void print(Node *cur) {
+    if(!cur) return;
+    print(cur->l);
+    cout << "idx : " << cur->idx << " cnt : " << cur->cnt << endl;
+    print(cur->r);
+}
+
+array<Node*, 2> split(Node *cur, int mx) {
+    if(!cur) return {nullptr, nullptr};
+    push(cur);
+    array<Node*, 2> res;
+    if(cur->idx <= mx) {
+        array<Node*, 2> rhs = split(cur->r, mx);
+        cur->r = rhs[0];
+        res = {cur, rhs[1]};
+    } else {
+        array<Node*, 2> lhs = split(cur->l, mx);
+        cur->l = lhs[1];
+        res = {lhs[0], cur};
+    }
+    update(cur);
+    return res;
+}
+
+Node* merge(Node *lhs, Node* rhs) {
+    if(!lhs && !rhs) return nullptr;
+    if(!lhs) return rhs;
+    if(!rhs) return lhs;
+    push(lhs);
+    push(rhs);
+    Node *res;
+    if(lhs->y > rhs->y) {
+        lhs->r = merge(lhs->r, rhs);
+        res = lhs;
+    } else {
+        rhs->l = merge(lhs, rhs->l);
+        res = rhs;
+    }
+    update(res);
+    return res;
+}
+
+Node* query(Node *cur, int targ) {
+    if(!cur) return nullptr;
+    push(cur);
+    if(cur->idx == targ) return cur;
+    if(cur->idx < targ) return query(cur->r, targ);
+    if(cur->idx > targ) return query(cur->l, targ);
+    assert(0);
+}
+
+Node* insert(Node *cur, Node* toinsert) {
+    assert(toinsert);
+    // cout << "insert called" << endl;
+    // cout << "cur" << endl;
+    // print(cur);
+    // cout << "toinsert" << endl;
+    // print(toinsert);
+
+    int insert_idx = toinsert->idx;
+    auto [l, mr] = split(cur, insert_idx - 1);
+    auto [m, r] = split(mr, insert_idx);
+    // cout << "l size : " << sz(l) << endl;
+    // cout << "m size : " << sz(m) << endl;
+    // cout << "r size : " << sz(r) << endl;
+
+    // cout << "lpart" << endl;
+    // print(l);
+    // cout << "mpart" << endl;
+    // print(m);
+    // cout << "rpart" << endl;
+    // print(r);
+
+    if(m) {
+        m->cnt += toinsert->cnt;
+    } else {
+        m = toinsert;
+        // cout << "insert update m" << endl;
+    }
+    auto lm = merge(l, m);
+    cur = merge(lm, r);
+    // cout << "insert finished cur" << endl;
+    return cur;
+}
+
+void small_to_large_merge(Node*& large, Node *small, set<int> &vis, Z &res) {
+    if(!small) return;
+    push(small);
+    small_to_large_merge(large, small->l, vis, res);
+    small_to_large_merge(large, small->r, vis, res);
+    small->l = nullptr;
+    small->r = nullptr;
+    update(small);
+    res *= inv_fact[small->cnt];
+    if(vis.count(small->idx) == 0) {
+        Node* prev = query(large, small->idx);
+        if(prev) res *= inv_fact[prev->cnt];
+    }
+    vis.insert(small->idx);
+    large = insert(large, small);
+}
+
 void solve() {
     
     int n; cin >> n;
@@ -205,38 +333,91 @@ void solve() {
 
     Z res = 1;
 
-    auto dfs = [&](auto self, int i) -> vector<int> {
-        // cout << "i : " << i << '\n';
-        vector<vector<int>> d;
+    // auto dfs = [&](auto self, int i) -> vector<int> {
+    //     // cout << "i : " << i << '\n';
+    //     vector<vector<int>> d;
+    //     for(int c : ch[i]) {
+    //         d.push_back(self(self, c));
+    //     }
+        
+    //     vector<int> s;
+    //     for(auto b : d) {
+    //         for(int i = 0; i < b.size(); i++) {
+    //             while(s.size() <= i) s.push_back(0);
+    //             s[i] += b[i];
+    //             res *= inv_fact[b[i]];
+    //         }
+    //     }
+
+    //     // cout << "s : " << s << endl;
+        
+    //     for(int i = 0; i < s.size(); i++) {
+    //         res *= fact[s[i]];
+    //     }
+
+    //     // cout << "a[i] : " << a[i] << endl;
+
+    //     while(s.size() <= a[i]) s.push_back(0);
+    //     s[a[i]]++;
+    //     if(s.size() > a[i] + 1) {
+    //         int r = s[a[i] + 1];
+    //         s[a[i]] += r;
+    //         s.erase(s.begin() + a[i] + 1);
+    //     }
+    //     cout << "i : " << i << " returning" << endl;
+    //     cout << s << '\n';
+    //     return s;
+    // };
+
+    auto dfs = [&](auto self, int i) -> Node* {
+        if(ch[i].empty()) {
+            Node* cur = new Node(a[i], 1);
+            // cout << "returning i " << i << endl;
+            // print(cur);
+            return cur;
+        }
+        int mx_idx = -1, mx_size = -1;
+        vector<Node*> d;
         for(int c : ch[i]) {
             d.push_back(self(self, c));
+            if(d.back()->size > mx_size) {
+                mx_idx = d.size() - 1;
+                mx_size = d.back()->size;
+            }
         }
-        
-        vector<int> s;
-        for(auto b : d) {
-            for(int i = 0; i < b.size(); i++) {
-                while(s.size() <= i) s.push_back(0);
-                s[i] += b[i];
-                res *= inv_fact[b[i]];
+        Node *cur = d[mx_idx];
+        set<int> vis;
+        for(int i = 0; i < d.size(); i++) {
+            if(i != mx_idx) {
+                small_to_large_merge(cur, d[i], vis, res);
             }
         }
 
-        // cout << "s : " << s << endl;
-        
-        for(int i = 0; i < s.size(); i++) {
-            res *= fact[s[i]];
+        // cout << "i : " << i << endl;
+        // cout << "after small to large" << endl;
+        // print(cur);
+
+        for(int x : vis) {
+            Node* node = query(cur, x);
+            assert(node);
+            res *= fact[node->cnt];
         }
 
-        // cout << "a[i] : " << a[i] << endl;
+        cur = insert(cur, new Node(a[i], 1));
 
-        while(s.size() <= a[i]) s.push_back(0);
-        s[a[i]]++;
-        if(s.size() > a[i] + 1) {
-            int r = s[a[i] + 1];
-            s[a[i]] += r;
-            s.erase(s.begin() + a[i] + 1);
-        }
-        return s;
+        // cout << "i : " << i << endl;
+        // cout << "printing dfs of everything before shift" << endl;
+        // print(cur);
+
+        //subtract all nodes with idx > a[i]
+        auto [l, mr] = split(cur, a[i] - 1);
+        auto [m, r] = split(mr, a[i]);
+        if(r) r->os--;
+        r = insert(r, m);
+        cur = merge(l, r);
+        // cout << "returning i : " << i << endl;
+        // print(cur);
+        return cur;
     };
 
     dfs(dfs, 0);

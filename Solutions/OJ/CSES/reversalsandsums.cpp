@@ -55,61 +55,49 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-/*
-good treap impl practice. 
-
-intuition + implementation skills getting developed. 
-*/
-
 mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
 
 struct Node {
-    Node *l, *r; //childre
-    int idx; //index in string
-    ll y; // treap val
-    int size; //size of subtree
-    int rev; //need to reverse this subtree. 
-    Node(int idx): l(nullptr), r(nullptr), idx(idx), size(1), rev(0), y(rng()) {}
+    Node *l, *r;
+    int val, rev, size;
+    ll sum;
+    ll y;
+    Node(int val): l(nullptr), r(nullptr), val(val), rev(0), size(1), sum(val), y(rng()) {}
 };
 
 void push(Node *cur) {
+    assert(cur);
     if(cur->rev) {
         swap(cur->l, cur->r);
-        if(cur->l) {
-            cur->l->rev ^= 1;
-        }
-        if(cur->r) {
-            cur->r->rev ^= 1;
-        }
+        if(cur->l) cur->l->rev ^= 1;
+        if(cur->r) cur->r->rev ^= 1;
         cur->rev = 0;
     }
 }
 
-void update_size(Node *cur) {
+//update size + sum
+void update(Node *cur) {
+    assert(cur);
     cur->size = 1 + (cur->l ? cur->l->size : 0) + (cur->r ? cur->r->size : 0);
+    cur->sum = cur->val + (cur->l ? cur->l->sum : 0LL) + (cur->r ? cur->r->sum : 0LL);
 }
 
-array<Node*, 2> split(Node *cur, int left_need) {
+array<Node*, 2> split(Node *cur, int nl) {
     if(!cur) return {nullptr, nullptr};
     push(cur);
     int cls = (cur->l ? cur->l->size : 0);
-    //figure out which part cur should be in
-
-    // cout << "cur : " << cur->idx << " ln : " << left_need << " cls : " << cls << endl;
-
     array<Node*, 2> res;
-    if(cls + 1 <= left_need) {//we keep this node + the left subtree of this node.
-        array<Node*, 2> rhs = split(cur->r, left_need - (cls + 1));
+    if(cls + 1 <= nl) { //keep left stuff
+        array<Node*, 2> rhs = split(cur->r, nl - (cls + 1));
         cur->r = rhs[0];
         res = {cur, rhs[1]};
     } else {
-        array<Node*, 2> lhs = split(cur->l, left_need);
+        array<Node*, 2> lhs = split(cur->l, nl);
         cur->l = lhs[1];
         res = {lhs[0], cur};
     }
 
-    //recalc the size
-    update_size(cur);
+    update(cur);
     return res;
 }
 
@@ -122,7 +110,6 @@ Node* merge(Node *lhs, Node *rhs) {
     push(rhs);
 
     Node *res;
-    
     if(lhs->y > rhs->y) {
         lhs->r = merge(lhs->r, rhs);
         res = lhs;
@@ -131,27 +118,29 @@ Node* merge(Node *lhs, Node *rhs) {
         res = rhs;
     }
 
-    update_size(res);
+    update(res);
+    // cout << "update called on res with val : " << res->val << " updated sum : " << res->sum << endl;
+    // if(res->l) {
+    //     cout << "yikes bro lsum : " << res->l->sum << endl;
+    // }
+    // if(res->r) {
+    //     cout << "yikes bro rsum : " << res->r->sum << endl;
+    // }
+
     return res;
 }
 
-int debug = 0;
-
-void dfs(Node *cur, vector<int> &order) {
+void dfs(Node *cur) {
     if(!cur) return;
-    push(cur);
-    if(debug) {
-        cout << "cur : " << " idx : " << cur->idx << " size : " << cur->size << "y : " << cur->y << '\n';
-    }
-    dfs(cur->l, order);
-    order.push_back(cur->idx);
-    dfs(cur->r, order);
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const vector<T> v) {
-    for(auto x : v) os << x << " ";
-    return os;
+    dfs(cur->l);
+    cout << "cur : " << cur->y << " val : " << cur->val << " size : " << cur->size << " sum : " << cur->sum << endl;
+    // if(cur->l) {
+    //     cout << "has lc with sum : " << cur->l->sum << endl;
+    // }
+    // if(cur->r) {
+    //     cout << "has rc with sum : " << cur->r->sum << endl;
+    // }
+    dfs(cur->r);
 }
 
 signed main() {
@@ -159,51 +148,41 @@ signed main() {
     cin.tie(NULL);
 
     int n, m; cin >> n >> m;
-    string s; cin >> s;
+    int start; cin >> start;
+    Node *root = new Node(start);
 
-    Node *root = new Node(0);
+    // cout << "start\n";
+    // dfs(root);
+
     for(int i = 1; i < n; i++) {
-        Node *next = new Node(i);
-        root = merge(root, next);
+        // cout << "i\n";
+        int x; cin >> x;
+        Node *nx = new Node(x);
+        root = merge(root, nx);
+        // dfs(root);
     }
 
-    vector<int> test_order;
-    dfs(root, test_order);
-
-    // cout << "order : " << test_order << endl;
+    // dfs(root);
 
     for(int i = 0; i < m; i++) {
-        int a, b; cin >> a >> b;
+        int t, a, b; cin >> t >> a >> b;
         auto [l, mr] = split(root, a - 1);
-
-        // cout << "dfs mr" << endl;
-        // dfs(l, test_order);
-        
         auto [m, r] = split(mr, b - a + 1);
         assert(m);
-        m->rev ^= 1;
-
-        // cout << "i : " << i << endl;
-
-        // cout << "dfs l" << endl;
-        // dfs(l, test_order);
-
-        // cout << "dfs m" << endl;
-        // dfs(m, test_order);
-
-        // cout << "dfs r" << endl;
-        // dfs(r, test_order);
-
+        // cout << "l" << endl;
+        // dfs(l);
+        // cout << "m" << endl;
+        // dfs(m);
+        // cout << "r" << endl;
+        // dfs(r);
+        if(t == 1) {
+            m->rev ^= 1;
+        } else {
+            cout << m->sum << '\n';
+        }
         auto lm = merge(l, m);
         root = merge(lm, r);
     }
-
-    test_order.clear();
-    dfs(root, test_order);
-
-    // cout << "final order : " << test_order << endl;
-    for(int i = 0; i < n; i++) cout << s[test_order[i]];
-    cout << '\n';
 
     return 0;
 }

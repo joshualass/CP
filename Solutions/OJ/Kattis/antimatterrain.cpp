@@ -55,11 +55,118 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+struct Tree {
+    static constexpr array<int,2> base = {INT_MAX, INT_MAX};
+    vector<vector<array<int,2>>> v;
+    int n, size;
+    array<int,2> f(array<int,2> a, array<int,2> b) { //change this when doing maximum vs minimum etc.
+        return min(a, b);
+    }
+    array<int,2> get(int idx) {
+        if(v[idx].empty()) return base;
+        return v[idx].back();
+    }
+    Tree(int n, array<int,2> def = base) {
+        this->n = n; //max number of elements
+        size = 1;
+        while(size < n) size *= 2;
+        v.assign(size * 2, {base});
+    }
+    void update(int pos, array<int,2> val) { //update 0 indexed, assignment
+        assert(pos < n && pos >= 0);
+        int curr = pos + size;
+        if(val == base) {
+            assert(v[curr].size());
+            v[curr].pop_back();
+        } else {
+            v[curr].push_back(val);
+        }
+
+        while(curr != 1) {
+            v[curr / 2][0] = f(get(curr ^ 1), get(curr));
+            curr /= 2;
+        }
+    }
+    array<int,2> query(int l, int r) {//queries in range [l,r)
+        return _query(1,0,size,l,r);
+    }
+    array<int,2> _query(int idx, int currl, int currr, int &targetl, int &targetr) {
+        if(currr <= targetl || currl >= targetr) return base;
+        if(currl >= targetl && currr <= targetr) return get(idx);
+        int mid = (currl + currr) / 2;
+        return f(
+            _query(idx * 2, currl, mid, targetl, targetr),
+            _query(idx * 2 + 1, mid, currr, targetl, targetr)
+        );
+    }
+};
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    
+    int d, s; cin >> d >> s;
+    set<int> xs;
+    vector<array<int,2>> a(d); // {x, y}
+    for(int i = 0; i < d; i++) {
+        cin >> a[i][0] >> a[i][1];
+        xs.insert(a[i][0]);
+    }
+
+    vector<array<int,3>> sensors(s);
+    for(int i = 0; i < s; i++) {
+        int x1, x2, y; cin >> x1 >> x2 >> y;
+        sensors[i] = {x1, x2 + 1, y};
+        xs.insert(x1);
+        xs.insert(x2 + 1);
+    }
+
+    map<int,int> cm;
+    int p = 0;
+    for(int x : xs) cm[x] = p++;
+    map<int, vector<array<int,3>>> m;
+    for(int i = 0; i < d; i++) {
+        auto x = a[i];
+        m[-x[1]].push_back({0, i, cm[x[0]]});
+    }
+    for(int i = 0; i < s; i++) {
+        auto x = sensors[i];
+        m[-x[2]].push_back({1, cm[x[0]], cm[x[1]]});
+    }
+
+    vector<int> res(d);
+    Tree tree(p);
+    for(auto [ny, infos] : m) {
+        int y = -ny;
+        // cout << "visit y : " << y << endl;
+        for(auto event : infos) {
+            if(event[0] == 0) {
+                int id = event[1], x = event[2];
+                tree.update(x, {y, id});
+                // cout << "update x : " << x << " y : " << y << " id : " << id << endl;
+            } else {
+                int x1 = event[1], x2 = event[2];
+                // cout << "sensor x1 : " << x1 << " x2 : " << x2 << endl;
+                int lo_y = tree.query(x1, x2)[0];
+                if(lo_y != INT_MAX) {
+                    while(1) {
+                        auto [height, id] = tree.query(x1, x2);
+                        // cout << "drop found h : " << height << " id : " << id << endl;
+                        if(height == lo_y) {
+                            res[id] = y;
+                            int x = cm[a[id][0]];
+                            // cout << "x : " << x << endl;
+                            tree.update(x, tree.base);
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    for(int i = 0; i < d; i++) cout << res[i] << '\n';
 
     return 0;
 }

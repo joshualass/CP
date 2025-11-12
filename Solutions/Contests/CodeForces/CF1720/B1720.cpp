@@ -55,26 +55,52 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+
 void solve() {
     
     int n; cin >> n;
-    vector<int> res(n, -1);
-    for(int i = 0; i < n; i++) {
-        string s; cin >> s;
-        int pos = 0;
-        for(int j = i + 1; j < n; j++) {
-            if(s[j] == '0') pos++;
-        }
-        // cout << "i : " << i << " pos : " << pos << '\n';
-        for(int j = 0; j < n; j++) {
-            if(res[j] == -1) {
-                if(pos == 0) res[j] = i;
-                pos--;
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
+
+    auto _solve = [](vector<int> a, int &res) {
+
+        vector<int> smax(a.size()), smin(a.size());
+        for(int i = a.size() - 1; i >= 0; i--) {
+            if(i == a.size() - 1) {
+                smax[i] = a[i];
+                smin[i] = a[i];
+            } else {
+                smax[i] = max(smax[i+1],a[i]);
+                smin[i] = min(smin[i+1],a[i]);
             }
         }
-    }
+        int cmin = INT_MAX, cmax = INT_MIN;
+        for(int i = 0; i + 1 < a.size(); i++) {
+            cmax = max(cmax, a[i]);
+            cmin = min(cmin, a[i]);
+            res = max(res, cmax - cmin + smax[i+1] - smin[i+1]);
+        }
+    };
+    int res = 0;
 
-    for(int i = 0; i < n; i++) cout << res[i] + 1 << " \n"[i == n - 1];
+    int m = 0;
+    for(int i = 0; i < a.size(); i++) {
+        if(a[i] < a[m]) m = i;
+    }
+    rotate(a.begin(), a.begin() + m, a.end());
+    // cout << "a : " << a << '\n';
+    
+    _solve(a, res);
+
+    reverse(a.begin() + 1, a.end());
+    _solve(a, res);
+
+    cout << res << '\n';
 
 }
 

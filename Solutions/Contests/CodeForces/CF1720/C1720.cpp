@@ -57,24 +57,32 @@ using namespace std;
 
 void solve() {
     
-    int n; cin >> n;
-    vector<int> res(n, -1);
+    int n, m; cin >> n >> m;
+    vector<string> a(n);
+    int res = 0;
+    for(auto &x : a) {
+        cin >> x;
+        res += count(x.begin(), x.end(), '1');
+    }
+    int mx = 0;
+    
+    vector<int> dx = {1,-1,0,0, 1, 1, -1, -1}, dy = {0,0,1,-1, 1, -1, 1, -1};
+    
     for(int i = 0; i < n; i++) {
-        string s; cin >> s;
-        int pos = 0;
-        for(int j = i + 1; j < n; j++) {
-            if(s[j] == '0') pos++;
-        }
-        // cout << "i : " << i << " pos : " << pos << '\n';
-        for(int j = 0; j < n; j++) {
-            if(res[j] == -1) {
-                if(pos == 0) res[j] = i;
-                pos--;
+        for(int j = 0; j < m; j++) {
+            if(a[i][j] == '0') {
+                mx = max(mx, 1);
+                for(int k = 0; k < 8; k++) {
+                    int ni = i + dx[k], nj = j + dy[k];
+                    if(ni >= 0 && ni < n && nj >= 0 && nj < m && a[ni][nj] == '0') {
+                        mx = max(mx, 2);
+                    }
+                }
             }
         }
     }
 
-    for(int i = 0; i < n; i++) cout << res[i] + 1 << " \n"[i == n - 1];
+    cout << res - (2 - mx) << '\n';
 
 }
 

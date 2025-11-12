@@ -1,7 +1,77 @@
-#include <bits/stdc++.h>
+#include <algorithm>
+#include <bitset>
+#include <complex>
+#include <deque>
+#include <exception>
+#include <fstream>
+#include <functional>
+#include <iomanip>
+#include <ios>
+#include <iosfwd>
+#include <iostream>
+#include <istream>
+#include <iterator>
+#include <limits>
+#include <list>
+#include <locale>
+#include <map>
+#include <memory>
+#include <new>
+#include <numeric>
+#include <ostream>
+#include <queue>
+#include <set>
+#include <sstream>
+#include <stack>
+#include <stdexcept>
+#include <streambuf>
+#include <string>
+#include <typeinfo>
+#include <utility>
+#include <valarray>
+#include <vector>
+#include <array>
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <forward_list>
+#include <future>
+#include <initializer_list>
+#include <mutex>
+#include <random>
+#include <ratio>
+#include <regex>
+#include <scoped_allocator>
+#include <system_error>
+#include <thread>
+#include <tuple>
+#include <typeindex>
+#include <type_traits>
+#include <unordered_map>
+#include <unordered_set>
+#include <cassert>
 typedef long long ll;
 typedef long double ld;
 using namespace std;
+
+/*
+TODO - write up a solution to this problem. 
+
+The first thing to realize is that for a lot of these subsequences will cancel out - you can swap two elements 
+and get a different subsequence and the duplicates will cancel out. 
+
+First thing to figure out - when will a particular multiset of elements appear in an odd amount of sequences
+Solution - When the frequencies of all the elements are disjoint, when represented in binary represented
+
+This implies that the median element is always the maximum element, define it as z
+
+Given that we have i elements smaller than z, how many ways are there to select these numbers and their frequences?
+The number of ways to choose the digits is just z choose i and the number of ways to choose these sets is S_{pc, i + 1}, which we can use a 0/1 to see if it's even.
+This will solve the easy version
+
+To solve the hard version, we can observe that we can fix the number of elements prior i, and then count the choices of z such that z is disjoint to i (need m choose i to be odd)
+and z < m. We use digit dp / make some observations to help us out here and solve this. 
+*/
 
 /*
 output normal
@@ -234,19 +304,91 @@ int choose(int n, int k) {
 init_fact()
 */
 
-int solveF1(int pc, int m) {
+// //what was bro doing O_o
+// int solveF1(int pc, int m) {
+//     int res = 0;
+//     for(int x = 0; x < m; x++) { //max value / median
+//         for(int i = 0; i < pc; i++) { 
+//             for(int j = i; j < pc; j++) { //
+//                 // cout << "x : " << x << " i : " << i << " j : " << j << '\n';
+//                 // cout << "p0 : " << choose(pc - 1, pc - 1 - j) << " p1 : " << S[j][i] << " p2 : " << choose(x, i) << '\n';
+//                 if(choose(pc - 1, pc - 1 - j) * S[j][i] * choose(x, i)) {
+//                     res ^= x;
+//                     // cout << " xor hit!\n";
+//                 }
+//                 // cout << '\n';
+//             }
+//         }
+//     }
+//     return res;
+// }
+
+int solveF1V2(int pc, int m) {
+
     int res = 0;
-    for(int x = 0; x < m; x++) {
-        for(int i = 0; i < pc; i++) {
-            for(int j = i; j < pc; j++) {
-                // cout << "x : " << x << " i : " << i << " j : " << j << '\n';
-                // cout << "p0 : " << choose(pc - 1, pc - 1 - j) << " p1 : " << S[j][i] << " p2 : " << choose(x, i) << '\n';
-                if(choose(pc - 1, pc - 1 - j) * S[j][i] * choose(x, i)) {
+    for(int i = 0; i < pc; i++) { //i previous elements. 
+        if(S[pc][i + 1]) {
+            cout << "i is good V2 : " << i << '\n';
+            for(int x = 0; x < m; x++) { // median
+                // cout << "x : " << x << " i : " << i << " c : " << choose(x, i) << " S : " << S[pc][i + 1] << endl;
+                if(choose(x, i)) {
                     res ^= x;
-                    // cout << " xor hit!\n";
                 }
-                // cout << '\n';
             }
+        }
+    }
+    return res;
+}
+
+//given that we are chosing i elements and m is our last value, what is our xor contribution?
+int _solveF2(int i, int m) {
+
+    if(i >= m) return 0;
+
+    int num = i;
+    int true_num = 0;
+
+    for(int bit = 29; bit >= 0; bit--) {
+        if(((i >> bit) & 1) == 0) {
+            true_num <<= 1;
+            if(num + (1 << bit) < m) {
+                num += 1 << bit;
+                true_num++;
+            }
+        }
+    }
+
+    // cout << "true_num : " << true_num << '\n';
+
+    int cnt = 0, res = 0;
+    for(int bit = 0; bit < 30; bit++) {
+        if(((i >> bit) & 1) == 0) {
+            if(cnt) {
+                if(((true_num >> cnt) & 1) && (true_num & 1) == 0) {
+                    res += 1 << bit;
+                }
+            } else {
+                if(true_num % 4 == 1 || true_num % 4 == 2) {
+                    res += 1 << bit;
+                }
+                if(true_num % 2 == 0) res ^= i;
+            }
+            cnt++;
+        }
+    }
+    // cout << "i : " << i << " m : " << m << " true_num : " << true_num << " res : " << res << '\n';
+    return res;
+}
+
+int solveF2(int pc, int m) {
+    int res = 0;
+    for(int i = 1; i <= pc; i++) {
+        //stirling number of (pc, i)
+        int z = pc - (i + 2) / 2, w = (i - 1) / 2;
+        
+        if(choose(z, w)) {
+            // cout << "i is good F2 : " << i - 1 << '\n';
+            res ^= _solveF2(i - 1, m);
         }
     }
     return res;
@@ -257,7 +399,9 @@ void solve() {
     int k, m; cin >> k >> m;
     string n; cin >> n;
     int pc = count(n.begin(), n.end(), '1');
-    cout << solveF1(pc, m) << '\n';
+    // cout << solveF1(pc, m) << '\n';
+    // cout << solveF1V2(pc, m) << '\n';
+    cout << solveF2(pc, m) << '\n';
 
 }
 
@@ -334,17 +478,17 @@ signed main() {
     //     cout << '\n';
     // }
 
-    for(int m = 0; m <= 100; m++) {
-        cout << "m : " << (m < 10 ? " " : "") << m << " - ";
-        for(int pc = 0; pc <= 100; pc++) {
-            // cout << solveF1(pc, m) << " ";
-            cout << ((solveF1(pc, m) & 1) ? '#' : '_') << " ";
-        }
-        cout << '\n';
-    }
+    // for(int m = 0; m <= 100; m++) {
+    //     cout << "m : " << (m < 10 ? " " : "") << m << " - ";
+    //     for(int pc = 0; pc <= 100; pc++) {
+    //         // cout << solveF1(pc, m) << " ";
+    //         cout << ((solveF1(pc, m) & 1) ? '#' : '_') << " ";
+    //     }
+    //     cout << '\n';
+    // }
 
-    // int casi; cin >> casi;
-    // while(casi-->0) solve();
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }
