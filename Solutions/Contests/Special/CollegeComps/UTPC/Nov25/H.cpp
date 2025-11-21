@@ -56,6 +56,16 @@ typedef long double ld;
 using namespace std;
 
 /*
+lots of impl errors. 
+
+the correct way to do pie is to first ensure that all of the numbers are square free. 
+now, after the numbers are square free, consider some small examples such as (2), (2, 3), and (2,3,5). 
+From these small examples, we should see that we should look at the parity of the number of prime factors. 
+
+For the square free numbers to do PIE :)
+*/
+
+/*
 *************************************
 need to build sieve --> sieve() 
 *************************************
@@ -123,6 +133,25 @@ void find_divisors(int num, vector<int> &nums) {
 template<typename T, typename D>
 std::ostream& operator<<(std::ostream& os, map<T,D> m) {
     for(auto &x: m) os << x.first << " " << x.second << " | ";
+    return os;
+}
+
+template <typename T, std::size_t N>
+std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
+    os << "[";
+    for (std::size_t i = 0; i < N; ++i) {
+        os << arr[i];
+        if (i < N - 1) {
+            os << ", ";
+        }
+    }
+    os << "]";
+    return os;
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
     return os;
 }
 
@@ -198,6 +227,7 @@ void test(int n, int m) {
             if(gcd(i,j) == 1) a.push_back({i,j});
         }
     }
+
     sort(a.begin(), a.end(), [&](const auto &lhs, const auto &rhs) -> bool {
         return lhs[0] * rhs[1] < lhs[1] * rhs[0];
     });
@@ -216,16 +246,23 @@ void test(int n, int m) {
             }
         }
         if(l == 1e14) {
-            cout << "Trick\n";
-            if(targ > a.size()) {
+            if(targ <= a.size()) {
+                cout << "Trick\n";
                 cout << "targ should not be a trick!\n";
                 cout << "n : " << n << " m : " << m << '\n';
-                assert(targ > a.size());
+                cout << "targ : " << targ << endl;
+                cout << "a : " << a << endl;
+                assert(0);
             }
         } else {
             auto f = get(l);
-            cout << f.second[0] << "/" << f.second[1] << '\n';
+            if(targ > a.size()) {
+                cout << "should be a trick but getting : " << f.second[0] << "/" << f.second[1] << '\n';
+                cout << "targ : " << targ << '\n';
+                assert(0);
+            }
             if(f.second != a[targ - 1]) {
+                cout << f.second[0] << "/" << f.second[1] << '\n';
                 cout << "got diff sol'n : " << a[targ - 1][0] << "/" << a[targ - 1][1] << '\n';
                 assert(0);
             }
@@ -240,15 +277,98 @@ signed main() {
 
     sieve();
 
-    for(int i = 1; i <= 10; i++) {
-        for(int j = 1; j <= 10; j++) {
-            test(i, j);
+    // test(1000, 1000);
+
+    // for(int i = 1; i <= 50; i++) {
+    //     for(int j = 1; j <= 50; j++) {
+    //         test(i, j);
+    //     }
+    // }
+
+    int n, m, q;
+    cin >> n >> m >> q;
+
+    vector<vector<int>> divs(m + 1);
+    vector<int> sign(m + 1);
+    for(int i = 1; i <= m; i++) {
+        vector<pair<ll,int>> pf;
+        prime_factorize(i, pf);
+        int ok = 1;
+        for(auto [p, cnt] : pf) {
+            if(cnt != 1) ok = 0;
         }
+        if(ok) {
+            if(pf.size() & 1) {
+                sign[i] = -1;
+            } else {
+                sign[i] = 1;
+            }
+        }
+        find_divs(0, 1, pf, divs[i]);
+        // find_divisors(i, divs[i]);
     }
 
-    // int n, m, q;
-    // cin >> n >> m;
-    // if(debug == 0) cin >> q;
+    //returns {count, {num, den}}
+    auto get = [&](ll num) -> pair<int,array<int,2>> {
+        int res = 0;
+        array<int,2> mx = {0,1};
+        for(int d = 1; d <= m; d++) {
+            int z = min((ll) (num * d / 1e9), (ll) n);
+            if(1LL * z * mx[1] > 1LL * d * mx[0]) mx = array<int,2>{z, d};
+            int cnt = 0;
+            map<int,int> mapa;
+            for(int div : divs[d]) {
+                cnt += (z / div) * sign[div];
+                // if(divs[div].size() == 1) {
+                //     cnt += z / div;
+                //     for(int j = 1; j * div <= z; j++) mapa[j * div]++;
+                // } else if(divs[div].size() == 2) {
+                //     cnt -= z / div;
+                //     for(int j = 1; j * div <= z; j++) mapa[j * div]--;
+                // } else if(divs[div].size() == 4) {
+                //     sort(divs[div].begin(), divs[div].end());
+                //     if(1LL * divs[div][1] * divs[div][1] * divs[div][1] != divs[div][3]) {
+                //         cnt += z / div;
+                //         for(int j = 1; j * div <= z; j++) mapa[j * div]++;
+                //     }
+                // }
+            }
+            if(debug) {
+                int check = 0;
+                for(int j = 1; j <= z; j++) {
+                    if(gcd(j, d) == 1) check++;
+                }
+                // if(check != cnt) {
+                //     cout << "d : " << d << " z : " << z << " cnt : " << cnt << " check : " << check << '\n';
+                //     cout << "minato namikaze\n";
+                //     cout << "mapa \n" << mapa << '\n';
+                //     assert(0);
+                // }
+            }
+            res += cnt;
+        }
+        return {res, mx};
+    };
+
+    for(int qq = 0; qq < q; qq++) {
+        int targ; cin >> targ;
+        ll l = 1, r = 1e14;
+        while(l != r) {
+            ll m = (l + r) / 2;
+            auto [cnt, f] = get(m);
+            if(cnt < targ) {
+                l = m + 1;
+            } else {
+                r = m;
+            }
+        }
+        if(l == 1e14) {
+            cout << "Trick\n";
+        } else {
+            auto f = get(l);
+            cout << f.second[0] << "/" << f.second[1] << '\n';
+        }
+    }
 
     return 0;
 }
