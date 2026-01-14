@@ -105,5 +105,6 @@
         "queue": "cpp",
         "stack": "cpp"
     },
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "r.lsp.promptToInstall": false
 }

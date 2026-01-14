@@ -69,7 +69,7 @@ signed main() {
     auto solve_perm = [&](auto self, vector<ld> a) -> bool {
 
         if(a.size() == 1) {
-            return abs(a[0] - 3.4285714286) < eps;
+            return abs(a[0] - 12) < eps;
         }
 
         for(int i = 0; i + 1 < a.size(); i++) {
@@ -120,10 +120,11 @@ signed main() {
         return 0;
     };
 
-    vector<ld> perm = {4,4,7};
+    vector<ld> perm = {4,4,4,4};
     while(1) {
         if(solve_perm(solve_perm, perm)) {
             cout << "perm : " << perm << endl;
+            return 0;
         }
         if(!next_permutation(perm.begin(), perm.end())) break;
     }    

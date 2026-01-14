@@ -1,0 +1,123 @@
+#include <algorithm>
+#include <bitset>
+#include <complex>
+#include <deque>
+#include <exception>
+#include <fstream>
+#include <functional>
+#include <iomanip>
+#include <ios>
+#include <iosfwd>
+#include <iostream>
+#include <istream>
+#include <iterator>
+#include <limits>
+#include <list>
+#include <locale>
+#include <map>
+#include <memory>
+#include <new>
+#include <numeric>
+#include <ostream>
+#include <queue>
+#include <set>
+#include <sstream>
+#include <stack>
+#include <stdexcept>
+#include <streambuf>
+#include <string>
+#include <typeinfo>
+#include <utility>
+#include <valarray>
+#include <vector>
+#include <array>
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <forward_list>
+#include <future>
+#include <initializer_list>
+#include <mutex>
+#include <random>
+#include <ratio>
+#include <regex>
+#include <scoped_allocator>
+#include <system_error>
+#include <thread>
+#include <tuple>
+#include <typeindex>
+#include <type_traits>
+#include <unordered_map>
+#include <unordered_set>
+#include <cassert>
+#include <cstring>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+
+template<typename T, typename D>
+std::ostream& operator<<(std::ostream& os, map<T,D> m) {
+    for(auto &x: m) os << x.first << " " << x.second << " | ";
+    return os;
+}
+
+void solve() {
+    
+    int n, m; cin >> n >> m;
+    
+    auto insert = [](map<int,int> &ms, int k, int v) -> void {
+        //see if we should insert this
+        auto b = ms.upper_bound(k);
+        if(b != ms.begin()) {
+            b--;
+            if(b->second >= v) return;
+        }
+        ms[k] = v;
+        while(1) {
+            auto u = ms.upper_bound(k);
+            if(u == ms.end()) break;
+            if(u->second > v) break;
+            ms.erase(u);
+        }
+    };
+
+    map<int,int> ms;
+    ms[1] = 0;
+    for(int i = 2; i <= n; i++) {
+        //insert the next thing for everything
+        map<int,int> nx;
+        for(auto [k, v] : ms) {
+            if(k + 1 <= m) insert(nx, k + 1, v);
+        }
+        for(int j = i; j <= m; j += i) {
+            int v = 0;
+            int t = j;
+            // cout << "i : " << i << " j : " << j << " m : " << m << endl;
+            while(t % i == 0) {
+                // cout << "t : " << t << " i : " << i << endl;
+                t /= i;
+                v++;
+            }
+            auto p = ms.lower_bound(j);
+            if(p != ms.begin()) {
+                p--;
+                v += p->second;
+            }
+            insert(nx, j, v);
+        }
+        ms = nx;
+        // cout << "i : " << i << endl;
+        // cout << "ms : " << ms << endl;
+    }
+    cout << (--ms.end())->second << '\n';
+}
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int casi; cin >> casi;
+    while(casi-->0) solve();
+
+    return 0;
+}

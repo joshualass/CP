@@ -1,0 +1,90 @@
+#include <algorithm>
+#include <bitset>
+#include <complex>
+#include <deque>
+#include <exception>
+#include <fstream>
+#include <functional>
+#include <iomanip>
+#include <ios>
+#include <iosfwd>
+#include <iostream>
+#include <istream>
+#include <iterator>
+#include <limits>
+#include <list>
+#include <locale>
+#include <map>
+#include <memory>
+#include <new>
+#include <numeric>
+#include <ostream>
+#include <queue>
+#include <set>
+#include <sstream>
+#include <stack>
+#include <stdexcept>
+#include <streambuf>
+#include <string>
+#include <typeinfo>
+#include <utility>
+#include <valarray>
+#include <vector>
+#include <array>
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <forward_list>
+#include <future>
+#include <initializer_list>
+#include <mutex>
+#include <random>
+#include <ratio>
+#include <regex>
+#include <scoped_allocator>
+#include <system_error>
+#include <thread>
+#include <tuple>
+#include <typeindex>
+#include <type_traits>
+#include <unordered_map>
+#include <unordered_set>
+#include <cassert>
+#include <cstring>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    ll n; cin >> n;
+
+    ll lo = -1e10, hi = 1e10;
+    ll delta = 0;
+    for(ll i = 0; i < n; i++) {
+        ll c, d; cin >> c >> d;
+
+        if(d == 1) {
+            lo = max(lo, 1900 - delta);
+        } else {
+            hi = min(hi, 1899 - delta);
+        }
+
+        delta += c;
+
+    }
+
+    if(lo <= hi) {
+        if(hi + delta >= 1e9) {
+            cout << "Infinity\n";
+        } else {
+            cout << hi + delta << '\n';
+        }
+    } else {
+        cout << "Impossible\n";
+    }
+
+    return 0;
+}

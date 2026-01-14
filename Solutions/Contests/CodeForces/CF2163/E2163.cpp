@@ -145,10 +145,73 @@ what is a strategy to handle the 2x2 grids?
 
 mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
 
-void solve() {
-    
-    
+void solve_first() {
+    int n, c; cin >> n >> c;
+    vector<string> a(n);
+    for(auto &x : a) cin >> x;
 
+    vector<int> rc(n), cc(n);
+    for(int i = 0; i < n; i++) {
+        int cnt = 0;
+        for(int j = 0; j < n; j++) cnt += a[i][j] == '1';
+        rc[i] = cnt;
+    }
+
+    for(int j = 0; j < n; j++) {
+        int cnt = 0;
+        for(int i = 0; i < n; i++) cnt += a[i][j] == '1';
+        cc[j] = cnt;
+    }
+
+    int ri, ci;
+    if(c == 0) {
+        if(*min_element(rc.begin(), rc.end()) < *max_element(cc.begin(), cc.end())) {
+            ri = 0, ci = 0;
+            for(int i = 1; i < n; i++) {
+                if(rc[i] < rc[ri]) ri = i;
+                if(cc[i] > cc[ci]) ci = i;
+            }
+        } else {
+            ri = -1, ci = -1;
+            for(int i = 0; i < n; i++) {
+                if(a[i][0] == '0') ri = i;
+                if(a[0][i] == '0') ci = i;
+            }
+            assert(ri != -1 && ci != -1);
+        }
+    } else {
+        if(*max_element(rc.begin(), rc.end()) > *min_element(cc.begin(), cc.end())) {
+            ri = 0, ci = 0;
+            for(int i = 1; i < n; i++) {
+                if(rc[i] > rc[ri]) ri = i;
+                if(cc[i] < cc[ci]) ci = i;
+            }
+        } else {
+            ri = -1, ci = -1;
+            for(int i = 0; i < n; i++) {
+                if(a[i][0] == '1') ri = i;
+                if(a[0][i] == '1') ci = i;
+            }
+            assert(ri != -1 && ci != -1);
+        }
+    }
+
+    cout << ri + 1 << " " << ci + 1 << '\n';
+
+}
+
+void solve_second() {
+    int n; cin >> n;
+    string r, c; cin >> r >> c;
+    int cr = count(r.begin(), r.end(), '1');
+    int cc = count(c.begin(), c.end(), '1');
+    if(cr > cc) {
+        cout << "1\n";
+    } else if(cr < cc) {
+        cout << "0\n";
+    } else {
+        cout << r[0] << '\n';
+    }
 }
 
 int isconnected(int n, vector<vector<bool>> a) {
@@ -239,15 +302,18 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, c; cin >> n >> c;
-    for(int i = 0; i < c; i++) {
-        pb(n, rng() % (1 << (n * n)));
-        cout << '\n';
-    }
+    // int n, c; cin >> n >> c;
+    // for(int i = 0; i < c; i++) {
+    //     pb(n, rng() % (1 << (n * n)));
+    //     cout << '\n';
+    // }
 
-
+    string type; cin >> type;
     int casi; cin >> casi;
-    while(casi-->0) solve();
+    while(casi-->0) {
+        if(type == "first") solve_first();
+        if(type == "second") solve_second();
+    }
 
     return 0;
 }
