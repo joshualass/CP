@@ -58,14 +58,28 @@ using namespace std;
 void solve() {
     
     int n; cin >> n;
-    string s, t; cin >> s >> t;
-    array<int,2> cnts = {0,0};
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
+    vector<int> one_p(n), zero_s(n);
     for(int i = 0; i < n; i++) {
-        if(s[i] == '0') cnts[i & 1]++;
-        if(t[i] == '0') cnts[(i & 1) ^ 1]++;
+        if(i) one_p[i] += one_p[i-1];
+        one_p[i] += a[i] == 1;
+    }
+    for(int i = n - 1; i >= 0; i--) {
+        if(i != n - 1) zero_s[i] += zero_s[i+1];
+        zero_s[i] += a[i] == 0;
     }
 
-    cout << (cnts[0] >= (n + 1) / 2 && cnts[1] >= n / 2 ? "YES" : "NO") << '\n';
+    int res = INT_MAX;
+    for(int i = 0; i < n; i++) {
+        int one_before = (i ? one_p[i-1] : 0);
+        int zero_after = zero_s[i];
+        res = min(res, one_before + max(0, zero_after - one_before));
+    }
+
+    if(count(a.begin(), a.end(), 0) == n) res = 0;
+
+    cout << res << '\n';
 
 }
 

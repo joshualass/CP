@@ -55,17 +55,34 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+template<typename T>
+std::ostream& operator<<(std::ostream& os, set<T> s) {
+    for(auto &x: s) os << x << " ";
+    return os;
+}
+
 void solve() {
     
-    int n; cin >> n;
-    string s, t; cin >> s >> t;
-    array<int,2> cnts = {0,0};
-    for(int i = 0; i < n; i++) {
-        if(s[i] == '0') cnts[i & 1]++;
-        if(t[i] == '0') cnts[(i & 1) ^ 1]++;
+    vector<ll> a(9);
+    for(ll &x : a) cin >> x;
+
+    set<ll> s;
+    for(ll i = 0; i < 9; i++) {
+        if(a[i]) s.insert(i + 1);
     }
 
-    cout << (cnts[0] >= (n + 1) / 2 && cnts[1] >= n / 2 ? "YES" : "NO") << '\n';
+    ll res = 0;
+    ll total = accumulate(a.begin(), a.end(), 0LL);
+
+    ll fc = a[4];
+    ll nfc = total - fc;
+    res = max(res, fc - 1 - nfc);
+
+    // cout << "s : " << s << '\n';
+    
+    if(s.size() == 2 && (*s.begin()) + (*--s.end()) == 10) res = 1;
+
+    cout << res << '\n';
 
 }
 
@@ -73,7 +90,7 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int casi; cin >> casi;
+    ll casi; cin >> casi;
     while(casi-->0) solve();
 
     return 0;

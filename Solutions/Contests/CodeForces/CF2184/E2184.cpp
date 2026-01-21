@@ -55,17 +55,67 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
+//i should definitely try to use dsu more often !
+
+const int N = 2e5;
+int dsu[N];
+int sizes[N];
+
+void dsubuild(int n = N) {
+    for(int i = 0; i < n; i++) {
+        dsu[i] = i;
+        sizes[i] = 1;
+    }
+}
+
+int find(int x) {
+    if(dsu[x] == x) {
+        return x;
+    }
+    dsu[x] = find(dsu[x]);
+    return dsu[x];
+}
+
+void merge(int x, int y) {
+    x = find(x);
+    y = find(y);
+    if(x == y) {
+        return;
+    }
+    dsu[y] = x;
+    sizes[x] += sizes[y];
+}
+
+ll tri(ll n) {
+    return n * (n - 1) / 2;
+}
+
 void solve() {
     
     int n; cin >> n;
-    string s, t; cin >> s >> t;
-    array<int,2> cnts = {0,0};
-    for(int i = 0; i < n; i++) {
-        if(s[i] == '0') cnts[i & 1]++;
-        if(t[i] == '0') cnts[(i & 1) ^ 1]++;
+    dsubuild(n);
+
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
+
+    vector<vector<int>> diffs(n - 1);
+    for(int i = 1; i < n; i++) {
+        diffs[abs(a[i] - a[i-1]) - 1].push_back(i - 1);
     }
 
-    cout << (cnts[0] >= (n + 1) / 2 && cnts[1] >= n / 2 ? "YES" : "NO") << '\n';
+    vector<ll> res(n - 1);
+    ll cur = 0;
+    for(int i = n - 2; i >= 0; i--) {
+        for(int x : diffs[i]) {
+            cur -= tri(sizes[find(x)]);
+            cur -= tri(sizes[find(x + 1)]);
+            merge(x, x + 1);
+            cur += tri(sizes[find(x)]);
+        }
+        res[i] = cur;
+    }
+
+    for(int i = 0; i < n - 1; i++) cout << res[i] << " \n"[i == n - 2];
 
 }
 

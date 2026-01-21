@@ -57,15 +57,18 @@ using namespace std;
 
 void solve() {
     
-    int n; cin >> n;
-    string s, t; cin >> s >> t;
-    array<int,2> cnts = {0,0};
-    for(int i = 0; i < n; i++) {
-        if(s[i] == '0') cnts[i & 1]++;
-        if(t[i] == '0') cnts[(i & 1) ^ 1]++;
+    int x, k; cin >> x >> k;
+    int lo = x, hi = x;
+    for(int time = 0; time < 50; time++) {
+        if(lo <= k && k <= hi) {
+            cout << time << '\n';
+            return;
+        }
+        lo /= 2;
+        hi = (hi + 1) / 2;
     }
 
-    cout << (cnts[0] >= (n + 1) / 2 && cnts[1] >= n / 2 ? "YES" : "NO") << '\n';
+    cout << "-1\n";
 
 }
 

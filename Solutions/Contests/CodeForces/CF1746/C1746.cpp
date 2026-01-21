@@ -58,14 +58,18 @@ using namespace std;
 void solve() {
     
     int n; cin >> n;
-    string s, t; cin >> s >> t;
-    array<int,2> cnts = {0,0};
-    for(int i = 0; i < n; i++) {
-        if(s[i] == '0') cnts[i & 1]++;
-        if(t[i] == '0') cnts[(i & 1) ^ 1]++;
+    vector<array<int,2>> diffs(n - 1);
+    int prev; cin >> prev;
+    for(int i = 1; i < n; i++) {
+        int nx; cin >> nx;
+        diffs[i-1] = {prev - nx, i};
+        prev = nx;
     }
-
-    cout << (cnts[0] >= (n + 1) / 2 && cnts[1] >= n / 2 ? "YES" : "NO") << '\n';
+    sort(diffs.begin(), diffs.end());
+    for(int i = 0; i + 1 < n; i++) {
+        cout << diffs[i][1] + 1 << " ";
+    }
+    cout << "1\n";
 
 }
 

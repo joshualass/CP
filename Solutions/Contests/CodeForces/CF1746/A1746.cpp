@@ -57,15 +57,35 @@ using namespace std;
 
 void solve() {
     
-    int n; cin >> n;
-    string s, t; cin >> s >> t;
-    array<int,2> cnts = {0,0};
-    for(int i = 0; i < n; i++) {
-        if(s[i] == '0') cnts[i & 1]++;
-        if(t[i] == '0') cnts[(i & 1) ^ 1]++;
-    }
+    // int n, k; cin >> n >> k;
+    // vector<int> a(n);
+    // for(int &x : a) cin >> x;
+    // while(1) {
+    //     int idx = -1;
+    //     for(int i = 0; i < a.size(); i++) {
+    //         if(a[i] == 0) {
+    //             idx = i;
+    //             break;
+    //         }
+    //     }
+    //     if(idx == -1) {
+    //         cout << "YES\n";
+    //         return;
+    //     }
+    //     idx = min(idx, ((int) a.size()) - k);
+    //     if(idx < 0) {
+    //         cout << "NO\n";
+    //         return;
+    //     }
+    //     int num = *max_element(a.begin() + idx, a.begin() + idx + k);
+    //     a.erase(a.begin() + idx, a.begin() + idx + k);
+    //     a.insert(a.begin() + idx, num);
+    // }
 
-    cout << (cnts[0] >= (n + 1) / 2 && cnts[1] >= n / 2 ? "YES" : "NO") << '\n';
+    int n, k; cin >> n >> k;
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
+    cout << (count(a.begin(), a.end(), 1) ? "YES" : "NO") << '\n';
 
 }
 

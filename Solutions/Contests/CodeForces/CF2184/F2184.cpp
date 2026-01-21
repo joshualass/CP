@@ -58,14 +58,43 @@ using namespace std;
 void solve() {
     
     int n; cin >> n;
-    string s, t; cin >> s >> t;
-    array<int,2> cnts = {0,0};
-    for(int i = 0; i < n; i++) {
-        if(s[i] == '0') cnts[i & 1]++;
-        if(t[i] == '0') cnts[(i & 1) ^ 1]++;
+    vector<vector<int>> adj(n);
+    for(int i = 1; i < n; i++) {
+        int u, v; cin >> u >> v;
+        u--; v--;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
     }
 
-    cout << (cnts[0] >= (n + 1) / 2 && cnts[1] >= n / 2 ? "YES" : "NO") << '\n';
+    auto dfs = [&](auto self, int i, int p) -> array<int,3> {
+
+        int f = 0;
+        array<int,3> pos = {1,0,0};
+        for(int c : adj[i]) {
+            if(c != p) {
+                auto nx = self(self, c, i);
+                array<int,3> nxpos = {};
+                for(int i = 0; i < 3; i++) {
+                    for(int j = 0; j < 3; j++) {
+                        if(pos[i] && nx[j]) {
+                            nxpos[(i+j)%3] = 1;
+                        }
+                    }
+                }
+                pos = nxpos;
+                f = 1;
+            }
+        }
+
+        if(f == 0) pos = {0,0,0};
+        pos[1] = 1;
+        return pos;
+
+    };
+
+    auto res = dfs(dfs, 0, -1);
+
+    cout << (res[0] ? "YES" : "NO") << '\n';
 
 }
 

@@ -55,26 +55,45 @@ typedef long long ll;
 typedef long double ld;
 using namespace std;
 
-void solve() {
-    
-    int n; cin >> n;
-    string s, t; cin >> s >> t;
-    array<int,2> cnts = {0,0};
+void solve(int n) {
+    int l = 0, r = 0;
     for(int i = 0; i < n; i++) {
-        if(s[i] == '0') cnts[i & 1]++;
-        if(t[i] == '0') cnts[(i & 1) ^ 1]++;
+        string type; cin >> type;
+        int x; cin >> x;
+        if(type == "DROP") {
+            cout << "DROP 2 " << x << '\n';
+            r += x;
+        } else {
+            int take = min(l, x);
+            if(take) cout << "TAKE 1 " << take << '\n';
+            x -= take;
+            l -= take;
+            if(x) {
+                cout << "MOVE 2->1 " << r << '\n';
+                l = r;
+                r = 0;
+            }
+            if(x) {
+                cout << "TAKE 1 " << x << '\n';
+                l -= x;
+            }
+        }
     }
-
-    cout << (cnts[0] >= (n + 1) / 2 && cnts[1] >= n / 2 ? "YES" : "NO") << '\n';
-
+    cout << '\n';
 }
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int casi; cin >> casi;
-    while(casi-->0) solve();
+    while(1) {
+        int n; cin >> n;
+        if(n) {
+            solve(n);
+        } else {
+            break;
+        }
+    }
 
     return 0;
 }

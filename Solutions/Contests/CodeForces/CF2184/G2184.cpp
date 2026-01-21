@@ -57,11 +57,11 @@ using namespace std;
 
 template<typename T>
 struct Tree {
-    static constexpr T base = 0;
+    static constexpr T base = INT_MAX;
     vector<T> v;
     int n, size;
     T f(T a, T b) { //change this when doing maximum vs minimum etc.
-        return a + b;
+        return min(a, b);
     }
     Tree(int n, T def = base) {
         this->n = n; //max number of elements
@@ -102,31 +102,44 @@ struct Tree {
 
 void solve() {
     
-    int n; cin >> n;
-    map<int,vector<int>> m;
+    int n, q; cin >> n >> q;
+    Tree<int> tree(n);
     for(int i = 0; i < n; i++) {
         int x; cin >> x;
-        m[x].push_back(i);
+        tree.update(i, x);
     }
 
-    ll cost = 0;
-    Tree<int> tree(n, 0);
+    for(int qq = 0; qq < q; qq++) {
+        int type; cin >> type;
+        if(type == 1) {
+            int i, x; cin >> i >> x;
+            i--;
+            tree.update(i, x);
+        } else {
+            int l, r; cin >> l >> r;
+            l--; r--;
+            int lp = l, rp = r;
+            while(lp != rp) {
+                int m = (lp + rp) / 2;
+                int lo = tree.query(l, m + 1);
+                int len = m - l;
 
-    for(auto it = m.rbegin(); it != m.rend(); it++) {
-        for(int x : it->second) tree.update(x, 1);
-        for(int x : it->second) {
-            ll add = min(x - tree.query(0, x), (n - (x + 1)) - tree.query(x + 1, n));
-            
-            // cout << "level : " << it->first << " x : " << x << " add : " << add << '\n';
-            ll lhs = tree.query(0, x);
-            ll rhs = tree.query(x + 1, n);
+                if(lo > len) {
+                    lp = m + 1;
+                } else if(lo == len) {
+                    lp = m;
+                    rp = m;
+                } else {
+                    rp = m;
+                }
+            }
 
-            // cout << "lhs : " << lhs << " rhs : " << rhs << '\n';
-
-            cost += add;
+            int lo = tree.query(l, lp + 1);
+            int len = lp - l;
+            cout << (lo == len) << "\n";
         }
     }
-    cout << cost << '\n';
+
 }
 
 signed main() {
