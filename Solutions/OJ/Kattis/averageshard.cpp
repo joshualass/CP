@@ -10,7 +10,7 @@ void solve() {
     for(ll &x : b) cin >> x;
 
     ld avg_cs = accumulate(a.begin(), a.end(), 0LL) / ((ld) ncs);
-    ld avg_e = accumulate(b.begin(), b.end(), 0LL) / ((ld) ne);
+    ld avg_e = accumulate(b.begin(), b.end(), 0LL) / ((ld) ne); 
     int res= 0;
     for(int x : a) if(x < avg_cs && x > avg_e) res++;
     cout << res << '\n';
