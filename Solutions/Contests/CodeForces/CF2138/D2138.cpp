@@ -105,11 +105,12 @@ struct Mint {
     }
 };
 
-constexpr int P = 998244353;
+constexpr int P = 1e9 + 7;
 using Z = Mint<P>;
 // using Z = double;
-const int MAXN = 1e6;
+const int MAXN = 1e5;
 Z fact[MAXN + 1], inv_fact[MAXN + 1];
+Z z[MAXN + 1], iz[MAXN + 1];
 
 Z choose(int n, int k) {
     if(k < 0 || k > n) return 0;
@@ -121,6 +122,8 @@ void init_fact(int n = MAXN) {
     inv_fact[0] = Z(1);
     for(int i = 1; i <= n; i++) {
         fact[i] = fact[i-1] * i;
+        z[i] = i;
+        iz[i] = 1 / z[i];
     }
     inv_fact[n] = 1 / fact[n];
     for(int i = n - 1; i >= 1; i--) {
@@ -138,83 +141,107 @@ void solve() {
     vector<int> a(n);
     for(int &x : a) cin >> x;
 
+    map<int,vector<array<int,2>>> g;
     vector<array<int,2>> ops(q); //{slider idx, position moved to}
     for(auto &x : ops) {
         cin >> x[0] >> x[1];
         x[0]--;
+        g[x[1] - x[0]].push_back(x);
     }
 
-    auto work = [&]() -> vector<ld> {
-        
-        vector<ld> res;
+    vector<vector<array<int,2>>> ttfang;
+    for(auto [k, v] : g) ttfang.push_back(v);
 
-        for(int i = 0; i < n; i++) {
-            ld sum = 0;
-            for(int j = 0; j < q; j++) {
-                //last operation pushes to the right
-                if(ops[j][0] <= i) { 
-                    int end = ops[j][1] + (i - ops[j][0]);
-                    int good = 0, bad = 0, neutral = 0;
-                    for(int k = 0; k < q; k++) {
-                        if(k != j) {
-                            int push = ops[k][1] + (i - ops[k][0]);
-                            if(ops[k][0] < i) {
-                                if(push >= end) {
-                                    bad++;
-                                } else {
-                                    neutral++;
-                                }
-                            } else if(ops[k][0] > i) {
-                                if(push < end) {
-                                    good++;
-                                } else {
-                                    neutral++;
-                                }
-                            } else {
-                                if(push < end) {
-                                    good++;
-                                } else {
-                                    bad++;
-                                }
-                            }
-                        }
-                    }
-                    sum += ((ld) good) / ((ld) good + bad + 1);
+    auto get_p = [&](int i, int end, int left, int right, int lc, int rc, int ac, int neutral) -> Z {
+
+        Z res = 0;
+
+        if(left == 0 && right == 0) {
+            if(a[i] < end) {
+                if(lc || ac) {
+                    res = 1;
+                }
+            } else if(a[i] == end) {
+                res = 1;
+            } else {
+                if(ac || rc) {
+                    res = 1;
                 }
             }
-            res.push_back(sum);
+        } else {
+
+            // Z p_l = ((Z) left) / ((Z) left + right) * (1 - ((Z) choose(lc + ac + left + right - 1, lc + ac)) / ((Z) choose(lc + ac + left + right, lc + ac)));
+            // Z p_r = ((Z) right) / ((Z) left + right) * (1 - ((Z) choose(rc + ac + left + right - 1, rc + ac)) / ((Z) choose(rc + ac + left + right, rc + ac)));
+
+            // Z p_l = ((Z) left) / ((Z) left + right) * (lc + ac) / (lc + ac + left + right);
+            // Z p_r = ((Z) right) / ((Z) left + right) * (rc + ac) / (rc + ac + left + right);
+
+            Z p_l = z[left] * iz[left + right] * z[lc + ac] * iz[lc + ac + left + right];
+            Z p_r = z[right] * iz[left + right] * z[rc + ac] * iz[rc + ac + left + right];
+
+            res += p_l + p_r;
         }
 
         return res;
     };
 
-    vector<ld> res0(n);
     for(int i = 0; i < n; i++) {
-        int f = 0;
+        ld s = 0;
+        // set<int> vis;
+        int left = 0, right = 0, lc = 0, rc = 0, ac = 0, neutral = 0;
+
+        Z total_res = 0;
+
         for(int j = 0; j < q; j++) {
-            if(ops[j][0] <= i && ops[j][1] + (i - ops[j][0]) > a[i]) f = 1;
-            if(ops[j][0] >= i && ops[j][1] + (i - ops[j][0]) < a[i]) f = 1;
+            int end = ops[j][1] + (i - ops[j][0]);
+            // m[end].push_back(ops[j]);
+            if(ops[j][0] < i) {
+                right++;
+            } else if(ops[j][0] == i) {
+                right++;
+            } else {
+                neutral++;
+            }
         }
-        if(!f) {
-            res0[i] = 1;
+
+        if(a[i] < ttfang[0][0][1] + (i - ttfang[0][0][0])) total_res += get_p(i, a[i], left, right, lc ,rc, ac, neutral) * a[i];
+
+        for(int j = 0; j < ttfang.size(); j++) {
+            int end = ttfang[j][0][1] + (i - ttfang[j][0][0]);
+            int nx = (j + 1 == ttfang.size() ? INT_MAX : ttfang[j + 1][0][1] + (i - ttfang[j + 1][0][0]));
+
+            for(auto op : ttfang[j]) {
+                if(op[0] < i) {
+                    right--;
+                    lc++;
+                } else if(op[0] == i) {
+                    right--;
+                    ac++;
+                } else {
+                    neutral--;
+                    rc++;
+                }
+            }
+
+            total_res += get_p(i, end, left, right, lc ,rc, ac, neutral) * end;
+
+            for(auto op : ttfang[j]) {
+                if(op[0] < i) {
+                    lc--;
+                    neutral++;
+                } else if(op[0] == i) {
+                    ac--;
+                    left++;
+                } else {
+                    rc--;
+                    left++;
+                }
+            }
+
+            if(end < a[i] && a[i] < nx) total_res += get_p(i, a[i], left, right, lc ,rc, ac, neutral) * a[i];
         }
-    }
 
-    auto res1 = work();
-
-    for(int &x : a) x = m - x + 1;
-    reverse(a.begin(), a.end());
-    for(auto &x : ops) {
-        x[0] = n - x[0] - 1;
-        x[1] = m - x[1] + 1;
-    }
-
-    auto res2 = work();
-
-    reverse(res2.begin(), res2.end());
-
-    for(int i = 0; i < n; i++) {
-        cout << "i : " << i << " r0 : " << res0[i] << " r1 : " << res1[i] << " r2 : " << res2[i] << " s : " << res0[i] + res1[i] + res2[i] << '\n';
+        cout << total_res * fact[q] << " \n"[i == n - 1];
     }
 
 }

@@ -13,7 +13,8 @@ This approach sort of works because we assign each engineer only 1 task.
 */
 
 //sets current set to found and for each bit, adds the missing the current found sets that are missing that bit
-bitset<1 << 20> found {};
+// bitset<1 << 20> found {};
+vector<int> found(1 << 20);
 void addfound(int foundval, vector<vector<int>> &missing_sets) {
     found[foundval] = 1;
     for(int bit = 0; bit < missing_sets.size(); bit++) {

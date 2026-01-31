@@ -41,6 +41,5 @@ int main() {
         cout << 1 + above.size() << '\n';
     }
 
-
     return 0;
 }

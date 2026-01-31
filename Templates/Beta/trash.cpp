@@ -1,33 +1,33 @@
 #include <bits/stdc++.h>
-using namespace std;
 typedef long long ll;
-typedef vector<ll> vl;
-typedef vector<int> vi;
-typedef pair<int, int> pii;
+typedef long double ld;
+using namespace std;
 
 signed main() {
-    ios_base::sync_with_stdio(0);
-    cin.tie(0);
-    cout.tie(0);
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
 
-    int n; cin >> n;
-    vector<ll> a(n); 
-    for(ll &x : a) cin >> x;
+    auto f = [&](ld x, ld a) -> ld {
+        return a * x * x * (1 - x);
+    };
 
-    sort(a.begin(), a.end());
-    vector<ll> p(n + 1);
-    for(int i = 0; i < n; i++) {
-        p[i+1] = a[i] + p[i];
+    ld a = 5;
+    ld x = 0.2;
+
+    cout << "0.2" << '\n';
+
+    for(int i = 0; i < 10; i++) {
+        cout << fixed << setprecision(10) << x << '\n';
+        x = f(x, a);
     }
 
-    for(int i = 0; i < n; i++) {
-        int med = (i + n - 1) / 2;
-        ll cost = 0;
+    x = 0.5;
 
-        cost += (p[n] - p[med]) - (n - med) * a[med];
-        cost += (med - i) * a[med] - (p[med] - p[i]);
+    cout << "0.5\n";
 
-        cout << cost << '\n';
+    for(int i = 0; i < 100; i++) {
+        cout << fixed << setprecision(10) << x << '\n';
+        x = f(x, a);
     }
 
     return 0;
