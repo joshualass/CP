@@ -2,6 +2,7 @@
 typedef long long ll;
 typedef long double ld;
 using namespace std;
+#define sz(x) (int) (x).size()
 
 void solve() {
     
