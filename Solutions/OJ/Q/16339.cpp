@@ -21,6 +21,8 @@ I was able to see we needed some recursive structure that made sure the children
 requirements were already satisfied - all leaves were a parent of some node and all the non-leaves are already leaves. To do this for 
 each subtree, it makes sense to do the chain and we arbitrarily chose the keeping the largest in each group because it worked. 
 
+High level of why it works ? - 
+
 This idea works because ...
 
 pros have a nice way of testing that this works. 
