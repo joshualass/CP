@@ -15,7 +15,10 @@ signed main() {
 
     int res = 0;
     vector<array<int,2>> a(n);
-    for(auto &x : a) for(auto &y : x) cin >> y;
+    for(auto &x : a) {
+        for(auto &y : x) cin >> y;
+        assert(x[0] < x[1]);
+    }
     sort(a.begin(), a.end(), [](const auto &lhs, const auto &rhs) {
         return lhs[1] < rhs[1];
     });

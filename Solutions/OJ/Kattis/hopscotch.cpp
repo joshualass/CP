@@ -8,7 +8,7 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    cout << INT_MAX << '\n';
+    
 
     return 0;
 }

@@ -1,3 +1,96 @@
+// #include <bits/stdc++.h>
+// typedef long long ll;
+// typedef long double ld;
+// using namespace std;
+// #define sz(x) (int) (x).size()
+
+// const int MOD = 998244353;
+
+// signed main() {
+//     ios_base::sync_with_stdio(false);
+//     cin.tie(NULL);
+
+//     string L, R; cin >> L >> R;
+
+//     auto get_digit = [&](string &s, int digit_index) -> int {
+//         if(digit_index < s.size()) {
+//             return s[s.size() - 1 - digit_index] - '0';
+//         }
+//         return 0;
+//     };
+
+//     auto add_mod = [&](int &x, int add) -> void {
+//         x += add;
+//         if(x >= MOD) x -= MOD;
+//     };
+
+//     vector<vector<vector<vector<int>>>> dp(R.size(), vector<vector<vector<int>>>(10, vector<vector<int>>(2, vector<int>(2))));
+
+//     for(int i = R.size() - 1; i >= 0; i--) {
+//         for(int j = 0; j < 10; j++) {
+//             for(int k = 0; k < 2; k++) {
+//                 for(int l = 0; l < 2; l++) {
+//                     //iterate over the previous states to compute dp[i][j][k][l]
+//                     if(i != R.size() - 1) {
+//                         int pi = i + 1;
+//                         for(int pj = 0; pj < 10; pj++) {
+//                             if(j != pj) {
+//                                 for(int pk = 0; pk < 2; pk++) {
+//                                     for(int pl = 0; pl < 2; pl++) {
+//                                         //make sure number does not get too low
+//                                         if(pk == 1 && j < get_digit(L, i)) continue;
+//                                         //make sure number does not get too high
+//                                         if(pl == 1 && j > get_digit(R, i)) continue;
+
+//                                         int nj = j;
+//                                         int nk = pk && j == get_digit(L, i);
+//                                         int nl = pl && j == get_digit(R, i);
+
+//                                         if(nk == k && nl == l) {
+//                                             cout << "add mod 2 : " << 
+//                                             add_mod(dp[i][j][k][l], dp[i+1][pj][pl][pk]);
+//                                         }
+//                                     }
+//                                 }
+//                             }
+//                         }
+//                     }
+
+//                     //handle beginning each number 
+//                     //if we start a digit at index i, it must not be larger than R
+//                     if(i == R.size() - 1 && j > get_digit(R, i)) continue;
+//                     //if we start a digit at index i, it cannot be smaller than L
+//                     if(i < L.size() - 1 || i == L.size() - 1 && j < get_digit(L, i)) continue;
+//                     //cannot start with a digit with
+//                     if(j == 0) continue;
+
+//                     int nk = (i == L.size() - 1 && j == get_digit(L, i));
+//                     int nl = (i == R.size() - 1 && j == get_digit(R, i));
+
+//                     if(k == nk && l == nl) {
+//                         cout << "add mod i : " << i << " j : " << j << " k : " << l << " l : " << l << endl;
+//                         add_mod(dp[i][j][k][l], 1);
+//                     }
+//                 }
+//             }
+//         }
+//     }
+
+//     int answer = 0;
+//     for(int j = 0; j < 10; j++) {
+//         for(int k = 0; k < 2; k++) {
+//             for(int l = 0; l < 2; l++) {
+//                 add_mod(answer, dp[0][j][k][l]);
+//             }
+//         }
+//     }
+
+//     cout << answer << '\n';
+
+//     return 0;
+// }
+
+
 #include <algorithm>
 #include <bitset>
 #include <complex>
@@ -101,7 +194,7 @@ signed main() {
         }
     }
 
-    int res = 0;x
+    int res = 0;
     for(int i = 0; i < 10; i++) {
         for(int j = 0; j < 2; j++) {
             for(int k = 0; k < 2; k++) {
