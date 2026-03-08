@@ -4,6 +4,13 @@ typedef long double ld;
 using namespace std;
 #define sz(x) (int) (x).size()
 
+/*
+there was a very difficult to spot bug. im not sure why i didnt see it. 
+
+when merging the children in small to large, there was a chance that the children would collide with each other. 
+
+*/
+
 template<typename T>
 std::ostream& operator<<(std::ostream& os, set<T> s) {
     for(auto &x: s) os << x << " ";
@@ -52,6 +59,8 @@ signed main() {
             if(c != p && c != maxc) {
                 for(int s : dp[c]) {
                     if(dp[i].count(s ^ x[c] ^ x[i] ^ a[i])) f = 1;
+                }
+                for(int s : dp[c]) {
                     dp[i].insert(s ^ x[c] ^ x[i]);
                 }
             }
@@ -89,6 +98,8 @@ signed main() {
             if(c != p && c != maxc) {
                 for(int s : dp[c]) {
                     if(dp[i].count(a[i] ^ s)) f = 1;
+                }
+                for(int s : dp[c]) {
                     dp[i].insert(s);
                 }
             }
@@ -107,8 +118,17 @@ signed main() {
         }
     };
 
-    // dfs(dfs, 0, -1);
-    dfs_slow(dfs_slow, 0, -1);
+    dfs(dfs, 0, -1);
+    // dfs_slow(dfs_slow, 0, -1);
+
+    // for(int i = 0; i < n; i++) {
+    //     int p = res;
+    //     res = 0;
+    //     dp.assign(n, {});
+    //     dfs_slow(dfs_slow, 0, -1);
+    //     assert(res == p);
+    // }
+
     cout << res << '\n';
 
     return 0;

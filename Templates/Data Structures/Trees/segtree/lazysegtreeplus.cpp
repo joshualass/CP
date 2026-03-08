@@ -13,6 +13,20 @@ struct Lazy {
         v.assign(size * 2, def);
         lazy.assign(size * 2, ln);
     }
+    Lazy(int n, vector<T> a) {
+        this->n = n;
+        this->size = 1;
+        while(size < n) size *= 2;
+        v.resize(size * 2);
+        lazy.assign(size * 2, ln);
+        build(a);
+    }   
+    void build(vector<T> a) {
+        for(int i = 0; i < a.size(); i++) v[i + size] = a[i];
+        for(int i = size - 1; i >= 1; i--) {
+            v[i] = query_comb(v[i * 2], v[i * 2 + 1]);
+        }
+    }
     bool isLeaf(int node) {return node >= size;}
     T query_comb(T val1, T val2) {//update this depending on query type
         // return val1 + val2;
