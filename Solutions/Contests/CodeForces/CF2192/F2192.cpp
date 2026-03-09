@@ -306,9 +306,9 @@ Z solve(int n, int x, int y, vector<int> a, vector<int> b) {
 
     Z bds = 0;
 
-    for(int time = 1; time <= n; time++) {
+    for(int time = 2; time <= n; time++) {
         for(int i = 0; i + time + 2 <= n; i++) {
-            bds += dpa[time][i] * b_die[time][i + time + 1];
+            bds += dpa[time][i] * b_die[time - 1][i + time + 1];
         }
     }
 
@@ -386,6 +386,7 @@ signed main() {
         while(1) {
             int n = 5;
             int x = rng() % n + 1, y = rng() % n + 1;
+            while(x == y) y = rng() % n + 1;
             vector<int> a(n), b(n);
             for(int &x : a) x = rng() % 10 + 1;
             for(int &x : b) x = rng() % 10 + 1;

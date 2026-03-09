@@ -1,3 +1,10 @@
+/*
+2026 ICPC Asia Pacific Championship
+Problem E
+Parallel Sums
+*/
+
+
 #include <bits/stdc++.h>
 typedef long long ll;
 typedef long double ld;

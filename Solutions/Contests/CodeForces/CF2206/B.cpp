@@ -4,6 +4,12 @@ typedef long double ld;
 using namespace std;
 #define sz(x) (int) (x).size()
 
+/*
+2026 ICPC Asia Pacific Championship
+Problem B
+Subtree Removal Game
+*/
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);

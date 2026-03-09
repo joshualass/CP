@@ -1,3 +1,9 @@
+/*
+2026 ICPC Asia Pacific Championship
+Problem K
+Time Display Stickers
+*/
+
 #include <bits/stdc++.h>
 typedef long long ll;
 typedef long double ld;
