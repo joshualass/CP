@@ -1,15 +1,24 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#define sz(x) (int) (x).size()
+
 /*
-also see jiangly's template
-https://codeforces.com/contest/1895/submission/231571612
+different approach, but still a fun challenge :)
+
+basic dp, but somehow rated 3200
 */
+
 template<class T>
-constexpr T power(T a, ll b, T base = 1) {
+constexpr T power(T a, ll b) {
+    T res = 1;
     for (; b; b /= 2, a *= a) {
         if (b % 2) {
-            base *= a;
+            res *= a;
         }
     }
-    return base;
+    return res;
 }
 
 //Modular Division currently uses Little Fermat's Theorem, so won't work for nonprime p. 
@@ -103,28 +112,19 @@ struct Mint {
     }
 };
 
-constexpr int P = 998244353;
+constexpr int P = 1e9 + 7;
 using Z = Mint<P>;
 // using Z = double;
-const int MAXN = 1e6;
-Z fact[MAXN + 1], inv_fact[MAXN + 1];
 
-Z choose(int n, int k) {
-    if(k < 0 || k > n) return 0;
-    return fact[n] * inv_fact[k] * inv_fact[n-k];
-}
+/*
+init_fact()
+*/
 
-void init_fact(int n = MAXN) {
-    fact[0] = Z(1);
-    inv_fact[0] = Z(1);
-    for(int i = 1; i <= n; i++) {
-        fact[i] = fact[i-1] * i;
-    }
-    inv_fact[n] = 1 / fact[n];
-    for(int i = n - 1; i >= 1; i--) {
-        inv_fact[i] = inv_fact[i+1] * (i + 1);
-    }
-}
+/*
+ 1
+2X0
+ 3
+*/
 
 template<typename T>
 struct Matrix {
@@ -170,3 +170,92 @@ struct Matrix {
         return res;
     }
 };
+
+template<typename T>
+constexpr Matrix<T> power(Matrix<T> a, ll b, Matrix<T> base) {
+    for (; b; b /= 2, a *= a) {
+        if (b % 2) {
+            base *= a;
+        }
+    }
+    return base;
+}
+
+void solve() {
+    
+    ll n, m; cin >> n >> m;
+    vector<vector<Z>> start(n * 2 + 1, vector<Z>(n * 2 + 1));
+    start[0][0] = 3 * power<Z>(4, n);
+    start[1][1] = power<Z>(4, n);
+
+    vector<vector<Z>> dp(n * 2 + 1, vector<Z>(n * 2 + 1));
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < 2; j++) {
+            if(j == 0) {
+                //go forward edge case
+                dp[i * 2][i * 2] = 3 * power<Z>(4, n + 1 - 2);
+                //go forward then right
+                for(int k = i + 1; k < n; k++) {
+                    Z above = power<Z>(4, i + 1);
+                    Z below = power<Z>(4, n - 1 - k);
+                    Z ab_contrib = power<Z>(3, (k - i - 1) * 2) * power<Z>(Z(1) / 4, (k - i - 1));
+                    Z one_contrib = 2;
+                    dp[i * 2][k * 2] = above * below * ab_contrib * one_contrib * 5 / 4;
+                    dp[i * 2][k * 2 + 1] = above * below * ab_contrib * one_contrib / 4;
+                }
+                //drop all the way down
+                dp[i * 2][n * 2] = power<Z>(4, i + 1) * power<Z>(3, n + 1 - (i + 1)) * power<Z>(3, n - 1 - i) * power<Z>(Z(1) / 4, n - 1 - i);
+            } else {
+                //there is a line below, so we can only optionally go forward
+                dp[i * 2 + j][i * 2 + j] += 3 * power<Z>(4, n + 1 - 2);
+                dp[i * 2 + j][i * 2] = 3 * 2 * power<Z>(4, n + 1 - 2);
+            }
+        }
+    }
+    dp[n * 2][n * 2] = power<Z>(4, n + 1);
+
+    Matrix<Z> basemat(start), amat(dp);
+    auto res = power<Z>(amat, m, basemat);
+    Z bad = 0;
+    for(int i = 0; i < n * 2 + 1; i++) {
+        for(int j = 0; j < n * 2 + 1; j++) {
+            bad += res.mat[i][j];
+        }
+    }
+
+    cout << power<Z>(4, (n + 1) * (m + 1)) - bad << '\n';
+
+}
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int casi; cin >> casi;
+    while(casi-->0) solve();
+
+    return 0;
+}
+
+/*
+9
+1 1
+1 2
+1 3
+2 1
+2 2
+2 3
+3 1
+3 2
+3 3
+
+40
+784
+13048
+1072
+91072
+6259456
+21040
+7577344
+146054130
+*/

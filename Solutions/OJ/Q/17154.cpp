@@ -144,27 +144,56 @@ void init_fact(int n = MAXN) {
 init_fact()
 */
 
+/*
+
+231, 23 + 1, 23 · 1, 2 + 31, 2 · 31, 2 + 3 + 1, 2 + 3 · 1, 2 · 3 + 1, 2 · 3 · 1
+
+*/
+
+Z solve(int n, string s) {
+    vector<Z> p(n);
+    
+    vector<Z> p3(n + 1);
+    p3[0] = 1;
+    for(int i = 1; i <= n; i++) p3[i] = p3[i-1] * 3;
+
+    Z first = 0, other = 0, other_mult = 0, cur_box = 0, p_sum = 0;
+
+    for(int i = 0; i < n; i++) {
+        Z val = 0;
+        Z mul = 1;
+
+        int dig = (s[i] - '0');
+
+        first = first * 10 + dig;
+        if(i) {
+            other_mult += p3[i - 1];
+            other = other * 10 + other_mult * dig;
+        }
+
+        cur_box *= 10;
+        cur_box += p_sum * dig;
+        p[i] += first + other;
+        p[i] += cur_box;
+        p_sum += p[i];
+    }
+    
+    Z res = 0;
+
+    for(int i = n - 1; i >= 0; i--) {
+        res += p[i] * p3[max(0, n - 2 - i)];
+    }
+    return res;
+}
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
     int n; cin >> n;
-    string s; cin >> s;
-    vector<Z> p(n);
+    string res; cin >> res;
 
-    for(int i = 0; i < n; i++) {
-
-        Z val = 0;
-        for(int j = i; j >= 0; j--) {
-            val = val * 10 + (s[j] - '0');
-            if(j) {
-                p[i] += val * p[j - 1];
-            }
-            p[i] += val;
-        }
-    }
-
-    cout << accumulate(p.begin(), p.end(), Z(0)) << '\n';
+    cout << solve(n, res) << '\n';
 
     return 0;
 }

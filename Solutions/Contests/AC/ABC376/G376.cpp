@@ -260,10 +260,8 @@ void solve() {
     for(int i = 1; i <= n; i++) cin >> a[i];
     vector<priority_queue<frac>> dp(n + 1); //pq of chops on this tree, in order of highest of lowest
     vector<frac> cost(n + 1); //rational value for the cost of exploring this subtree - maximum average of the subtree. 
-    vector<array<ll,2>> sums(n + 1); // {cost, subtree size}
 
     auto dfs = [&](auto self, int i) -> void {
-        sums[i] = {a[i], 1};
         cost[i] = frac(a[i], 1);
         int mxch = -1;
         for(int c : ch[i]) {
@@ -271,7 +269,6 @@ void solve() {
             if(mxch == -1 || dp[c].size() > dp[mxch].size()) {
                 mxch = c;
             }
-            for(int j = 0; j < 2; j++) sums[i][j] += sums[c][j];
         }
 
         if(mxch != -1) {
