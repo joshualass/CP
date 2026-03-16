@@ -7,22 +7,21 @@ using namespace std;
 void solve() {
     
     int n; cin >> n;
-    if(n == 3) {
-
-    } else {
-
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
+    sort(a.begin(), a.end());
+    ll res = 0;
+    for(int i = 0; i < n; i++) {
+        res += max(a[i] - a[0], a[n-1] - a[i]);
+    
     }
+    cout << res - (a[n-1] - a[0]) << '\n';
 
 }
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-
-    ld coin_use = 0;
-    for(int i = 50; i <= 100; i++) coin_use += ((ld) 1) / i;
-    coin_use *= 2;
-    cout << fixed << setprecision(10) << coin_use << endl;
 
     int casi; cin >> casi;
     while(casi-->0) solve();

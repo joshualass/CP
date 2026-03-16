@@ -8,7 +8,9 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    cout << INT_MAX << '\n';
+    int a, b, c; cin >> a >> b >> c;
+    
+    cout << (c == 0 ? a + b : a * b) << '\n';
 
     return 0;
 }

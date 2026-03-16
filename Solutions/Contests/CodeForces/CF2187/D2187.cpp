@@ -4,6 +4,13 @@ typedef long double ld;
 using namespace std;
 #define sz(x) (int) (x).size()
 
+/*
+problem seems impossible at the start. 
+
+intuition telling me this is a boss level problem. 
+
+however, once i wrote code to bruteforce final possibilties, i gained some clarity to solve this problem. */
+
 template <typename T, std::size_t N>
 std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
     os << "[";

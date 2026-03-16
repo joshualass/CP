@@ -7,22 +7,24 @@ using namespace std;
 void solve() {
     
     int n; cin >> n;
-    if(n == 3) {
-
-    } else {
-
+    map<int,int> m;
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < n; j++) {
+            int x; cin >> x;
+            x--;
+            m[x]++;
+        }
     }
+    int ok = 1;
+    for(auto [k, v] : m) if(v > n * (n - 1)) ok = 0;
+
+    cout << (ok ? "YES" : "NO") << '\n';
 
 }
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-
-    ld coin_use = 0;
-    for(int i = 50; i <= 100; i++) coin_use += ((ld) 1) / i;
-    coin_use *= 2;
-    cout << fixed << setprecision(10) << coin_use << endl;
 
     int casi; cin >> casi;
     while(casi-->0) solve();
