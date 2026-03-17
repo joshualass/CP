@@ -11,7 +11,14 @@ i had dp[i][j] store having a snake at time i be length j having total score. th
 didn't account for the apple. 
 This seemed quite hard to fix and other people were solving, so i guessed some greedy ideas but got WA bc of bad impl + bad idea. 
 
-during upsolve, i realized */
+during upsolve, i generated a testcase counting the greedy, so I then went back to the dp state. 
+
+One needs to observe that the dp states that can transition from the dp state are monotonic, meaning the snake must be after some point for the apple. 
+this approach leads to storing the dp as a segment tree.
+
+ofc, this mle's as using n^2 memory ... thus we can swap the order of the for loops and iterate over length and then by size ...
+Looking back, I think that I might be able to solve this problem if I see this monotonic property on the apples and I think about computing the dp for all the lengths at a time. 
+*/
 
 /*
 we have a very greedy snake :)
