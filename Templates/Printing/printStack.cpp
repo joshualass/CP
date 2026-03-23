@@ -5,5 +5,5 @@ void printS(stack<T> x) {
         cout << x.top() << ' ';
         x.pop();
     }
-    cout << "\n";
+    cout << endl;
 }

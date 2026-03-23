@@ -4,6 +4,31 @@ typedef long double ld;
 using namespace std;
 #define sz(x) (int) (x).size()
 
+/*
+pretty bad thought process here
+
+helps to formalize when the array is good / bad
+dp state pretty intuitive
+
+implementation pretty bad and cases pretty bad. not good process here :(
+*/
+
+template <typename T>
+void printS(stack<T> x) {
+    cout << "stack: ";
+    while(x.size()) {
+        cout << x.top() << ' ';
+        x.pop();
+    }
+    cout << endl;
+}
+
+template<typename T>
+ostream& operator<<(ostream& os, const vector<T> v) {
+    for(auto x : v) os << x << " ";
+    return os;
+}
+
 template<class T>
 constexpr T power(T a, ll b) {
     T res = 1;
@@ -133,15 +158,81 @@ void init_fact(int n = MAXN) {
 init_fact()
 */
 
+/*
+ 1  2 3  4
+-1 -1 1 -1
+
+st
+
+(5)
+4
+3
+2
+
+-1 0 -1
+
+(4)
+3
+2
+1
+
+0 0 0 0 -1 0 -1 0 -1 0 -1 0
+
+*/
+
 void solve() {
     
     int n; cin >> n;
-    vector<vector<Z>> dp(n + 1, vector<Z>(n + 1));
+    vector<int> a(n), vis(n);
+    for(int &x : a) cin >> x;
+    
+    Z res = 1;
+    stack<int> st;
+    st.push(n);
 
-    for(int i = 0; i < n; i++) {
-        
+    int ok = 1;
+
+    auto prune = [&](int stop) -> void {
+        vector<Z> dp(2);
+        dp[1] = 1;
+        while(ok) {
+            int idx = st.top();
+            st.pop();
+            if(idx == -1) {
+                dp.insert(dp.begin(), 0);
+            } else if(a[idx] == -1) {
+                dp.push_back(dp.back());
+                for(int i = sz(dp) - 2; i > 1; i--) dp[i] = dp[i-1] + dp[i+1];
+                dp[1] = 0;
+            } else if(a[idx] == a[stop]) {
+                Z cont = accumulate(dp.begin(), dp.end(), Z(0));
+                res *= cont;
+                dp.assign(3, 0);
+                dp[2] = 1;
+            } else {
+                res = 0;
+                ok = 0;
+            }
+            if(idx == stop) break;
+        }
+        st.push(-1);
+    };
+
+    for(int i = n - 1; i >= 0; i--) {
+        if(vis[i]) {
+            prune(vis[i]);
+        }
+        if(a[i] > i) {
+            res = 0;
+            break;
+        }
+        if(a[i] > 0 && vis[a[i]-1] == 0) vis[a[i]-1] = i;
+        st.push(i);
     }
 
+    a.push_back(0);
+    prune(n);
+    cout << res << '\n';
 }
 
 signed main() {

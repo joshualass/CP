@@ -1,15 +1,9 @@
 #include <bits/stdc++.h>
-typedef long long ll;
+typedef unsigned long long ll;
 typedef long double ld;
 using namespace std;
 #define sz(x) (int) (x).size()
-ll MOD;
-
-template<typename T>
-ostream& operator<<(ostream& os, const vector<T> v) {
-    for(auto x : v) os << x << " ";
-    return os;
-}
+int MOD;
 
 vector<vector<ll>> matmult(vector<vector<ll>> &a, vector<vector<ll>> &b) {
     int n = a.size();
@@ -18,8 +12,9 @@ vector<vector<ll>> matmult(vector<vector<ll>> &a, vector<vector<ll>> &b) {
         for(int j = 0; j < n; j++) {
             for(int z = 0; z < n; z++) {
                 res[i][j] += a[i][z] * b[z][j];
-                res[i][j] %= MOD;
+                if((z & 15) == 15) res[i][j] %= MOD;
             }
+            res[i][j] %= MOD;
         }
     }
     return res;
@@ -50,7 +45,7 @@ signed main() {
         for(int j = 0; j < m; j++) {
             mat[i][j] = (m - max(i,j) + mat[i][j]) % MOD;
             if(j < i) {
-                mat[i][m-j-1] = ((i - m + mat[i][m-j-1]) % MOD + MOD) % MOD;
+                mat[i][m-j-1] = (((i - m) % MOD + MOD + mat[i][m-j-1]) % MOD + MOD) % MOD;
             }
         }
         mat[i][m] = (m - i) % MOD;

@@ -30,6 +30,8 @@ created a second dp state for the right endpoints and this cleanly solves the pr
 
 However, we should further optimize and realize that the r states are symmetrical to the l states!!! because their structures act similarly, so we can have l states transition to themselves in an incredibly clean manner. 
 W problem, L long duration of time spent thinking about it :)
+
+going forward, it is helpful to write down the dp transitions / what they mean on paper + draw out what it looks like and try to avoid bad PIE traps!
 */
 
 template<typename T>
