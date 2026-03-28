@@ -78,7 +78,7 @@ void solve() {
         dy.push_back(j);
     }
 
-    ll lo = 1, hi = 1e6;
+    ll lo = 1, hi = 1e7;
     vector<vector<ll>> d(n, vector<ll>(n));
     while(lo != hi) {
         ll m = (lo + hi + 1) / 2;
@@ -107,10 +107,9 @@ void solve() {
         };
 
         for(ll i = 0; i < n; i++) {
-            add_q(i, 0, 0);
-            add_q(0, i, 0);
+            add_q(n - 1, i, 0);
         }
-        for(ll i = 0; i <= r; i++) add_q(i, n - 1, 0);
+        for(ll i = r; i < n; i++) add_q(i, n - 1, 0);
 
         while(sz(pq)) {
             auto [k, i, j] = pq.top();
@@ -122,8 +121,11 @@ void solve() {
             }
         }
         ll best = inf;
-        for(ll i = r; i < n; i++) best = min(best, d[i][n-1]);
-        for(ll i = 0; i < n; i++) best = min(best, d[n-1][i]);
+        for(ll i = 0; i <= r; i++) best = min(best, d[i][n-1]);
+        for(ll i = 0; i < n; i++) {
+            best = min(best, d[0][i]);
+            best = min(best, d[i][0]);
+        }
         // cout << "m : " << m << " best : " << best << endl;
         // for(auto x : d) cout << x << endl;
         if(best <= k) {

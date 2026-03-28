@@ -19,7 +19,7 @@ int main() {
     }
     for (int i = 0; i < SIZE; i++) {
         // cout << mults[i] << '\n';
-    }
+    } 
     int dp[SIZE][SIZE] = {};
     
     for (int c = 0; c < n; c++) {
