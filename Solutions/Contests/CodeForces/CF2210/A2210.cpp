@@ -7,12 +7,8 @@ using namespace std;
 void solve() {
     
     int n; cin >> n;
-    vector<int> a(n);
-    for(int &x : a) cin >> x;
-
-    for(int i = 0; i < n; i++) {
-        cout << min(n, 2) << " \n"[i == n - 1];
-    }
+    for(int i = n; i >= 1; i--) cout << i << " ";
+    cout << '\n';
 
 }
 
