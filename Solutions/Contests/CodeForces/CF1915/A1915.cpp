@@ -5,7 +5,7 @@ using namespace std;
 const ll MOD = 998244353;
 
 void solve() {
-    int a, b, c; cin >> a >> b >> c;
+     cin >> a >> b >> c;
     if(a == b) {
         cout << c << '\n';
     }

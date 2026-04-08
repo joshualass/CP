@@ -6,12 +6,9 @@ using namespace std;
 
 void solve() {
     
-    int n; cin >> n;
-    if(n == 1) {
-        cout << "-1\n";
-    } else {
-        cout << string(n - 2, '6') + "23\n";
-    }
+    int n, m, a, b; cin >> n >> m >> a >> b;
+
+    cout << (gcd(n, a) == 1 && gcd(m, b) == 1 && gcd(n,m) <= 2 ? "YES" : "NO") << '\n';
 
 }
 

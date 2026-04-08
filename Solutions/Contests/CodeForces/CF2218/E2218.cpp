@@ -7,12 +7,15 @@ using namespace std;
 void solve() {
     
     int n; cin >> n;
-    if(n == 1) {
-        cout << "-1\n";
-    } else {
-        cout << string(n - 2, '6') + "23\n";
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
+    int res = 0;
+    for(int i = 0; i < n; i++) {
+        for(int j = i + 1; j < n; j++) {
+            res = max(res, a[i] ^ a[j]);
+        }
     }
-
+    cout << res << '\n';
 }
 
 signed main() {

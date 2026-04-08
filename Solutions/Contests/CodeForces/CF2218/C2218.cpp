@@ -7,12 +7,10 @@ using namespace std;
 void solve() {
     
     int n; cin >> n;
-    if(n == 1) {
-        cout << "-1\n";
-    } else {
-        cout << string(n - 2, '6') + "23\n";
-    }
-
+    for(int i = 0; i < n; i++) {
+        cout << i + 1 << " " << 3 * n - i * 2 - 1 << " " << 3 * n - i * 2 << " ";
+    }    
+    cout << '\n';
 }
 
 signed main() {

@@ -4,23 +4,15 @@ typedef long double ld;
 using namespace std;
 #define sz(x) (int) (x).size()
 
-void solve() {
-    
-    int n; cin >> n;
-    if(n == 1) {
-        cout << "-1\n";
-    } else {
-        cout << string(n - 2, '6') + "23\n";
-    }
-
-}
+/*
+https://magiceye.ecksdee.co.uk/
+*/
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int casi; cin >> casi;
-    while(casi-->0) solve();
+    cout << "YU5zV2VS\n";
 
     return 0;
 }

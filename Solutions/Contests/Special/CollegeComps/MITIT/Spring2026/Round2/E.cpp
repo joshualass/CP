@@ -4,23 +4,23 @@ typedef long double ld;
 using namespace std;
 #define sz(x) (int) (x).size()
 
-void solve() {
-    
-    int n; cin >> n;
-    if(n == 1) {
-        cout << "-1\n";
-    } else {
-        cout << string(n - 2, '6') + "23\n";
-    }
-
-}
-
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int casi; cin >> casi;
-    while(casi-->0) solve();
+    int n, m; cin >> n >> m;
+
+    vector<int> a;
+    
+    int res = 0;
+
+    auto dfs = [&](auto self) -> void {
+        if(sz(a) == n) {
+
+            
+
+        }
+    };
 
     return 0;
 }

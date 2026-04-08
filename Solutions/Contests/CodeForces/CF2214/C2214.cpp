@@ -4,14 +4,17 @@ typedef long double ld;
 using namespace std;
 #define sz(x) (int) (x).size()
 
+/*
+RXOEARDMTINHUSERMEDESIANT & 20260401
+
+R O A D T N U E M D S A T
+R O A D 
+*/
+
 void solve() {
     
-    int n; cin >> n;
-    if(n == 1) {
-        cout << "-1\n";
-    } else {
-        cout << string(n - 2, '6') + "23\n";
-    }
+    int a, b, c; cin >> a >> b >> c;
+    cout << (a ^ b ^ c) - (a + b + c - min({a, b, c}) - max({a, b, c})) << '\n';
 
 }
 

@@ -102,8 +102,8 @@ void solve() {
         a--; b--;
         adj[a].push_back(b);
     }
-    vector<vector<int>> sccs = tarjans(adj);
-    // vector<vector<int>> sccs = kosarajus(adj);
+    // vector<vector<int>> sccs = tarjans(adj);
+    vector<vector<int>> sccs = kosarajus(adj);
     // // cout << "sccs\n" << sccs;
     vector<int> c(n);
     for(int i = 0; i < sccs.size(); i++) {

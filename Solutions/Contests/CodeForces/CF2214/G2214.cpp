@@ -5,13 +5,9 @@ using namespace std;
 #define sz(x) (int) (x).size()
 
 void solve() {
-    
-    int n; cin >> n;
-    if(n == 1) {
-        cout << "-1\n";
-    } else {
-        cout << string(n - 2, '6') + "23\n";
-    }
+
+    int x; cin >> x;
+    cout << "bigchadjeff"[x-1] << '\n';
 
 }
 

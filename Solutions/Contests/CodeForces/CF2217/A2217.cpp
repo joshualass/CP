@@ -6,12 +6,11 @@ using namespace std;
 
 void solve() {
     
-    int n; cin >> n;
-    if(n == 1) {
-        cout << "-1\n";
-    } else {
-        cout << string(n - 2, '6') + "23\n";
-    }
+    int n, k; cin >> n >> k;
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
+
+    cout << (((n * accumulate(a.begin(), a.end(), 0)) & 1) || (k * n % 2 == 0) ? "YES" : "NO") << '\n';
 
 }
 

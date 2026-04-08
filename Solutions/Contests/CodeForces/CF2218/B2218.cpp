@@ -6,13 +6,18 @@ using namespace std;
 
 void solve() {
     
-    int n; cin >> n;
-    if(n == 1) {
-        cout << "-1\n";
-    } else {
-        cout << string(n - 2, '6') + "23\n";
+    int n = 7;
+    vector<int> a(n);
+    for(int &x : a) {
+        cin >> x;
+        x *= -1;
     }
-
+    int sum = accumulate(a.begin(), a.end(), 0);
+    int res = INT_MIN;
+    for(int i = 0; i < n; i++) {
+        res = max(res, sum - a[i] * 2);
+    }
+    cout << res << '\n';
 }
 
 signed main() {
