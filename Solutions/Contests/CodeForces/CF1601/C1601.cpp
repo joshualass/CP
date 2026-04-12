@@ -5,6 +5,10 @@ using namespace std;
 #define sz(x) (int) (x).size()
 const int inf = 1e9;
 
+/*
+jdurie lazy segtree + compression orz
+*/
+
 template<typename T>
 std::ostream& operator<<(std::ostream& os, set<T> s) {
     for(auto &x: s) os << x << " ";

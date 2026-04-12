@@ -5,12 +5,6 @@ using namespace std;
 #define sz(x) (int) (x).size()
 const int inf = 1e9;
 
-/*
-yay implementation. idea is not as hard
-edge case missed and started coding before correct algo was in mind D:
-orz wobert
-*/
-
 template <typename T, std::size_t N>
 std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
     os << "[";
@@ -73,20 +67,14 @@ struct RMQ  {
     }
 };
 
-signed main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-
-    int n, q, k; cin >> n >> q >> k;
-    vector<int> a(n);
-    for(int &x : a) cin >> x;
+vector<ll> solve(int n, int q, int k, vector<int> a, vector<array<int,2>> queries) {
 
     RMQ<int> rmq(a);
     vector<vector<vector<array<int,2>>>> qs(k, vector<vector<array<int,2>>>((n + k - 1) / k));
     vector<ll> res(q);
 
     for(int qq = 0; qq < q; qq++) {
-        int l, r; cin >> l >> r;
+        auto [l, r] = queries[qq];
         l--;
         res[qq] += a[l];
         int len = r - l;
@@ -101,7 +89,6 @@ signed main() {
     
     auto append = [&](vector<array<ll,4>> &st, ll rate) -> void {
         assert(!st.empty());
-        // cout << "rate : " << rate << endl;
         ll len = 1, cost = rate;
         while(!st.empty() && st.back()[1] >= rate) {
             auto [ptotallen, pr, plen, pcost] = st.back();
@@ -114,24 +101,17 @@ signed main() {
     
     auto query = [&](vector<array<ll,4>> &st, ll qlen) -> ll {
         assert(st.back()[0] >= qlen);
-        // cout << "qlen : " << qlen << endl;
-        // cout << "st : " << st << endl;
         int idx = lower_bound(st.begin(), st.end(), array<ll,4>{st.back()[0] - qlen, 0, 0, 0}) - st.begin();
-        // cout << "idx : " << idx << endl;
         ll cost = st.back()[3] - st[idx][3] + st[idx][1] * (qlen - (st.back()[0] - st[idx][0]));
-        // ll cost = st.back()[0] - st[idx][0] + st[idx][1] * (qlen - (st.back()[0] - (st[idx][0] + st[idx][2])));
-        // cout << "cost : " << cost << endl;
         return cost;
     };
     
     for(int i = 0; i < k; i++) {
-        // cout << "i mod k i : " << i << endl;
         vector<array<ll,4>> st(1);
         for(int j = (n + k - 1) / k - 1; j >= 0; j--) {
             int l = i + j * k;
-            // cout << "j : " << j << " l : " << l << endl;
-            if(l < n) {
-                int r = min(n, l + k);
+            int r = l + k;
+            if(r <= n) {
                 append(st, rmq.query(l - 1, r - 1));
                 for(auto [len, qidx] : qs[i][j]) {
                     res[qidx] += query(st, len);
@@ -142,19 +122,64 @@ signed main() {
         }
     }
 
-    for(auto x : res) cout << x << '\n';
+    return res;
+}
+
+vector<ll> solve_slow(int n, int q, int k, vector<int> a, vector<array<int,2>> queries) {
+    vector<ll> res;
+    for(int i = 0; i < q; i++) {
+        auto [l, r] = queries[i];
+        l--;
+        ll cost = 0;
+        int min_cost = inf;
+        for(int i = l; i < r; i++) {
+            min_cost = min(min_cost, a[i]);
+            if((i - l) % k == 0) cost += min_cost;
+        }
+        res.push_back(cost);
+    }
+    return res;
+}
+
+mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+
+
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+
+
+    for(int i = 0; i < 10000; i++) {
+        int n = 5, q = 5;
+        int k = rng() % n + 1;
+        vector<int> a(n);
+        for(int &x : a) x = rng() % 10 + 1;
+        vector<array<int,2>> queries;
+        for(int j = 0; j < q; j++) {
+            int l = rng() % n, r = rng() % n;
+            if(l > r) swap(l, r);
+            l++; r++;
+            queries.push_back({l, r});
+        }
+        auto res_slow = solve_slow(n, q, k, a, queries);
+        auto res_fast = solve(n, q, k, a, queries);
+        if(res_slow != res_fast) {
+            cout << n << " " << q << " " << k << endl;
+            for(int j = 0; j < n; j++) {
+                cout << a[j] << " \n"[j == n - 1];
+            }
+            for(auto query : queries) {
+                cout << query[0] << " " << query[1] << endl;
+            }
+            cout << "slow (correct?) : " << res_slow << endl;
+            cout << "fast : " << res_fast << endl;
+            assert(0);
+        }
+    }
+
+    cout << "ALL TESTS PASSED!" << endl;
 
     return 0;
 }
-
-/*
-5 5 1
-3 5 4 1 2
-1 5
-3 4
-2 5
-slow (correct?) : 5 9 11 5 11 
-fast : 5 9 14 5 11 
-Assertion failed: (0), function main, file E1601up.cpp, line 180.
-
-*/
