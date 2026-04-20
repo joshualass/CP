@@ -33,6 +33,7 @@ int main() {
         q.pop();
         int r = p.first;
         int c = p.second;
+        
         if(visited[r][c] || map[r][c] == '#') {
             continue;
         }
