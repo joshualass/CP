@@ -12,6 +12,19 @@ struct Tree {
         while(size < n) size *= 2;
         v.assign(size * 2, def);
     }
+    Tree(int n, vector<T> a) {
+        this->n = n; //max number of elements
+        size = 1;
+        while(size < n) size *= 2;
+        v.assign(size * 2, def);
+        assert(n == sz(a));
+        for(int i = 0; i < n; i++) {
+            v[i + size] = a[i];
+        }
+        for(int i = size - 1; i >= 1; i--) {
+            v[i] = f(v[i * 2], v[i * 2 + 1]);
+        }
+    }
     void update(int pos, T val) { //update 0 indexed, assignment
         assert(pos < n && pos >= 0);
         int curr = pos + size;

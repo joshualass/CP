@@ -12,8 +12,8 @@ struct Tree {
         while(size < n) size *= 2;
         v.assign(size * 2, def);
     }
-    Tree(int n, vector<T> a) {
-        this->n = n; //max number of elements
+    Tree(vector<T> a) {
+        this->n = sz(a); //max number of elements
         size = 1;
         while(size < n) size *= 2;
         v.assign(size * 2, def);
