@@ -1,6 +1,12 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#define sz(x) (int) (x).size()
+
 template<typename T>
 struct Tree {
-    static constexpr T base = 0;
+    static constexpr T base = {};
     vector<T> v;
     int n, size;
     T f(T a, T b) { //change this when doing maximum vs minimum etc.
@@ -55,3 +61,14 @@ struct Tree {
         );
     }
 };
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n; cin >> n;
+
+
+
+    return 0;
+}
