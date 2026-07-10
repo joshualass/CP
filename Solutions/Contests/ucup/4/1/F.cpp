@@ -4,9 +4,6 @@ typedef long double ld;
 using namespace std;
 #define sz(x) (int) (x).size()
 const int inf = 1e9;
-const int maxn = 3e5 + 1;
-
-const array<int,2> def = {-inf, -1};
 
 template <typename T, std::size_t N>
 std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
@@ -85,64 +82,93 @@ struct Tree {
     }
 };
 
+template<typename T>
+void eraseduplicates(vector<T> &a) {
+    sort(a.begin(), a.end());
+    a.erase(unique(a.begin(), a.end()), a.end());
+}
+
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n; cin >> n;
-    vector<vector<int>> a(maxn);
-
+    int n, m; cin >> n >> m;
+    vector<int> ip(n);
     for(int i = 0; i < n; i++) {
-        int t, x; cin >> t >> x;
-        a[t].push_back(x-t);
+        int x; cin >> x;
+        ip[x] = i;
     }
 
-    Tree<array<int,2>> tree(maxn);
-    for(int i = 0; i < maxn; i++) {
-        sort(a[i].begin(), a[i].end());
-        if(!a[i].empty()) {
-            tree.update(i, {a[i].back(), i});
+    Tree<array<int,2>> L(m), R(m);
+
+    for(int i = 0; i < m; i++) {
+        int l, r; cin >> l >> r;
+        l--; r--;
+        L.update(i, {l, i});
+        R.update(i, {-r, i});
+    }
+
+    int comps = m;
+    ll res = 0;
+
+    auto merge = [&](int i, int j, int cost) -> void {
+        // cout << "i : " << i << " j : " << j << " cost : " << cost << endl;
+        int maxl = max(L.at(i)[0], L.at(j)[0]);
+        int minr = max(R.at(i)[0], R.at(j)[0]);
+
+        L.update(i, {maxl, i});
+        L.update(j, {-inf, -1});
+
+        R.update(i, {minr, i});
+        R.update(j, {-inf, -1});
+        comps--;
+        res += cost;
+    };
+
+    for(int i = 0; i < n; i++) {
+        int z = ip[i];
+        vector<int> pool;
+        vector<array<int,2>> fix;
+
+        // cout << "i : " << i << endl;
+
+        while(1) {
+            auto first = L.query(0, m);
+            if(first[1] != -1 && first[0] > z) {
+                pool.push_back(first[1]);
+                fix.push_back(first);
+                L.update(first[1], {-inf,-1});
+                // cout << "add to pool idx L : " << first[1] << endl;
+            } else {
+                break;
+            }
+        }
+        for(auto f : fix) L.update(f[1], f);
+        fix.clear();
+        while(1) {
+            auto first = R.query(0, m);
+            // cout << "first : " << first << endl;
+            if(first[1] != -1 && -first[0] < z) {
+                pool.push_back(first[1]);
+                fix.push_back(first);
+                R.update(first[1], {-inf, -1});
+                // cout << "add to pool idx R : " << first[1] << endl;
+            } else {
+                break;
+            }
+        }
+        
+        for(auto f : fix) R.update(f[1], f);
+
+        eraseduplicates(pool);
+
+        for(int j = 1; j < sz(pool); j++) {
+            merge(pool[0], pool[j], i);
         }
     }
 
-    int res = 0;
-
-    while(n) {
-        res++;
-
-        // cout << "start robot res : " << res << " left : " << n << endl;
-
-        auto check = [&](array<int,2> left, array<int,2> right) -> int {
-            if(left == def || right == def) return 1;
-            assert(left[1] <= right[1]);
-            int d = right[1] - left[1];
-            return left[0] >= right[0] && left[0] - d * 2 <= right[0];
-        };
-
-        auto dnc = [&](auto self, array<int,2> left, array<int,2> right) -> void {
-            // cout << "left : " <<left << " right : " << right << endl;
-            int l = left == def ? 0 : left[1] + 1;
-            int r = right == def ? maxn : right[1];
-            // cout << "l : " << l << " r : " << r << endl;
-            array<int,2> q = tree.query(l, r);
-            // cout << "q : " << q << endl;
-            if(q != def && check(left, q) && check(q, right)) {
-                n--;
-                int t = q[1];
-                assert(!a[t].empty());
-                a[t].pop_back();
-                // cout << "match to robot : " << q << endl;
-                if(!a[t].empty()) {
-                    tree.update(t, {a[t].back(), t});
-                } else {
-                    tree.update(t, def);
-                }
-                self(self, left, q);
-                self(self, q, right);
-            }
-        };
-        dnc(dnc, def, def);
-    }
+    //handle ranges that include everything
+    res += (comps - 1) * n;
 
     cout << res << '\n';
 

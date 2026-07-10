@@ -8,15 +8,8 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    ld res = 1; 
-    ll mod = 2150087531LL;
-    ll cnt = 1e5;
-
-    for(int i = 1; i <= cnt; i++) {
-        res *= ((ld) (mod - (i - 1))) / mod;
-    }
-
-    cout << fixed << setprecision(10) << res << endl;
+    int a, b; cin >> a >> b;
+    cout << (a * 3 > b * 2 ? "Yes" : "No") << '\n';
 
     return 0;
 }

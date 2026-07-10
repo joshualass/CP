@@ -8,15 +8,14 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    ld res = 1; 
-    ll mod = 2150087531LL;
-    ll cnt = 1e5;
+    // cout << 1000 / 6 << " " << 1000 % 6 << endl;
 
-    for(int i = 1; i <= cnt; i++) {
-        res *= ((ld) (mod - (i - 1))) / mod;
-    }
+    // cout << 166 * 7 << endl;
 
-    cout << fixed << setprecision(10) << res << endl;
+    int n; cin >> n;
+
+    cout << n / 6 * 7 + (n % 6 ? n % 6 + 1 : 0) << '\n';
+
 
     return 0;
 }
