@@ -1,10 +1,16 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#define sz(x) (int) (x).size()
+
+template<typename T>
 struct Tree {
-    typedef ll T;
     static constexpr T base = 0;
     vector<T> v;
     int n, size;
     T f(T a, T b) { //change this when doing maximum vs minimum etc.
-        return a + b;
+        return max(a, b);
     }
     Tree(int n, T def = base) {
         this->n = n; //max number of elements
@@ -55,3 +61,38 @@ struct Tree {
         );
     }
 };
+
+void solve() {
+    
+    int n; cin >> n;
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
+
+    Tree<ll> tree(n);
+    vector<vector<int>> updates(n);
+    vector<ll> dp(n);
+
+    for(int i = 0; i < n; i++) {
+        ll cur = a[i];
+        int r = i - a[i];
+        for(int prev : updates[i]) {
+            tree.update(prev, dp[prev]);
+        }
+        if(r >= 0) cur += tree.query(0, r);
+        dp[i] = cur;
+        if(i + a[i] + 1 < n) updates[i + a[i] + 1].push_back(i);
+    }
+
+    cout << *max_element(dp.begin(), dp.end()) << '\n';
+
+}
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int casi; cin >> casi;
+    while(casi-->0) solve();
+
+    return 0;
+}

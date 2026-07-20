@@ -15,14 +15,14 @@ struct Lazy {
         lazy.assign(size * 2, ln);
         build(vector<T>(n, def));
     }
-    Lazy(int n, vector<T> a) {
-        this->n = n;
+    Lazy(vector<T> a) {
+        this->n = sz(a);
         this->size = 1;
         while(size < n) size *= 2;
         v.resize(size * 2);
         lazy.assign(size * 2, ln);
         build(a);
-    }   
+    } 
     void build(vector<T> a) {
         for(int i = 0; i < a.size(); i++) v[i + size] = a[i];
         for(int i = size - 1; i >= 1; i--) {

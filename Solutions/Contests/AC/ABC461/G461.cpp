@@ -1,20 +1,11 @@
-/**
- * Author: Adam Soltan
- * Date: 2026-01-13
- * License: CC0
- * Description: Fast bipartite matching algorithm. Graph $g$ should be a list
- * of neighbors of the left partition, and $r$ should be a vector full of
- * $-1$'s of the same size as the right partition. Returns the size of
- * the matching. $r[i]$ will be the match for vertex $i$ on the right side,
- * or $-1$ if it's not matched.
- * Time: O(E \sqrt{V})
- * Status: stress-tested by MinimumVertexCover and tested on Library Checker
- */
-#pragma once
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
 
 #define rep(i, a, b) for(int i = a; i < (b); ++i)
 #define all(x) begin(x), end(x)
-#define sz(x) (int)(x).size()
+#define sz(x) (int) (x).size()
 typedef long long ll;
 typedef pair<int, int> pii;
 typedef vector<int> vi;
@@ -38,4 +29,26 @@ int hopcroftKarp(vector<vi>& g, vi& r) {
 		if (!f) return res;
 		rep(i,0,n) if (l[i] == -1) res += dfs(dfs, i);
 	}
+}
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n, m; cin >> n >> m;
+    vector<vector<int>> g(n);
+    vector<int> r(n, -1);
+
+    for(int i = 0; i < m; i++) {
+        int u, v; cin >> u >> v;
+        u--; v--;
+        g[u].push_back(v);
+        g[v].push_back(u);
+    }
+
+    int flow = hopcroftKarp(g, r);
+
+    cout << 1013 * (2 * n - flow) << '\n';
+
+    return 0;
 }

@@ -133,116 +133,66 @@ void init_fact(int n = MAXN) {
 init_fact()
 */
 
-template<typename T>
-struct Tree {
-    static constexpr T base = 0;
-    vector<T> v;
-    int n, size;
-    T f(T a, T b) { //change this when doing maximum vs minimum etc.
-        return a + b;
-    }
-    Tree(int n, T def = base) {
-        this->n = n; //max number of elements
-        size = 1;
-        while(size < n) size *= 2;
-        v.assign(size * 2, def);
-    }
-    Tree(vector<T> a) {
-        this->n = sz(a); //max number of elements
-        size = 1;
-        while(size < n) size *= 2;
-        v.resize(size * 2);
-        assert(n == sz(a));
+int solve_slow(int n, int m) {
+    int tot = 0;
+    for(int bm = 0; bm < 1 << (n * m); bm++) {
+        vector<vector<int>> a(n, vector<int>(m));
         for(int i = 0; i < n; i++) {
-            v[i + size] = a[i];
-        }
-        for(int i = size - 1; i >= 1; i--) {
-            v[i] = f(v[i * 2], v[i * 2 + 1]);
-        }
-    }
-    void update(int pos, T val) { //update 0 indexed, assignment
-        assert(pos < n && pos >= 0);
-        int curr = pos + size;
-        v[curr] += val;
-        while(curr != 1) {
-            if(curr & 1) { //handles non-communative operations
-                v[curr / 2] = f(v[curr ^ 1], v[curr]);
-            } else {
-                v[curr / 2] = f(v[curr], v[curr ^ 1]);
+            for(int j = 0; j < m; j++) {
+                a[i][j] = (bm >> (i * m + j)) & 1;
             }
-            curr /= 2;
+        }
+        int ok = 1;
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < m; j++) {
+                int res = 0;
+                for(int k = 0; k < n; k++) {
+                    res ^= a[k][j];
+                }
+                for(int k = 0; k < m; k++) {
+                    res ^= a[i][k];
+                }
+                if(res != a[i][j]) ok = 0;
+            }
+        }
+        tot += ok;
+    }
+    return tot;
+}
+
+void solve() {
+    
+    ll n, m; cin >> n >> m;
+
+    if(n % 2 == 0) {
+        if(m % 2 == 0) {
+            cout << "1\n";
+        } else {
+            cout << power<Z>(2, n - 1) << '\n';
+        }
+    } else {
+        if(m % 2 == 0) {
+            cout << power<Z>(2, m - 1) << '\n';
+        } else {
+            cout << power<Z>(2, n + m - 2) << '\n';
         }
     }
-    T at(int idx) {
-        assert(idx >= 0 && idx < n);
-        return v[idx + size];
-    }
-    T query(int l, int r) {//queries in range [l,r)
-        return _query(1,0,size,l,r);
-    }
-    T _query(int idx, int currl, int currr, int &targetl, int &targetr) {
-        if(currr <= targetl || currl >= targetr) return base;
-        if(currl >= targetl && currr <= targetr) return v[idx];
-        int mid = (currl + currr) / 2;
-        return f(
-            _query(idx * 2, currl, mid, targetl, targetr),
-            _query(idx * 2 + 1, mid, currr, targetl, targetr)
-        );
-    }
-};
+
+}
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n; cin >> n;
-    vector<int> a(n);
-    for(int &x : a) cin >> x;
+    // for(int i = 1; i <= 5; i++) {
+    //     for(int j = 1; j <= 5; j++) {
+    //         cout << solve_slow(i, j) << " ";
+    //     }
+    //     cout << endl;
+    // }
 
-    vector<int> eb(30, -1);
-
-    priority_queue<array<int,4>, vector<array<int,4>>, greater<array<int,4>>> pq;
-    vector<array<int,4>> events;
-
-    for(int i = 0; i < n; i++) {
-        for(int bit = 0; bit < 30; bit++) {
-            if((a[i] >> bit) & 1) {
-                eb[bit] = i;
-            }
-        }
-
-        int cur = i + 1;
-        int val = 0;
-        while(cur >= 0) {
-            int nx = -1;
-            for(int bit = 0; bit < 30; bit++) {
-                if(eb[bit] < cur) {
-                    nx = max(nx, eb[bit]);
-                }
-            }
-            events.push_back({val, i, nx, cur});
-            cur = nx;
-            for(int bit = 0; bit < 30; bit++) {
-                if(nx == eb[bit]) val |= 1 << bit;
-            }
-        }
-    }
-
-    Tree<Z> tree(n);
-    sort(events.begin(), events.end());
-
-    for(auto [val, idx, l, r] : events) {
-        // cout << "val : " << val << " idx : " << idx << " l : " << l << " r : " << r << endl;
-        Z res = 0;
-        if(l == -1) {
-            l++;
-            res = 1;
-        }
-        res += tree.query(l, r);
-        tree.update(idx, res);
-    }
-
-    cout << tree.at(n - 1) << '\n';
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }
