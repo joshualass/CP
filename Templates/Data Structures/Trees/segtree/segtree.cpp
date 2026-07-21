@@ -1,6 +1,6 @@
 struct Tree {
     typedef ll T;
-    static constexpr T base = 0;
+    static constexpr T base = {};
     vector<T> v;
     int n, size;
     T f(T a, T b) { //change this when doing maximum vs minimum etc.
