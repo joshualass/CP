@@ -15,7 +15,10 @@ signed main() {
     cin.tie(NULL);
 
     int casi; cin >> casi;
-    while(casi-->0) solve();
+    for(int i = 0; i < casi; i++) {
+
+        solve();
+    }
 
     return 0;
 }
