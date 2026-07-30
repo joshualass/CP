@@ -70,28 +70,7 @@ void solve(int n, int x) {
 
     if(n & 1) {
         ok = 0;
-    } else if(n == 2 && x == 0) {
-        res = {
-            {0, 1},
-            {1, 0}
-        };
-        // if(n % 2 == 0) {
-        //     for(int i = 0; i * 2 < n; i++) {
-        //         for(int j = 0; j * 2 < n; j++) {
-        //             for(int k = 0; k < 2; k++) {
-        //                 for(int l = 0; l < 2; l++) {
-        //                     int d = (i + j) % (n / 2) * 2;
-        //                     d += k == l;
-        //                     res[i * 2 + k][j * 2 + l] = d;
-        //                 }
-        //             }
-        //         }
-        //     }
-        // } else {
-        //     ok = 0;
-        // }
     } else if(__builtin_popcount(n) == 1 && (n != 2 || x != 1)) {
-
         int ln = 31 - __builtin_clz(n);
         // cout << "ln : " << ln << endl;
         for(int bit = ln - 1; bit >= 0; bit--) {
@@ -100,31 +79,21 @@ void solve(int n, int x) {
                     for(int k = 0; k < 2; k++) {
                         for(int l = 0; l < 2; l++) {
                             int b = 0;
-                            for(int z = 1; z <= bit; z++) {
+                            int stop = bit;
+                            if(bit == 0 && (x & 1)) stop = 1;
+                            if(bit == 1 && (x & 1) && (x & 2) == 0) stop = 0;
+                            for(int z = 1; z <= stop; z++) {
                                 b ^= (i >> (z - 1)) & 1;
                                 b ^= (j >> (z - 1)) & 1;
                             }
                             if((x >> bit) & 1) {
-                                b ^= i & 1;
-                                b ^= j & 1;
                                 if(bit == 0) {
-                                    b ^= k == 0 && l == 0;
+                                    b ^= !(k == 1 && l == 1);
                                 } else {
-                                    b ^= k == 1 && l == 1;
+                                    b ^= k == 0 && l == 0;
                                 }
                             } else {
-                                b ^= k & 1;
-                                b ^= l & 1;
-                                // if(bit == 0) {
-                                //     b ^= ()
-                                // }
-                                // if(bit == 0 && ((x >> 1) & 1) == 0) {
-                                //     b ^= (i & 1) == (j & 1);
-                                // } else {
-                                //     // b ^= i & 1;
-                                //     // b ^= j & 1;
-                                //     b ^= k != l;
-                                // }
+                                b ^= k != l;
                             }
                             // cout << "bit : " << bit << " i : " << i << " j : " << j << " k : " << k << " l : " << l << " b : " << b << endl;
                             res[i * 2 + k][j * 2 + l] += b << bit;
@@ -139,7 +108,7 @@ void solve(int n, int x) {
     }
 
     if(ok) {
-        check(n, res, x);
+        // check(n, res, x);
         for(int i = 0; i < n; i++) cout << res[i] << '\n';
     } else {
         cout << "-1\n";
@@ -147,7 +116,7 @@ void solve(int n, int x) {
 
 }
 
-int debug = 1;
+int debug = 0;
 
 signed main() {
     ios_base::sync_with_stdio(false);

@@ -20,7 +20,7 @@ signed main() {
 
     vector<vector<array<int,2>>> cc(n); // {centroid, index of child it is a child of, distance}
     
-    
+        
 
 
     return 0;

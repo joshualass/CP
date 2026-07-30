@@ -139,13 +139,25 @@ signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    int n, k; cin >> n >> k;
+    int n, K; cin >> n >> K;
 
     Z res = 0;
     
     for(int i = 0; i < n * 4; i++) { //i cards have been dealt already
-        for(int j = 1; j <= min(n, n * 4 - i); j++) { //
+        int h = min(i, K);
+        int before = i - h;
+        int after = n * 4 - i;
+        for(int j = 1; j <= min(n, after); j++) { //j undealt cards are of type
+            for(int k = max(0, n - j - i - h); k <= min(h, n - j); k++) { //in the most recent k cards, we observe that k cards of type are dealt
+                Z p_reach = 1;
+                //probability that spades are like this
+                p_reach *= choose(before, n - j - k) * choose(h, k) * choose(after, j) / choose(4 * n, n);
 
+                //all greater
+                {
+                    Z pie = 
+                }
+            }
         }
     }
 
