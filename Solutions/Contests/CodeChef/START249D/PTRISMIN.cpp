@@ -21,7 +21,6 @@ ll calc_area(array<ll,2> a, array<ll,2> b, array<ll,2> c) {
 ll solve_slow(int n, vector<int> a) {
 
     ll res = LLONG_MAX;
-    vector<int> construction;
 
     auto dfs = [&](auto self, vector<int> y) {
         if(sz(y) == n) {
@@ -39,10 +38,7 @@ ll solve_slow(int n, vector<int> a) {
                 // if(lo == 39) {
                 //     cout << "y : " << y << endl;
                 // }
-                if(lo < res || lo == res && count(y.begin(), y.end(), 1) < count(construction.begin(), construction.end(), 1)) {
-                    construction = y;
-                    res = lo;
-                }
+                res = min(res, lo);
             }
             return;
         }
@@ -54,22 +50,16 @@ ll solve_slow(int n, vector<int> a) {
     };
 
     dfs(dfs, {});
-    if(count(construction.begin(), construction.end(), 1) > 1) {
-        cout << n << endl;
-        cout << a << endl;
-        cout << construction << endl;
-        assert(0);
-    }
-    // cout << "construction : " << construction << endl;
+
     return res;
 
 }
 
-ll solve(int n, vector<int> a) {
+void solve() {
     
-    // int n; cin >> n;
-    // vector<int> a(n);
-    // for(int &x : a) cin >> x;
+    int n; cin >> n;
+    vector<int> a(n);
+    for(int &x : a) cin >> x;
     sort(a.begin(), a.end());
     
     ll res = LLONG_MAX;
@@ -122,75 +112,21 @@ ll solve(int n, vector<int> a) {
     }
 
     for(int i = 0; i < n; i++) {
-        for(int j = 1; j <= n; j++) {
-            int s = j - i < j;
-            int t = n - j - (i >= j);
-            if(s == 0 || t == 0) continue;
-            array<int,2> x = {INT_MAX, INT_MIN};
-            array<int,2> y = {a[i], a[i]};
-            array<int,2> z = {INT_MAX, INT_MIN};
-            for(int k = 0; k < n; k++) {
-                if(k != i) {
-                    x[0] = a[k];
-                    break;
-                }
-            }
-        }
+        for()
     }
         
-    // cout << res << '\n';    
+    cout << res << '\n';    
     
-    cout << "res slow : " << solve_slow(n, a) << endl;
-    return res;
+    // cout << "res slow : " << solve_slow(n, a) << endl;
 
 }
-
-const int debug = 1;
 
 signed main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
 
-    if(debug == 0) {
-        int casi; cin >> casi;
-        while(casi-->0) {
-            int n; cin >> n;
-            vector<int> a(n);
-            for(int &x : a) cin >> x;
-            cout << solve(n, a) << '\n';
-        }
-    } else {
-        int n, mx; cin >> n >> mx;
-
-        auto dfs = [&](auto self, vector<int> cur, int nx) -> void {
-            if(sz(cur) == n) {
-                // cout << "cur : " << cur << endl;
-                // int fast = solve(n, cur);
-                int slow = solve_slow(n, cur);
-                // if(slow != fast) {
-                //     cout << "f : " << fast << endl;
-                //     cout << "s : " << slow << endl;
-                //     cout << n << '\n';
-                //     cout << cur << endl;
-                //     assert(0);
-                // }
-                return;
-            }
-            if(nx > mx) return;
-            self(self, cur, nx + 1);
-            cur.push_back(nx++);
-            self(self, cur, nx);
-        };
-
-        dfs(dfs, {}, 1);
-    }
-
+    int casi; cin >> casi;
+    while(casi-->0) solve();
 
     return 0;
 }
-
-/*
-1
-6
-1 3 7 8 9 10 
-*/
