@@ -71,7 +71,7 @@ signed main() {
     Tree<Info> tree(n, Info());
     for(int i = 0; i < n; i++) {
         int x; cin >> x;
-        tree.update(i, Info(x, x, x, x));
+        tree.update(i, Info(max(x, 0), max(x, 0), max(x, 0), x));
     }
 
     for(int i = 0; i < q; i++) {
