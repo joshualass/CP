@@ -5,6 +5,8 @@ using namespace std;
 #define sz(x) (int) (x).size()
 
 const int depth = 18;
+const int debug = 0;
+mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
 
 template <typename T, std::size_t N>
 std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
@@ -107,12 +109,13 @@ struct trie {
     int t = 0, stop, bestbm;
     array<array<int,2>, 2> def = array<array<int,2>, 2>{array<int,2>{-1,-1},array<int,2>{-1,-1}};
     trie(int stop, int bestbm) : stop(stop), bestbm(bestbm) {
-        cout << "create trie" << endl;
+        // cout << "create trie" << endl;
         a.push_back(def);
     }
 
     void insert(int x, int time) {
-        cout << "insert x : " << x << " time : " << time << endl;
+        // cout << "insert x : " << x << " time : " << time << endl;
+        x &= bestbm;
 
         int temp = x;
         x ^= t;
@@ -138,26 +141,30 @@ struct trie {
         }
     }
 
-    int query(int x, int r, ) {
+    int query(int x, int r) {
         // cout << "query x : " << x << " r : " << r << endl;
+        x &= bestbm;
         // cout << "t : " << t << endl;
         x ^= t;
         // cout << "tx : " << x << endl;
 
         int cur = 0, res = 0;
-        for(int i = depth - 1; i >= 0; i--) {
-            
-            int bit = ((x >> i) & 1) ^ 1;
-            // cout << "i : " << i << " bit : " << bit << endl;
-            // cout << "box : " << a[cur] << endl;
-            if(a[cur][bit][0] != -1 && a[cur][bit][1] <= r) {
-                // cout << "hit!" << endl;
-                res += 1 << i;
-                cur = a[cur][bit][0];
+        for(int i = depth - 1; i >= stop; i--) {
+            if((bestbm >> i) & 1) {
+                int bit = ((x >> i) & 1) ^ 1;
+                // cout << "i : " << i << " bit : " << bit << endl;
+                // cout << "box : " << a[cur] << endl;
+                if(a[cur][bit][0] != -1 && a[cur][bit][1] <= r) {
+                    // cout << "hit!" << endl;
+                    res += 1 << i;
+                    cur = a[cur][bit][0];
+                } else {
+                    // cout << "miss" << endl;
+                    assert(a[cur][bit ^ 1][0] != -1);
+                    cur = a[cur][bit ^ 1][0];
+                }
             } else {
-                // cout << "miss" << endl;
-                assert(a[cur][bit ^ 1][0] != -1);
-                cur = a[cur][bit ^ 1][0];
+                cur = a[cur][0][0];
             }
         }
         // cout << "res : " << res << endl;
@@ -165,9 +172,6 @@ struct trie {
     }
 
 };
-
-const int debug = 0;
-mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
 
 void solve() {
     
@@ -202,7 +206,7 @@ void solve() {
     //queries from the left, right, {right, init xor}
 
     auto aq = [&](int l, int r, int x, int left, int mx) -> void {
-        cout << "aq l : " << l << " r : " << r << " x : " << x << " left : " << left << endl;
+        // cout << "aq l : " << l << " r : " << r << " x : " << x << " left : " << left << endl;
         if(left) {
             ql[l].push_back({r, x, mx});
         } else {
@@ -218,7 +222,7 @@ void solve() {
     auto dnc = [&](auto self, int l, int r) -> void {
         if(l > r) return;
         int m = rmq.query(l, r)[1];
-        cout << "dnc l : " << l << " r : " << r << " m : " << m << endl;
+        // cout << "dnc l : " << l << " r : " << r << " m : " << m << endl;
         int left = m - l, right = r - m;
         if(left < right) {
             // cout << "go lefts" << endl;
@@ -260,24 +264,37 @@ void solve() {
     auto work = [&](vector<vector<array<int,3>>> &q) -> void {
         int best = 0;
         for(int bit = depth - 1; bit >= 0; bit--) {
-            trie t;
+            int test = best + (1 << bit);
+            int f = 0;
+            // cout << "bit : " << bit << " test : " << test << endl;
+            trie t(bit, test);
 
             for(int i = n; i >= 0; i--) {
+                // cout << "i : " << i << endl;
                 if(i == n) {
                     t.insert(0, i);
                 } else {
                     t.insert(a[i], i);
                 }
                 for(auto [r, x, mx] : q[i]) {
-    
-                    res = max(res, t.query(x, r) & mx);
+                    // cout << "r : " << r << " x : " << x << " mx : " << mx << endl;
+                    if((t.query(x, r) & mx) == test) {
+                        f = 1;
+                    }
                 }
             }
+            // cout << "f : " << f << endl;
+            if(f) {
+                best += 1 << bit;
+            }
         }
+        res = max(res, best);
     };
 
+    // cout << "start left" << endl;
     work(ql);
     reverse(a.begin(), a.end());
+    // cout << "start right" << endl;
     work(qr);
 
     cout << res << '\n';

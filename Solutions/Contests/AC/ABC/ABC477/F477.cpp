@@ -1,0 +1,115 @@
+#include <bits/stdc++.h>
+typedef long long ll;
+typedef long double ld;
+using namespace std;
+#define sz(x) (int) (x).size()
+
+struct Tree {
+    typedef ll T;
+    static constexpr T base = {};
+    vector<T> v;
+    int n, size;
+    T f(T a, T b) { //change this when doing maximum vs minimum etc.
+        return a + b;
+    }
+    Tree(int n, T def = base) {
+        this->n = n; //max number of elements
+        size = 1;
+        while(size < n) size *= 2;
+        v.assign(size * 2, def);
+    }
+    Tree(vector<T> a) {
+        this->n = sz(a); //max number of elements
+        size = 1;
+        while(size < n) size *= 2;
+        v.resize(size * 2);
+        assert(n == sz(a));
+        for(int i = 0; i < n; i++) {
+            v[i + size] = a[i];
+        }
+        for(int i = size - 1; i >= 1; i--) {
+            v[i] = f(v[i * 2], v[i * 2 + 1]);
+        }
+    }
+    void update(int pos, T val) { //update 0 indexed, assignment
+        assert(pos < n && pos >= 0);
+        int curr = pos + size;
+        v[curr] = val;
+        while(curr != 1) {
+            if(curr & 1) { //handles non-communative operations
+                v[curr / 2] = f(v[curr ^ 1], v[curr]);
+            } else {
+                v[curr / 2] = f(v[curr], v[curr ^ 1]);
+            }
+            curr /= 2;
+        }
+    }
+    T at(int idx) {
+        assert(idx >= 0 && idx < n);
+        return v[idx + size];
+    }
+    T query(int l, int r) {//queries in range [l,r)
+        return _query(1,0,size,l,r);
+    }
+    T _query(int idx, int currl, int currr, int &targetl, int &targetr) {
+        if(currr <= targetl || currl >= targetr) return base;
+        if(currl >= targetl && currr <= targetr) return v[idx];
+        int mid = (currl + currr) / 2;
+        return f(
+            _query(idx * 2, currl, mid, targetl, targetr),
+            _query(idx * 2 + 1, mid, currr, targetl, targetr)
+        );
+    }
+};
+
+signed main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n, m, q; cin >> n >> m >> q;
+    
+    vector<vector<array<int,2>>> events(m + 1);
+    for(int i = 0; i < n; i++) {
+        int l, r; cin >> l >> r;
+        l--;
+        events[l].push_back({i, 0});
+        events[r].push_back({i, 1});
+    }
+
+    vector<ll> res(q);
+    vector<vector<array<int,4>>> qevents(m + 1);
+
+    for(int i = 0; i < q; i++) {
+        int a, b, c, d; cin >> a >> b >> c >> d;
+        a--;
+        c--;
+        qevents[c].push_back({a, b, -1, i});
+        qevents[d].push_back({a, b, 1, i});
+    }
+
+    Tree actives(n), deltas(n);
+
+    for(int i = 0; i <= m; i++) {
+        // cout << "i : " << i << endl;
+        for(auto [l, r, delta, qid] : qevents[i]) {
+            ll contrib = delta * (deltas.query(l, r) + actives.query(l, r) * i);
+            // cout << "l : " << l << " r : " << r << " delta : " << delta << " qid : " << qid << " contrib : " << contrib << endl;
+            // cout << "net delta : " << deltas.query(l, r) << " actives : " << actives.query(l, r) << endl;
+            res[qid] += contrib;
+        }
+        for(auto [row, type] : events[i]) {
+            // cout << "row : " << row << " type : " << type << endl;
+            if(type == 0) {
+                actives.update(row, 1);
+                deltas.update(row, -i);
+            } else {
+                actives.update(row, 0);
+                deltas.update(row, deltas.at(row) + i);
+            }
+        }
+    }
+
+    for(ll x : res) cout << x << '\n';
+
+    return 0;
+}
